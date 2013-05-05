@@ -29,19 +29,23 @@ def index():
 	response = make_response(render_template('index.html'))
 	return response
 
-@app.route('/', methods=['POST', 'GET'])
-def get_sensor_data():
+@app.route('/<cpu_id>', methods=['POST', 'GET'])
+def get_sensor_data(cpu_id):
 	"""
 	Gets data from the JavaScript
 	"""
 	error = None
 	if request.method == 'POST':
 		sensor_data = json.loads(request.form['sensor_data'])
-		parse_sensor_data(sensor_data, 'json_data/sensor_data.json')
+		parse_sensor_data(sensor_data, 'json_data/%s.json' % cpu_id)
 		return render_template('index.html')
 	else:
 		error = 'WHATTT????'
 	return render_template('index.html', error=error)
+
+@app.route('/', methods=['POST', 'GET'])
+def cpu_id_not_specified():
+	return render_template('index.html', error="CPU identifier not specified")
 
 @app.route('/json_data/<data_name>')
 def send_sensor_data(data_name):
