@@ -31,7 +31,91 @@
       </table>
     </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="http://127.0.0.1:5000/static/gather_sensor_data.js"></script>
+    <!--<script src="http://127.0.0.1:5000/static/gather_sensor_data.js"></script>-->
+    <script text="text/javascript">
+
+      getLocation();
+      getSensorData();
+
+      function getSensorData() {
+        if(window.DeviceOrientationEvent) {
+          document.getElementById("doEvent").innerHTML="DeviceOrientation"; 
+          window.addEventListener('deviceorientation', orientationEventHandler, false);
+        } else {
+            document.getElementById("doEvent").innerHTML="Not supported on your device or browser.  Sorry."
+          }
+      }
+
+      function orientationEventHandler(eventData) {
+        var tiltLR=eventData.gamma;
+        var tiltFB=eventData.beta;
+        var dir=eventData.alpha;
+        if (document.getElementById("latPos").innerHTML == "Not supported" ||
+            document.getElementById("latPos").innerHTML == "") {
+          lat = null;
+          lon = null;
+        } else {
+          lat = float(document.getElementById("latPos").innerHTML);
+          lon = float(document.getElementById("longPos").innerHTML);
+        }
+        $.ajax({
+          type: 'POST',
+          url:'/',
+          data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
+            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
+        });
+        deviceOrientationHandler(tiltLR,tiltFB,dir);
+      }
+
+      function deviceOrientationHandler(tiltLR,tiltFB,dir) {
+        document.getElementById("doTiltLR").innerHTML=Math.round(tiltLR);
+        document.getElementById("doTiltFB").innerHTML=Math.round(tiltFB);
+        document.getElementById("doDirection").innerHTML=Math.round(dir);
+      }
+      
+      function getLocation() {
+        if (navigator.geolocation) {
+          var timeoutVal = 6000;
+          var extraGeoParam = {enableHighAccuracy: true, timeout: timeoutVal, maximumAge: 0};
+          navigator.geolocation.watchPosition(devicePositionHandler, positionError, extraGeoParam);
+        } else {
+          alert("Geolocation is not supported by this browser");
+        }
+      }
+
+      function positionError (position) { 
+        document.getElementById("latPos").innerHTML = "Not supported";
+        document.getElementById("longPos").innerHTML = "Not supported";
+        gpsSendAjax(null, null);
+      }
+
+      function devicePositionHandler(position) {
+
+        // changes the numbers on the html page
+        document.getElementById("latPos").innerHTML = position.coords.latitude;
+        document.getElementById("longPos").innerHTML = position.coords.longitude;
+        gpsSendAjax(position.coords.latitude, position.coords.longitude);
+      }
+      function gpsSendAjax(lat, lon) {
+        if (document.getElementById("doTiltLR").innerHTML == "0" ||
+            document.getElementById("latPos").innerHTML == "") {
+          tiltLR = null;
+          tiltFB = null;
+          dir = null;
+        } else {
+          tiltLR = int(document.getElementById("doTiltLR").innerHTML);
+          tiltFB = int(document.getElementById("doTiltFB").innerHTML);
+          dir = int(document.getElementById("doDirection").innerHTML);
+        }
+        $.ajax({
+          type: 'POST',
+          url:'/',
+          data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
+            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat,
+             longitude: lon}})}
+        });
+      }
+    </script>
   </body>
 </head>
 </html>

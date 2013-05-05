@@ -15,11 +15,19 @@ function orientationEventHandler(eventData) {
   var tiltLR=eventData.gamma;
   var tiltFB=eventData.beta;
   var dir=eventData.alpha;
+  if (document.getElementById("latPos").innerHTML == "Not supported" ||
+      document.getElementById("latPos").innerHTML == "") {
+    lat = null;
+    lon = null;
+  } else {
+    lat = float(document.getElementById("latPos").innerHTML);
+    lon = float(document.getElementById("longPos").innerHTML);
+  }
   $.ajax({
     type: 'POST',
     url:'/',
-    data: {sensor_data: JSON.stringify({location: {tilt_horizontal: tiltLR, 
-      tilt_vertical: tiltFB, direction: dir}})}
+    data: {sensor_data: JSON.stringify({tilt: {tilt_horizontal: tiltLR, 
+      tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
   });
   deviceOrientationHandler(tiltLR,tiltFB,dir);
 }
@@ -42,12 +50,6 @@ function getLocation() {
 function positionError (position) { 
   document.getElementById("latPos").innerHTML = "Not supported";
   document.getElementById("longPos").innerHTML = "Not supported";
-  // sends the data to the server
-  $.ajax({
-    type : "POST",
-    url : "/",
-    data: {sensor_data: JSON.stringify({location: null})}
-  });
 }
 
 function devicePositionHandler(position) {
@@ -55,12 +57,4 @@ function devicePositionHandler(position) {
   // changes the numbers on the html page
   document.getElementById("latPos").innerHTML = position.coords.latitude;
   document.getElementById("longPos").innerHTML = position.coords.longitude;
-
-  // sends the data to the server
-  $.ajax({
-    type: 'POST',
-    url:'/',
-    data: {sensor_data: JSON.stringify({location: {latitude: position.coords.latitude, 
-      longitude: position.coords.longitude}})}
-  });
 }

@@ -13,9 +13,9 @@ __author__ = "Alex Wallar <aw204@st-andrews.ac.uk>"
 
 app = Flask(__name__)
 
-assets = Environment(app)
-js_pre = Bundle('gather_sensor_data.js')
-assets.register('js_pre',js_pre)
+#assets = Environment(app)
+#js_pre = Bundle('gather_sensor_data.js')
+#assets.register('js_pre',js_pre)
 
 def _generate_user_id():
     return uuid.uuid4()
@@ -50,17 +50,8 @@ def send_sensor_data(data_name):
 def parse_sensor_data(sensor_data, file_path):
 	if not path.isfile(file_path):
 		open(file_path, 'a').close()
-	with open(file_path, 'w+b') as sensor_file:
-		prev_readings_str = sensor_file.readline()
-		if prev_readings_str != '':
-			prev_readings = json.loads(prev_readings)
-		else:
-			prev_readings = dict()
-
-		for key in sensor_data.keys():
-			prev_readings[key] = sensor_data[key]
-
-		sensor_file.write(json.dumps(prev_readings))
+	with open(file_path, 'w') as sensor_file:
+		sensor_file.write(json.dumps(sensor_data))
 
 if __name__ == '__main__':
 	app.run(debug=True)

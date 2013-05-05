@@ -29,7 +29,10 @@ class SensorDataGetter:
 		ser = urllib2.urlopen(self.get_data_url())
 		s_data = ser.read()
 		ser.close()
-		return json.loads(s_data)
+		try:
+			return json.loads(s_data)
+		except ValueError:
+			return dict()
 
 if __name__ == '__main__':
 	gsd = SensorDataGetter('http://127.0.0.1', 5000, 'sensor_data')
