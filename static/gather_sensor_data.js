@@ -52,7 +52,7 @@ function positionError (position) {
   $.ajax({
     type : "POST",
     url : "/",
-    data: {sensor_data: JSON.stringify({location: "None"})}
+    data: {sensor_data: JSON.stringify({location: null})}
   });
 }
 
