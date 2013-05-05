@@ -23,11 +23,17 @@ def _generate_user_id():
 #application index
 @app.route('/')
 def index():
+	"""
+	First page
+	"""
 	response = make_response(render_template('index.html'))
 	return response
 
 @app.route('/', methods=['POST', 'GET'])
 def get_sensor_data():
+	"""
+	Gets data from the JavaScript
+	"""
 	error = None
 	if request.method == 'POST':
 		sensor_data = json.loads(request.form['sensor_data'])
@@ -39,6 +45,9 @@ def get_sensor_data():
 
 @app.route('/json_data/<data_name>')
 def send_sensor_data(data_name):
+	"""
+	Sends data to a CPU client
+	"""
 	file_path = 'json_data/' + data_name
 	print file_path
 	if not path.isfile(file_path):
@@ -48,6 +57,9 @@ def send_sensor_data(data_name):
 	return Response(requested_data, mimetype='application/json')
 
 def parse_sensor_data(sensor_data, file_path):
+	"""
+	Parses and saves the sensor data
+	"""
 	if not path.isfile(file_path):
 		open(file_path, 'a').close()
 	with open(file_path, 'w') as sensor_file:
