@@ -1,0 +1,37 @@
+<html>
+<head>
+  <body style="background-color:#CCFFFF;">
+    <div align="center" class="main">
+      <h2>Device Orientation</h2>
+      <table>
+        <tr>
+          <td>Event Supported</td>
+          <td id="doEvent"></td>
+        </tr>
+        <tr>
+          <td>Tilt Left/Right</td>
+          <td id="doTiltLR"></td>
+        </tr>
+        <tr>
+          <td>Tilt Front/Back</td>
+          <td id="doTiltFB"></td>
+        </tr>
+        <tr>
+          <td>Direction</td>
+          <td id="doDirection"></td>
+        </tr>
+        <tr>
+          <td>Latitude</td>
+          <td id="latPos"></td>
+        </tr>
+        <tr>
+          <td>Longitude</td>
+          <td id="longPos"></td>
+        </tr>
+      </table>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://127.0.0.1:5000/static/gather_sensor_data.js"></script>
+  </body>
+</head>
+</html>
