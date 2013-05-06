@@ -37,8 +37,10 @@ class SensorDataGetter:
 			s_data = ser.read()
 			ser.close()
 			return json.loads(s_data)
-		except (ValueError, urllib2.URLError):
+		except urllib2.URLError:
 			return {"error": "No connection to host"}
+		except ValueError:
+			return {"error": "JSON data could not be parsed"}
 
 if __name__ == '__main__':
 	gsd = SensorDataGetter('http://127.0.0.1', 5000, 1234)
