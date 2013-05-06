@@ -45,7 +45,7 @@ def cpu_id_unchecked(cpu_id):
 	try:
 		os.remove('json_data/' + cpu_id + '.json')
 	except IOError:
-		pass
+		print 'testicles'
 	return render_template('index.html')
 
 @app.route('/json_data/<data_name>', methods=['GET'])

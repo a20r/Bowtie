@@ -160,12 +160,14 @@
         dir = getIfValid("doDirection");
         lat = getIfValid("latPos");
         lon = getIfValid("longPos");
-        $.ajax({
-          type: 'POST',
-          url:'/' + document.getElementById("cpu_id").value,
-          data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
-        });
+        if (document.getElementById("cpu_idCheckbox").checked == true) {
+          $.ajax({
+            type: 'POST',
+            url:'/' + document.getElementById("cpu_id").value,
+            data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
+              tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
+          });
+        }
       }
 
       function getIfValid(element_id) {
