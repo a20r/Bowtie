@@ -17,12 +17,14 @@ PyBowtie
 	* pip install flask
 
 ##Improvements Needed
+#Phone Identifiers
 * Need to have a way to distinguish phone nodes for different robots
 	* Setup a folder for each CPU identifier
 	* Have a text field to enter the phone id
 	* Once the CPU checkbox is unclicked, delete the JSON in the CPU id folder for the respective phone id
 	* Nothing should be sending until both the phone id and the CPU id have been entered
 
+#Launching on a server
 * Need to put the server onto an actual server for testing
 	* Google app engine?
 	* School server using a virtual env?
