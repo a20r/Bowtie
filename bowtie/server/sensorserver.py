@@ -31,6 +31,9 @@ def index():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/js/<js_file>.js')
+def get_js(js_file):
+	return send_from_directory(os.path.join(app.root_path, 'js'), js_file + '.js', mimetype='text/javascript')
 
 @app.route('/<cpu_id>', methods=['POST'])
 def get_sensor_data(cpu_id):
