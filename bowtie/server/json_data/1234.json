@@ -1,1 +1,1 @@
-{"error": {"0": "No Error"}, "orientation": {"direction": 0, "tilt_vertical": -2, "tilt_horizontal": -3}, "location": {"latitude": 56.3400417, "longitude": -2.8085666}}
+{"error": {"1": "Position Error"}, "orientation": {"direction": 0, "tilt_vertical": 0, "tilt_horizontal": 0}, "location": {"latitude": null, "longitude": null}}
