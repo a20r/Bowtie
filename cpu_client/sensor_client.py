@@ -10,7 +10,7 @@ Module will be used on the CPU side to get the
 data from the website
 """
 
-__author__ = "Alex Wallar <aw204@st-andrews.ac.uk>"
+__author__ = "Santa>"
 
 class Bowtie:
 
@@ -46,4 +46,4 @@ if __name__ == '__main__':
 	gsd = Bowtie('http://127.0.0.1', 5000, 1234)
 	while True:
 		print gsd.get_data()
-		time.sleep(0.5)
+		time.sleep(0.1)
