@@ -17,9 +17,6 @@ app = Flask(__name__)
 #js_pre = Bundle('gather_sensor_data.js')
 #assets.register('js_pre',js_pre)
 
-def _generate_user_id():
-    return uuid.uuid4()
-
 #application index
 @app.route('/')
 def index():
@@ -29,25 +26,22 @@ def index():
 	response = make_response(render_template('index.html'))
 	return response
 
-@app.route('/<cpu_id>', methods=['POST', 'GET'])
+@app.route('/<cpu_id>', methods=['POST'])
 def get_sensor_data(cpu_id):
 	"""
 	Gets data from the JavaScript
 	"""
-	error = None
 	if request.method == 'POST':
 		sensor_data = json.loads(request.form['sensor_data'])
 		parse_sensor_data(sensor_data, 'json_data/%s.json' % cpu_id)
 		return render_template('index.html')
-	else:
-		error = 'WHATTT????'
-	return render_template('index.html', error=error)
+	return render_template('index.html')
 
 @app.route('/', methods=['POST', 'GET'])
 def cpu_id_not_specified():
 	return render_template('index.html', error="CPU identifier not specified")
 
-@app.route('/json_data/<data_name>')
+@app.route('/json_data/<data_name>', methods=['GET'])
 def send_sensor_data(data_name):
 	"""
 	Sends data to a CPU client

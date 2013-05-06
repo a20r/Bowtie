@@ -32,7 +32,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="brand" href="#">Bowtie</a>
+        <a class="brand" href="https://github.com/Alehins/PyBowtie">Bowtie</a>
         <div class="nav-collapse collapse">
           <ul class="nav">
           </ul>
@@ -49,44 +49,34 @@
 
       <table class="table table-hover">
         <tr>
-          <form>
-            Identifier: <input type="text" name="identifier">  
-            <button type="button" onClick="setup_id(this.form)">Enter</button>
-          </form>
-        </tr>
-        <tr>
           <td><b>CPU Id<b></td>
-          <td id="cpu_id"></td>
-        </tr>
-        <tr>
-          <td><b>Event Supported</b></td>
-          <td><input type="checkbox" id="doEventCheckbox" checked="yes"></td>
-          <td id="doEvent"></td>
+          <td><input type="text" name="identifier" id="cpu_id"></td>
+          <td><input type="checkbox" id="cpu_idCheckbox" onchange="toggle_readonly()"></td>
         </tr>
         <tr>
           <td><b>Tilt Left/Right</b></td>
-          <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
           <td id="doTiltLR"></td>
+          <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
         </tr>
         <tr>
           <td><b>Tilt Front/Back</b></td>
-          <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
           <td id="doTiltFB"></td>
+          <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
         </tr>
         <tr>
           <td><b>Direction</b></td>
-          <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
           <td id="doDirection"></td>
+          <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
         </tr>
         <tr>
           <td><b>Latitude</b></td>
+           <td id="latPos"></td>
           <td><input type="checkbox" id="latPosCheckbox" checked="yes"></td>
-          <td id="latPos"></td>
         </tr>
         <tr>
           <td><b>Longitude</b></td>
-          <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
           <td id="longPos"></td>
+          <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
       </table>
     </div>
@@ -96,6 +86,15 @@
       getLocation();
       getSensorData();
 
+      function toggle_readonly() {
+       var text_box = document.getElementById('cpu_id');
+        if(text_box.hasAttribute('readonly')){   
+            text_box.removeAttribute('readonly');
+        }else{       
+            text_box.setAttribute('readonly', 'readonly');   
+        }
+      }
+
       function setup_id(id_form) {
         document.getElementById("cpu_id").innerHTML = id_form.identifier.value;
         id_form.identifier.value = "";
@@ -103,10 +102,11 @@
 
       function getSensorData() {
         if(window.DeviceOrientationEvent) {
-          document.getElementById("doEvent").innerHTML="DeviceOrientation"; 
           window.addEventListener('deviceorientation', orientationEventHandler, false);
         } else {
-            document.getElementById("doEvent").innerHTML="Not supported on your device or browser. Sorry."
+            document.getElementById("doTiltLR").innerHTML = "Not supported";
+            document.getElementById("doTiltFB").innerHTML = "Not supported";
+            document.getElementById("doDirection").innerHTML = "Not supported";
           }
       }
 
@@ -152,7 +152,7 @@
         lon = getIfValid("longPos");
         $.ajax({
           type: 'POST',
-          url:'/' + document.getElementById("cpu_id").innerHTML,
+          url:'/' + document.getElementById("cpu_id").value,
           data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
             tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
         });
