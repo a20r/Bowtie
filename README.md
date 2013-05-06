@@ -15,3 +15,6 @@ PyBowtie
 	* easy_install pip
 * Flask:
 	* pip install flask
+
+##Improvements Needed
+* Delete the JSON file once the cpu_id is defined

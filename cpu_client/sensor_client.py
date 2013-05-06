@@ -22,7 +22,7 @@ class SensorDataGetter:
 		if droid_id == None:
 			self.droid_id = str(uuid.getnode())
 		else:
-			self.droid_id = droid_id
+			self.droid_id = str(droid_id)
 		self.http_ser = http_ser
 		self.port = port
 
@@ -38,10 +38,10 @@ class SensorDataGetter:
 			ser.close()
 			return json.loads(s_data)
 		except (ValueError, urllib2.URLError):
-			return dict()
+			return {"error": "No connection to host"}
 
 if __name__ == '__main__':
-	gsd = SensorDataGetter('http://127.0.0.1', 5000)
+	gsd = SensorDataGetter('http://127.0.0.1', 5000, 1234)
 	while True:
 		print gsd.get_data()
 		time.sleep(0.5)

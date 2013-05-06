@@ -49,7 +49,8 @@ def send_sensor_data(data_name):
 	file_path = 'json_data/' + data_name
 	print file_path
 	if not path.isfile(file_path):
-		return render_template('index.html', error='Requested JSON data does not exist')
+		requested_data = {"error": "No data for " + data_name.split('.')[0]}
+		return Response(json.dumps(requested_data), mimetype = 'application/json')
 	with open(file_path, 'r+') as sensor_file:
 		requested_data = sensor_file.readline()
 	return Response(requested_data, mimetype='application/json')
