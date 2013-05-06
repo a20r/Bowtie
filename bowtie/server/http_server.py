@@ -52,7 +52,7 @@ def cpu_id_not_specified():
 def cpu_id_unchecked(cpu_id):
 	try:
 		os.remove('json_data/' + cpu_id + '.json')
-	except IOError:
+	except OSError:
 		print 'testicles'
 	return render_template('index.html')
 

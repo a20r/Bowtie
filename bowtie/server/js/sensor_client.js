@@ -1,14 +1,14 @@
 getLocation();
 getSensorData();
 
-function toggle_readonly() {
- var text_box = document.getElementById('cpu_id');
+function toggle_readonly(element_id) {
+ var text_box = document.getElementById(element_id);
   if(text_box.hasAttribute('readonly')){   
       text_box.removeAttribute('readonly');
-      if (document.getElementById("cpu_id").value != "") {
+      if (document.getElementById(element_id).value != "") {
         $.ajax({
           type: 'POST',
-          url:'/unchecked_' + document.getElementById("cpu_id").value
+          url:'/unchecked_' + document.getElementById(element_id).value
         });
       }
   }else{       

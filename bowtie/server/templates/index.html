@@ -24,7 +24,7 @@
   <style type="text/css"></style>
 </head>
 
-<body>
+<body style="background-color:lightgrey;">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -51,37 +51,47 @@
 
       <table class="table table-hover">
         <tr>
-          <td><b>CPU Id<b></td>
+          <td><b>CPU Id:</b></td>
           <td><input type="text" name="identifier" id="cpu_id"></td>
-          <td><input type="checkbox" id="cpu_idCheckbox" onchange="toggle_readonly()"></td>
+          <td><input type="checkbox" id="cpu_idCheckbox" onchange="toggle_readonly('cpu_id')"></td>
         </tr>
         <tr>
-          <td><b>Tilt Left/Right</b></td>
+          <td><b>Phone Id:</b></td>
+          <td><input type="text" name="identifier" id="phone_id"></td>
+          <td><input type="checkbox" id="phone_idCheckbox" onchange=""></td>
+        </tr>
+        <tr>
+          <td><b>Tilt Left/Right:</b></td>
           <td id="doTiltLR"></td>
           <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <td><b>Tilt Front/Back</b></td>
+          <td><b>Tilt Front/Back:</b></td>
           <td id="doTiltFB"></td>
           <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <td><b>Direction</b></td>
+          <td><b>Direction:</b></td>
           <td id="doDirection"></td>
           <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <td><b>Latitude</b></td>
+          <td><b>Latitude:</b></td>
            <td id="latPos"></td>
           <td><input type="checkbox" id="latPosCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <td><b>Longitude</b></td>
+          <td><b>Longitude:</b></td>
           <td id="longPos"></td>
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
       </table>
+      <div class="footer">
+        <p>
+          Creators: <a href="http://www.linkedin.com/pub/alexander-wallar/68/985/b87">Alex Wallar</a> and 
+          <a href="http://www.linkedin.com/pub/aleksejs-sazonovs/23/bab/a56">Aleksejs Sazonovs</a>
+        </p>
+      </div>
     </div>
-    <!--<script src="http://127.0.0.1:5000/static/gather_sensor_data.js"></script>-->
 </body>
 </html>
