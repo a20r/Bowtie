@@ -106,7 +106,7 @@
           document.getElementById("doEvent").innerHTML="DeviceOrientation"; 
           window.addEventListener('deviceorientation', orientationEventHandler, false);
         } else {
-            document.getElementById("doEvent").innerHTML="Not supported on your device or browser.  Sorry."
+            document.getElementById("doEvent").innerHTML="Not supported on your device or browser. Sorry."
           }
       }
 
@@ -114,22 +114,10 @@
         var tiltLR=eventData.gamma;
         var tiltFB=eventData.beta;
         var dir=eventData.alpha;
-        if (document.getElementById("latPos").innerHTML == "Not supported" ||
-            document.getElementById("latPos").innerHTML == "") {
-          lat = null;
-          lon = null;
-        } else {
-          lat = float(document.getElementById("latPos").innerHTML);
-          lon = float(document.getElementById("longPos").innerHTML);
-        }
-        $.ajax({
-          type: 'POST',
-          url:'/' + document.getElementById("cpu_id").innerHTML,
-          data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
-        });
         deviceOrientationHandler(tiltLR,tiltFB,dir);
+        sendAjax()
       }
+
       function deviceOrientationHandler(tiltLR,tiltFB,dir) {
         document.getElementById("doTiltLR").innerHTML=Math.round(tiltLR);
         document.getElementById("doTiltFB").innerHTML=Math.round(tiltFB);
@@ -149,31 +137,35 @@
       function positionError (position) { 
         document.getElementById("latPos").innerHTML = "Not supported";
         document.getElementById("longPos").innerHTML = "Not supported";
-        gpsSendAjax(null, null);
+        sendAjax();
       }
       function devicePositionHandler(position) {
-          document.getElementById("latPos").innerHTML = position.coords.latitude;
-          document.getElementById("longPos").innerHTML = position.coords.longitude;
-          gpsSendAjax(position.coords.latitude, position.coords.longitude);
+        document.getElementById("latPos").innerHTML = position.coords.latitude;
+        document.getElementById("longPos").innerHTML = position.coords.longitude;
+        sendAjax();
       }
-      function gpsSendAjax(lat, lon) {
-        if (document.getElementById("doTiltLR").innerHTML == "0" ||
-            document.getElementById("latPos").innerHTML == "") {
-          tiltLR = null;
-          tiltFB = null;
-          dir = null;
-        } else {
-          tiltLR = int(document.getElementById("doTiltLR").innerHTML);
-          tiltFB = int(document.getElementById("doTiltFB").innerHTML);
-          dir = int(document.getElementById("doDirection").innerHTML);
-        }
+      function sendAjax() {
+        tiltLR = getIfValid("doTiltLR");
+        tiltFB = getIfValid("doTiltFB");
+        dir = getIfValid("doDirection");
+        lat = getIfValid("latPos");
+        lon = getIfValid("longPos");
         $.ajax({
           type: 'POST',
           url:'/' + document.getElementById("cpu_id").innerHTML,
           data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat,
-             longitude: lon}})}
+            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
         });
+      }
+
+      function getIfValid(element_id) {
+        if (document.getElementById(element_id).innerHTML == "Not supported" ||
+            document.getElementById(element_id).innerHTML == "" || 
+            !document.getElementById(element_id + "Checkbox").checked) {
+          return null;
+        } else {
+          return parseFloat(document.getElementById(element_id).innerHTML);
+        }
       }
   </script>
 </body>
