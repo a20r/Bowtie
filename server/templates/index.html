@@ -89,10 +89,12 @@
        var text_box = document.getElementById('cpu_id');
         if(text_box.hasAttribute('readonly')){   
             text_box.removeAttribute('readonly');
-            $.ajax({
-              type: 'POST',
-              url:'/unchecked_' + document.getElementById("cpu_id").value
-            });
+            if (document.getElementById("cpu_id").value != "") {
+              $.ajax({
+                type: 'POST',
+                url:'/unchecked_' + document.getElementById("cpu_id").value
+              });
+            }
         }else{       
             text_box.setAttribute('readonly', 'readonly');   
         }
