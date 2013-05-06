@@ -27,6 +27,11 @@ def index():
 	response = make_response(render_template('index.html'))
 	return response
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 @app.route('/<cpu_id>', methods=['POST'])
 def get_sensor_data(cpu_id):
 	"""
