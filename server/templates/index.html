@@ -103,8 +103,14 @@
           window.addEventListener('deviceorientation', orientationEventHandler, false);
         } else {
             document.getElementById("doTiltLR").innerHTML = "Not supported";
+            document.getElementById("doTiltLRCheckbox").checked = false;
+            document.getElementById("doTiltLRCheckbox").disabled = true;
             document.getElementById("doTiltFB").innerHTML = "Not supported";
+            document.getElementById("doTiltFBCheckbox").checked = false;
+            document.getElementById("doTiltFBCheckbox").disabled = true;
             document.getElementById("doDirection").innerHTML = "Not supported";
+            document.getElementById("doDirectionCheckbox").checked = false;
+            document.getElementById("doDirectionCheckbox").disabled = true;
           }
       }
 
@@ -134,7 +140,11 @@
 
       function positionError (position) { 
         document.getElementById("latPos").innerHTML = "Not supported";
+        document.getElementById("latPosCheckbox").checked = false;
+        document.getElementById("latPosCheckbox").disabled = true;
         document.getElementById("longPos").innerHTML = "Not supported";
+        document.getElementById("longPosCheckbox").checked = false;
+        document.getElementById("longPosCheckbox").disabled = true;
         sendAjax({1: "Position Error"});
       }
       function devicePositionHandler(position) {
