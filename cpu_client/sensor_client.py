@@ -12,7 +12,7 @@ data from the website
 
 __author__ = "Alex Wallar <aw204@st-andrews.ac.uk>"
 
-class SensorDataGetter:
+class Bowtie:
 
 	def __init__(self, http_ser, port, droid_id = None):
 		"""
@@ -38,12 +38,12 @@ class SensorDataGetter:
 			ser.close()
 			return json.loads(s_data)
 		except urllib2.URLError:
-			return {"error": "No connection to host"}
+			return {"error": {3: "No connection to host"}}
 		except ValueError:
-			return {"error": "JSON data could not be parsed"}
+			return {"error": {4: "JSON data could not be parsed"}}
 
 if __name__ == '__main__':
-	gsd = SensorDataGetter('http://127.0.0.1', 5000, 1234)
+	gsd = Bowtie('http://127.0.0.1', 5000, 1234)
 	while True:
 		print gsd.get_data()
 		time.sleep(0.5)

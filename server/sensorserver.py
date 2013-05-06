@@ -1,9 +1,10 @@
 
 from flask import Flask, render_template, jsonify, Response, make_response, session, request, redirect, url_for, send_from_directory
-from flask.ext.assets import Environment, Bundle
+#from flask.ext.assets import Environment, Bundle
 import uuid
 import json
 import os.path as path
+import os
 
 """
 Main server module
@@ -31,15 +32,21 @@ def get_sensor_data(cpu_id):
 	"""
 	Gets data from the JavaScript
 	"""
-	if request.method == 'POST':
-		sensor_data = json.loads(request.form['sensor_data'])
-		parse_sensor_data(sensor_data, 'json_data/%s.json' % cpu_id)
-		return render_template('index.html')
+	sensor_data = json.loads(request.form['sensor_data'])
+	parse_sensor_data(sensor_data, 'json_data/%s.json' % cpu_id)
 	return render_template('index.html')
 
 @app.route('/', methods=['POST', 'GET'])
 def cpu_id_not_specified():
 	return render_template('index.html', error="CPU identifier not specified")
+
+@app.route('/unchecked_<cpu_id>', methods=['POST'])
+def cpu_id_unchecked(cpu_id):
+	try:
+		os.remove('json_data/' + cpu_id + '.json')
+	except IOError:
+		pass
+	return render_template('index.html')
 
 @app.route('/json_data/<data_name>', methods=['GET'])
 def send_sensor_data(data_name):
@@ -49,7 +56,7 @@ def send_sensor_data(data_name):
 	file_path = 'json_data/' + data_name
 	print file_path
 	if not path.isfile(file_path):
-		requested_data = {"error": "No data for " + data_name.split('.')[0]}
+		requested_data = {"error": {2: "No data for " + data_name.split('.')[0]}}
 		return Response(json.dumps(requested_data), mimetype = 'application/json')
 	with open(file_path, 'r+') as sensor_file:
 		requested_data = sensor_file.readline()

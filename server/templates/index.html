@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <!-- Le styles -->
     <style>
       body {
@@ -80,7 +80,6 @@
         </tr>
       </table>
     </div>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <!--<script src="http://127.0.0.1:5000/static/gather_sensor_data.js"></script>-->
     <script text="text/javascript">
       getLocation();
@@ -90,14 +89,13 @@
        var text_box = document.getElementById('cpu_id');
         if(text_box.hasAttribute('readonly')){   
             text_box.removeAttribute('readonly');
+            $.ajax({
+              type: 'POST',
+              url:'/unchecked_' + document.getElementById("cpu_id").value
+            });
         }else{       
             text_box.setAttribute('readonly', 'readonly');   
         }
-      }
-
-      function setup_id(id_form) {
-        document.getElementById("cpu_id").innerHTML = id_form.identifier.value;
-        id_form.identifier.value = "";
       }
 
       function getSensorData() {
@@ -115,7 +113,7 @@
         var tiltFB=eventData.beta;
         var dir=eventData.alpha;
         deviceOrientationHandler(tiltLR,tiltFB,dir);
-        sendAjax()
+        sendAjax({0: "No Error"})
       }
 
       function deviceOrientationHandler(tiltLR,tiltFB,dir) {
@@ -137,14 +135,14 @@
       function positionError (position) { 
         document.getElementById("latPos").innerHTML = "Not supported";
         document.getElementById("longPos").innerHTML = "Not supported";
-        sendAjax();
+        sendAjax({1: "Position Error"});
       }
       function devicePositionHandler(position) {
         document.getElementById("latPos").innerHTML = position.coords.latitude;
         document.getElementById("longPos").innerHTML = position.coords.longitude;
-        sendAjax();
+        sendAjax({0: "No Error"});
       }
-      function sendAjax() {
+      function sendAjax(error_data) {
         tiltLR = getIfValid("doTiltLR");
         tiltFB = getIfValid("doTiltFB");
         dir = getIfValid("doDirection");
@@ -154,7 +152,7 @@
           type: 'POST',
           url:'/' + document.getElementById("cpu_id").value,
           data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}})}
+            tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
         });
       }
 
