@@ -1,6 +1,8 @@
 getLocation();
 getSensorData();
 
+window.onbeforeunload = on_exit;
+
 function warning_closed() {
   document.getElementById("alert_msg").style.display = "none";
 }

@@ -65,7 +65,7 @@ def cpu_id_unchecked(cpu_id, phone_id):
 	try:
 		os.remove('json_data/%s/%s.json' % (cpu_id, phone_id))
 	except OSError:
-		print 'testicles'
+		pass
 	return render_template('index.html')
 
 @app.route('/<cpu_id>/<data_name>', methods=['GET'])
