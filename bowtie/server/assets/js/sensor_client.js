@@ -1,10 +1,6 @@
 getLocation();
 getSensorData();
 
-function row_clicked(element_id) {
-  getElementById(element_id + "Checkbox").checked = false;
-}
-
 function toggle_readonly() {
  var phone_id_box = document.getElementById("phone_id");
  var cpu_id_box = document.getElementById("cpu_id");
