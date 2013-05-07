@@ -1,6 +1,10 @@
 getLocation();
 getSensorData();
 
+function row_clicked(element_id) {
+  getElementById(element_id + "Checkbox").checked = false;
+}
+
 function toggle_readonly() {
  var phone_id_box = document.getElementById("phone_id");
  var cpu_id_box = document.getElementById("cpu_id");
@@ -8,7 +12,9 @@ function toggle_readonly() {
 
       phone_id_box.removeAttribute('readonly');
       cpu_id_box.removeAttribute('readonly');
-      document.getElementById("sub_button").innerHTML = "<b>Start Sending Data</b>";
+      document.getElementById("sub_button").innerHTML = "Start sensing";
+      document.getElementById("sub_button").className = "btn btn-large btn-success"
+
       document.getElementById("sensor_table").style.visibility = "hidden";
 
       if (phone_id_box.value != "" && cpu_id_box.value != "") {
@@ -20,7 +26,8 @@ function toggle_readonly() {
   }else{
       cpu_id_box.setAttribute('readonly', 'readonly');
       phone_id_box.setAttribute('readonly', 'readonly');
-      document.getElementById("sub_button").innerHTML = "<b>Stop Sending Data</b>";
+      document.getElementById("sub_button").innerHTML = "Stop sensing";
+      document.getElementById("sub_button").className = "btn btn-large btn-primary btn-danger";
       document.getElementById("sensor_table").style.visibility = "visible";
   }
 }
