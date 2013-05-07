@@ -48,7 +48,6 @@
     <div class="span5 offset3">
       <h1>Bowtie: Sensor Data Gathering</h1>
       <br>
-
       <table class="table table-hover">
         <tr>
           <td><b>CPU Id:</b></td>
@@ -60,6 +59,7 @@
           <td><input type="text" name="identifier" id="phone_id"></td>
           <td><input type="checkbox" id="phone_idCheckbox" onchange=""></td>
         </tr>
+        <div style="visibility:'hidden';">
         <tr>
           <td><b>Tilt Left/Right:</b></td>
           <td id="doTiltLR"></td>
@@ -85,6 +85,7 @@
           <td id="longPos"></td>
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
+        </div>
       </table>
       <div class="footer">
         <p>
@@ -93,5 +94,6 @@
         </p>
       </div>
     </div>
+  </div>
 </body>
 </html>
