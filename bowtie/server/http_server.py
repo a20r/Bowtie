@@ -47,7 +47,7 @@ def get_js(js_file):
 def get_css(css_file):
 	return send_from_directory(os.path.join(app.root_path, 'assets/css'), css_file + '.css', mimetype='text/css')
 
-@app.route('/<cpu_id>_<phone_id>', methods=['POST'])
+@app.route('/checked/<cpu_id>/<phone_id>', methods=['POST'])
 def get_sensor_data(cpu_id, phone_id):
 	"""
 	Gets data from the JavaScript
@@ -60,7 +60,7 @@ def get_sensor_data(cpu_id, phone_id):
 def cpu_id_not_specified():
 	return render_template('index.html', error="CPU identifier not specified")
 
-@app.route('/unchecked_<cpu_id>_<phone_id>', methods=['POST'])
+@app.route('/unchecked/<cpu_id>/<phone_id>', methods=['POST'])
 def cpu_id_unchecked(cpu_id, phone_id):
 	try:
 		os.remove('json_data/%s/%s.json' % (cpu_id, phone_id))
@@ -68,7 +68,7 @@ def cpu_id_unchecked(cpu_id, phone_id):
 		print 'testicles'
 	return render_template('index.html')
 
-@app.route('/json_data/<cpu_id>/<data_name>', methods=['GET'])
+@app.route('/<cpu_id>/<data_name>', methods=['GET'])
 def send_single_sensor_data(cpu_id, data_name):
 	"""
 	Sends data to a CPU client
@@ -81,7 +81,7 @@ def send_single_sensor_data(cpu_id, data_name):
 		requested_data = sensor_file.readline()
 	return Response(requested_data, mimetype='application/json')
 
-@app.route('/json_data/<cpu_id>/', methods=['GET'])
+@app.route('/<cpu_id>/', methods=['GET'])
 def send_sensor_data(cpu_id):
 	"""
 	Sends data to a CPU client

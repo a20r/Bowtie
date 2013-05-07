@@ -25,7 +25,7 @@
   <style type="text/css"></style>
 </head>
 
-<body onunload="on_exit()">
+<body onunload="on_exit()" style="background:lightgrey">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -57,7 +57,29 @@
         This means sensor data can be collected from most devices and pushed to a server. The sensor 
         data is stored in a unique folder defined by the <strong>CPU Id</strong> and inside the folder 
         are JSON files that are defined by the <strong>Node Id</strong>. This makes it easy in any 
-        programming language on almost any operating system to gather the sensor data.
+        programming language on almost any operating system to gather the sensor data. This means
+        that sensor data can be gathered without any native program running.
+      </p>
+      <h4>Inspiration</h4>
+      <p>
+        Many small scale robotics projects suffer due to of a lack of sensors or the difficulty to
+        integrate sensors in the project. Many sensors come with limited documentation and require different
+        port specifications, different voltages, some need a pulse to be sent to them before data can 
+        be read, and so on. By using devices that support an internet connection and HTML5 (i.e. a 
+        smart phone) as sensor nodes, a layer of abstraction is removed, which leads to better overall
+        integration. A sample case is a small mobile robot that needs an orientation and GPS sensor.
+        By using <strong>Bowtie</strong>, any Android phone can be used for these sensors. The phone 
+        would just need to load <strong>Bowtie's</strong> specified website in the browser to gather 
+        the data. To integrate the data, the robot's processing unit would need to use <strong>Bowtie's</strong>
+        client side Python module, which would extract the sensor data. 
+      </p>
+      <h4>But why get the data through a server?</h4>
+      <p>
+        Using a main server allows for data to be easily integrated for swarm robotics. Imagine a swarm 
+        of robots that are dispatched from one main robot, each with their own sensor node. All of the
+        data could be gathered by a central processing unit on a main robot to make conclusions about the
+        environment. Also passing the data through a server allows for a more robust, less limited system
+        to grow.
       </p>
       <div class="footer">
         <p>

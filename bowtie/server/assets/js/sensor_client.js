@@ -11,7 +11,7 @@ function on_exit() {
   if (phone_id_box.value != "" && cpu_id_box.value != "") {
     $.ajax({
       type: 'POST',
-      url:'/unchecked_' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value
+      url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
     });
   }
 }
@@ -30,7 +30,7 @@ function toggle_readonly() {
       if (phone_id_box.value != "" && cpu_id_box.value != "") {
         $.ajax({
           type: 'POST',
-          url:'/unchecked_' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value
+          url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
         });
       }
   } else {
@@ -110,7 +110,7 @@ function sendAjax(error_data) {
   if (document.getElementById("cpu_id").hasAttribute('readonly')) {
     $.ajax({
       type: 'POST',
-      url:'/' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value,
+      url:'/checked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value,
       data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
         tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
     });

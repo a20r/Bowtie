@@ -34,7 +34,7 @@ class Bowtie:
 		print 'Using identifier:', self.cpu_id
 
 	def get_data_url(self):
-		return self.http_ser + ':' + str(self.port) + '/json_data/' + self.cpu_id + '/'
+		return self.http_ser + ':' + str(self.port) + '/' + self.cpu_id + '/'
 
 	def get_data(self, phone_id = ""):
 		if phone_id != "":
