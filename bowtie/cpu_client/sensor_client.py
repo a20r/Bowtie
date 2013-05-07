@@ -10,37 +10,39 @@ Module will be used on the CPU side to get the
 data from the website
 """
 
-__author__ = "Santa>"
+__author__ = "Alexander Wallar <aw204@st-andrews.ac.uk>"
 
 class Bowtie:
 
-	def __init__(self, http_ser, port, droid_id = None):
+	def __init__(self, http_ser, port, cpu_id = None):
 		"""
-		For the droid_id I would like to use the MAC address of the 
+		For the cpu_id I would like to use the MAC address of the 
 		CPU client.
 		"""
-		if droid_id == None:
-			self.droid_id = str(uuid.getnode())
+		if cpu_id == None:
+			self.cpu_id = str(uuid.getnode())
 		else:
-			self.droid_id = str(droid_id)
+			self.cpu_id = str(cpu_id)
 		self.http_ser = http_ser
 		self.port = port
 
-		print 'Using identifier:', self.droid_id
+		print 'Using identifier:', self.cpu_id
 
 	def get_data_url(self):
-		return self.http_ser + ':' + str(self.port) + '/json_data/' + self.droid_id + '.json'
+		return self.http_ser + ':' + str(self.port) + '/json_data/' + self.cpu_id + '/'
 
-	def get_data(self):
+	def get_data(self, phone_id = ""):
+		if phone_id != "":
+			phone_id = phone_id + '.json'
 		try:
-			ser = urllib2.urlopen(self.get_data_url())
+			ser = urllib2.urlopen(self.get_data_url() + phone_id)
 			s_data = ser.read()
 			ser.close()
 			return json.loads(s_data)
 		except urllib2.URLError:
-			return {"error": {3: "No connection to host"}}
+			return {"error": {"code": 3, "message": "No connection to host"}}
 		except ValueError:
-			return {"error": {4: "JSON data could not be parsed"}}
+			return {"error": {"code": 4, "message": "JSON data could not be parsed"}}
 
 if __name__ == '__main__':
 	gsd = Bowtie('http://127.0.0.1', 5000, 1234)

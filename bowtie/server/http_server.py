@@ -65,7 +65,7 @@ def cpu_id_unchecked(cpu_id, phone_id):
 	return render_template('index.html')
 
 @app.route('/json_data/<cpu_id>/<data_name>', methods=['GET'])
-def send_sensor_data(cpu_id, data_name):
+def send_single_sensor_data(cpu_id, data_name):
 	"""
 	Sends data to a CPU client
 	"""
@@ -76,6 +76,22 @@ def send_sensor_data(cpu_id, data_name):
 	with open(file_path, 'r+') as sensor_file:
 		requested_data = sensor_file.readline()
 	return Response(requested_data, mimetype='application/json')
+
+@app.route('/json_data/<cpu_id>/', methods=['GET'])
+def send_sensor_data(cpu_id):
+	"""
+	Sends data to a CPU client
+	"""
+	file_path = 'json_data/%s/' % cpu_id
+	if not path.isdir(file_path):
+		requested_data = {"error": {"code": 2, "message": "No data for " + cpu_id}}
+		return Response(json.dumps(requested_data), mimetype = 'application/json')
+	full_data = dict()
+	for it in os.walk(file_path):
+		for json_file in it[2]:	
+			with open(file_path + json_file, 'r+') as sensor_file:
+				full_data[json_file.split('.')[0]] = json.loads(sensor_file.readline())
+	return Response(json.dumps(full_data), mimetype='application/json')
 
 def parse_sensor_data(sensor_data, file_path):
 	"""

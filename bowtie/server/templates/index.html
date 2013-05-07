@@ -50,6 +50,10 @@
       
       <h1>Bowtie</h1>
       <p class="lead">Sensor Data Gathering</p>
+      <div id="alert_msg" class="alert alert-error" style="display: none;">
+        <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
+        <strong>Error!</strong> Please enter a CPU Id and Phone Id before continuing 
+      </div>
       <table id="id_table" class="table table-hover" border="0">
         <tr>
           <td><b>CPU Id:</b></td>
@@ -98,10 +102,6 @@
       </table>
       <div class="footer">
         <p>
-          <div id="alert_msg" class="alert alert-error" style="visibility: hidden;">
-            <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
-            <strong>Error!</strong> Please enter a CPU Id and Phone Id before continuing 
-          </div>
           Creators: <a href="http://www.linkedin.com/pub/alexander-wallar/68/985/b87">Alex Wallar</a> and 
           <a href="http://www.linkedin.com/pub/aleksejs-sazonovs/23/bab/a56">Aleksejs Sazonovs</a>
         </p>

@@ -2,7 +2,7 @@ getLocation();
 getSensorData();
 
 function warning_closed() {
-  document.getElementById("alert_msg").style.visibility = "hidden";
+  document.getElementById("alert_msg").style.display = "none";
 }
 
 function on_exit() {
@@ -27,7 +27,6 @@ function toggle_readonly() {
       document.getElementById("sub_button").className = "btn btn-large btn-success"
 
       document.getElementById("sensor_table").style.display = "none";
-
       if (phone_id_box.value != "" && cpu_id_box.value != "") {
         $.ajax({
           type: 'POST',
@@ -41,9 +40,9 @@ function toggle_readonly() {
       document.getElementById("sub_button").innerHTML = "Stop sensing";
       document.getElementById("sub_button").className = "btn btn-large btn-primary btn-danger";
       document.getElementById("sensor_table").style.display = "block";
-      document.getElementById("alert_msg").style.visibility = "hidden";
+      document.getElementById("alert_msg").style.display = "none";
     } else {
-      document.getElementById("alert_msg").style.visibility = "visible";
+      document.getElementById("alert_msg").style.display = "block";
     }
   }
 }
@@ -69,7 +68,7 @@ function orientationEventHandler(eventData) {
   var tiltFB=eventData.beta;
   var dir=eventData.alpha;
   deviceOrientationHandler(tiltLR,tiltFB,dir);
-  sendAjax({0: "No Error"})
+  sendAjax({code: 0, message: "No Error"})
 }
 
 function deviceOrientationHandler(tiltLR,tiltFB,dir) {
@@ -95,12 +94,12 @@ function positionError (position) {
   document.getElementById("longPos").innerHTML = "Not supported";
   document.getElementById("longPosCheckbox").checked = false;
   document.getElementById("longPosCheckbox").disabled = true;
-  sendAjax({1: "Position Error"});
+  sendAjax({code: 1, message: "Position Error"});
 }
 function devicePositionHandler(position) {
   document.getElementById("latPos").innerHTML = position.coords.latitude;
   document.getElementById("longPos").innerHTML = position.coords.longitude;
-  sendAjax({0: "No Error"});
+  sendAjax({code: 0, message:"No Error"});
 }
 function sendAjax(error_data) {
   tiltLR = getIfValid("doTiltLR");
