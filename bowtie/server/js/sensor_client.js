@@ -9,7 +9,7 @@ function toggle_readonly() {
       phone_id_box.removeAttribute('readonly');
       cpu_id_box.removeAttribute('readonly');
       document.getElementById("sub_button").innerHTML = "<b>Start Sending Data</b>";
-      document.getElementById("sensor_table").style.display = "none";
+      document.getElementById("sensor_table").style.visibility = "hidden";
 
       if (phone_id_box.value != "" && cpu_id_box.value != "") {
         $.ajax({
@@ -21,7 +21,7 @@ function toggle_readonly() {
       cpu_id_box.setAttribute('readonly', 'readonly');
       phone_id_box.setAttribute('readonly', 'readonly');
       document.getElementById("sub_button").innerHTML = "<b>Stop Sending Data</b>";
-      document.getElementById("sensor_table").style.display = "all";
+      document.getElementById("sensor_table").style.visibility = "visible";
   }
 }
 
