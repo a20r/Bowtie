@@ -31,6 +31,10 @@ def index():
 	response = make_response(render_template('index.html'))
 	return response
 
+@app.route('/about.html')
+def about():
+	return make_response(render_template('about.html'))
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')

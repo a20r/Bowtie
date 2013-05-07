@@ -8,6 +8,11 @@ import uuid
 """
 Module will be used on the CPU side to get the 
 data from the website
+
+Improvements:
+	Need to have more of an interface to see which phone_ids exist
+	and to disable getting data from a certain sensor from a certain
+	phone_id
 """
 
 __author__ = "Alexander Wallar <aw204@st-andrews.ac.uk>"

@@ -50,58 +50,15 @@
 
     <div class="span5 offset3">
       
-      <h1>Bowtie</h1>
+      <h1>About Bowtie</h1>
       <p class="lead">Sensor Data Gathering</p>
-      <div id="alert_msg" class="alert alert-error" style="display: none;">
-        <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
-        <strong>Error!</strong> Please enter a CPU Id and Node Id before continuing 
-      </div>
-      <table id="id_table" class="table table-hover" border="0">
-        <tr>
-          <td><b>CPU Id:</b></td>
-          <td><input type="text" name="identifier" id="cpu_id"></td>
-        </tr>
-        <tr>
-          <td><b>Node Id:</b></td>
-          <td><input type="text" name="identifier" id="phone_id"></td>
-        </tr>
-      </table>
-
-      <div align="center">
-
       <p>
-      <button class="btn btn-large btn-success" type="button" id="sub_button" onClick="toggle_readonly()">Start sensing</button>
+        Bowtie is a sensor integration server using HTML5 and was written in Python and Javascript.
+        This means sensor data can be collected from most devices and pushed to a server. The sensor 
+        data is stored in a unique folder defined by the <strong>CPU Id</strong> and inside the folder 
+        are JSON files that are defined by the <strong>Node Id</strong>. This makes it easy in any 
+        programming language on almost any operating system to gather the sensor data.
       </p>
-      
-      </div>
-      <br>
-      <table id="sensor_table" class="table table-hover" style="display:none">
-        <tr id="tb_lr" onClick="row_clicked('doTiltLR')">
-          <td><b>Tilt Left/Right:</b></td>
-          <td id="doTiltLR"></td>
-          <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_fb">
-          <td><b>Tilt Front/Back:</b></td>
-          <td id="doTiltFB"></td>
-          <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_d">
-          <td><b>Direction:</b></td>
-          <td id="doDirection"></td>
-          <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_lat">
-          <td><b>Latitude:</b></td>
-           <td id="latPos"></td>
-          <td><input type="checkbox" id="latPosCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_lon">
-          <td><b>Longitude:</b></td>
-          <td id="longPos"></td>
-          <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
-        </tr>
-      </table>
       <div class="footer">
         <p>
           Creators: <a href="http://www.linkedin.com/pub/alexander-wallar/68/985/b87">Alex Wallar</a> and 
