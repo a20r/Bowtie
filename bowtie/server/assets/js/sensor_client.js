@@ -1,6 +1,21 @@
 getLocation();
 getSensorData();
 
+function warning_closed() {
+  document.getElementById("alert_msg").style.visibility = "hidden";
+}
+
+function on_exit() {
+  var phone_id_box = document.getElementById("phone_id");
+  var cpu_id_box = document.getElementById("cpu_id");
+  if (phone_id_box.value != "" && cpu_id_box.value != "") {
+    $.ajax({
+      type: 'POST',
+      url:'/unchecked_' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value
+    });
+  }
+}
+
 function toggle_readonly() {
  var phone_id_box = document.getElementById("phone_id");
  var cpu_id_box = document.getElementById("cpu_id");
@@ -11,7 +26,7 @@ function toggle_readonly() {
       document.getElementById("sub_button").innerHTML = "Start sensing";
       document.getElementById("sub_button").className = "btn btn-large btn-success"
 
-      document.getElementById("sensor_table").style.visibility = "hidden";
+      document.getElementById("sensor_table").style.display = "none";
 
       if (phone_id_box.value != "" && cpu_id_box.value != "") {
         $.ajax({
@@ -19,12 +34,17 @@ function toggle_readonly() {
           url:'/unchecked_' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value
         });
       }
-  }else{
+  } else {
+    if(phone_id_box.value != "" && cpu_id_box.value != "") {
       cpu_id_box.setAttribute('readonly', 'readonly');
       phone_id_box.setAttribute('readonly', 'readonly');
       document.getElementById("sub_button").innerHTML = "Stop sensing";
       document.getElementById("sub_button").className = "btn btn-large btn-primary btn-danger";
-      document.getElementById("sensor_table").style.visibility = "visible";
+      document.getElementById("sensor_table").style.display = "block";
+      document.getElementById("alert_msg").style.visibility = "hidden";
+    } else {
+      document.getElementById("alert_msg").style.visibility = "visible";
+    }
   }
 }
 

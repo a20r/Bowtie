@@ -25,7 +25,7 @@
   <style type="text/css"></style>
 </head>
 
-<body>
+<body onunload="on_exit()">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -50,8 +50,6 @@
       
       <h1>Bowtie</h1>
       <p class="lead">Sensor Data Gathering</p>
-
-      <br>
       <table id="id_table" class="table table-hover" border="0">
         <tr>
           <td><b>CPU Id:</b></td>
@@ -71,7 +69,7 @@
       
       </div>
       <br>
-      <table id="sensor_table" class="table table-hover" style="visibility:hidden">
+      <table id="sensor_table" class="table table-hover" style="display:none">
         <tr id="tb_lr" onClick="row_clicked('doTiltLR')">
           <td><b>Tilt Left/Right:</b></td>
           <td id="doTiltLR"></td>
@@ -100,6 +98,10 @@
       </table>
       <div class="footer">
         <p>
+          <div id="alert_msg" class="alert alert-error" style="visibility: hidden;">
+            <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
+            <strong>Error!</strong> Please enter a CPU Id and Phone Id before continuing 
+          </div>
           Creators: <a href="http://www.linkedin.com/pub/alexander-wallar/68/985/b87">Alex Wallar</a> and 
           <a href="http://www.linkedin.com/pub/aleksejs-sazonovs/23/bab/a56">Aleksejs Sazonovs</a>
         </p>
