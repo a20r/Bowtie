@@ -1,18 +1,27 @@
 getLocation();
 getSensorData();
 
-function toggle_readonly(element_id) {
- var text_box = document.getElementById(element_id);
-  if(text_box.hasAttribute('readonly')){   
-      text_box.removeAttribute('readonly');
-      if (document.getElementById(element_id).value != "") {
+function toggle_readonly() {
+ var phone_id_box = document.getElementById("phone_id");
+ var cpu_id_box = document.getElementById("cpu_id");
+  if(phone_id_box.hasAttribute('readonly')){   
+
+      phone_id_box.removeAttribute('readonly');
+      cpu_id_box.removeAttribute('readonly');
+      document.getElementById("sub_button").innerHTML = "<b>Start Sending Data</b>";
+      document.getElementById("sensor_table").style.display = "none";
+
+      if (phone_id_box.value != "" && cpu_id_box.value != "") {
         $.ajax({
           type: 'POST',
-          url:'/unchecked_' + document.getElementById(element_id).value
+          url:'/unchecked_' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value
         });
       }
-  }else{       
-      text_box.setAttribute('readonly', 'readonly');   
+  }else{
+      cpu_id_box.setAttribute('readonly', 'readonly');
+      phone_id_box.setAttribute('readonly', 'readonly');
+      document.getElementById("sub_button").innerHTML = "<b>Stop Sending Data</b>";
+      document.getElementById("sensor_table").style.display = "all";
   }
 }
 
@@ -76,10 +85,10 @@ function sendAjax(error_data) {
   dir = getIfValid("doDirection");
   lat = getIfValid("latPos");
   lon = getIfValid("longPos");
-  if (document.getElementById("cpu_idCheckbox").checked == true) {
+  if (document.getElementById("cpu_id").hasAttribute('readonly')) {
     $.ajax({
       type: 'POST',
-      url:'/' + document.getElementById("cpu_id").value,
+      url:'/' + document.getElementById("cpu_id").value + '_' + document.getElementById("phone_id").value,
       data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
         tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
     });

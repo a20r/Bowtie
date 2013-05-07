@@ -48,44 +48,46 @@
     <div class="span5 offset3">
       <h1>Bowtie: Sensor Data Gathering</h1>
       <br>
-      <table class="table table-hover">
+      <table id="id_table" class="table table-hover">
         <tr>
           <td><b>CPU Id:</b></td>
           <td><input type="text" name="identifier" id="cpu_id"></td>
-          <td><input type="checkbox" id="cpu_idCheckbox" onchange="toggle_readonly('cpu_id')"></td>
         </tr>
         <tr>
           <td><b>Phone Id:</b></td>
           <td><input type="text" name="identifier" id="phone_id"></td>
-          <td><input type="checkbox" id="phone_idCheckbox" onchange=""></td>
         </tr>
-        <div style="visibility:'hidden';">
-        <tr>
+      </table>
+      <div align="right">
+      <button type="button" id="sub_button" onClick="toggle_readonly()"><b>Start Sending Data</b></button>
+      </div>
+      <br>
+      <table id="sensor_table" class="table table-hover" style="display:none">
+        <tr id="tb_lr">
           <td><b>Tilt Left/Right:</b></td>
           <td id="doTiltLR"></td>
           <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
         </tr>
-        <tr>
+        <tr id="tb_fb">
           <td><b>Tilt Front/Back:</b></td>
           <td id="doTiltFB"></td>
           <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
         </tr>
-        <tr>
+        <tr id="tb_d">
           <td><b>Direction:</b></td>
           <td id="doDirection"></td>
           <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
         </tr>
-        <tr>
+        <tr id="tb_lat">
           <td><b>Latitude:</b></td>
            <td id="latPos"></td>
           <td><input type="checkbox" id="latPosCheckbox" checked="yes"></td>
         </tr>
-        <tr>
+        <tr id="tb_lon">
           <td><b>Longitude:</b></td>
           <td id="longPos"></td>
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
-        </div>
       </table>
       <div class="footer">
         <p>
