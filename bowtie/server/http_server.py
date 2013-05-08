@@ -100,7 +100,7 @@ def send_sensor_data(cpu_id):
 				full_data[json_file.split('.')[0]] = json.loads(sensor_file.readline())
 	return Response(json.dumps(full_data), mimetype='application/json')
 
-def parse_sensor_data(sensor_data, file_path):
+def parse_sensor_data(sensor_data, file_path): 
 	"""
 	Parses and saves the sensor data
 	"""
