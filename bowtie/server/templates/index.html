@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <script src="../assets/js/jquery-1.9.1.js"></script>
-    <script text="text/javascript" src="../assets/js/sensor_client.js"></script>
+    <!-- FAVICON -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
+
+    <!-- JQUERY -->
+    <script src="{{ url_for('static', filename='js/jquery-1.9.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sensor_client.js') }}"></script>
+
     <!-- Le styles -->
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../assets/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
+
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
-
-
-  <style type="text/css"></style>
 </head>
-
 <body onunload="on_exit()" style="background:lightgrey">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">

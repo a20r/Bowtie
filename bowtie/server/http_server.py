@@ -7,10 +7,10 @@ from flask import make_response
 # from flask import session
 from flask import request
 # from flask import redirect
-# from flask import url_for
-from flask import send_from_directory
+from flask import url_for
+# from flask import send_from_directory
 #from flask.ext.assets import Environment, Bundle
-import uuid
+# import uuid
 import json
 import os.path as path
 import os
@@ -53,32 +53,6 @@ def index():
 @app.route('/about.html')
 def about():
     return make_response(render_template('about.html'))
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(
-        os.path.join(app.root_path, 'static'),
-        'favicon.ico',
-        mimetype='image/vnd.microsoft.icon'
-    )
-
-
-@app.route('/assets/js/<js_file>.js')
-def get_js(js_file):
-    return send_from_directory(
-        os.path.join(app.root_path, 'assets/js'),
-        js_file + '.js',
-        mimetype='text/javascript'
-    )
-
-
-@app.route('/assets/css/<css_file>.css')
-def get_css(css_file):
-    return send_from_directory(
-        os.path.join(app.root_path, 'assets/css'),
-        css_file + '.css', mimetype='text/css'
-    )
 
 
 @app.route('/checked/<cpu_id>/<phone_id>', methods=['POST'])
@@ -176,5 +150,11 @@ def parse_sensor_data(sensor_data, file_path):
     with open(file_path, 'w') as sensor_file:
         sensor_file.write(json.dumps(sensor_data))
 
+
 if __name__ == '__main__':
-    app.run(debug=True, host="192.168.1.95")
+    # app.run(debug=True, host="192.168.1.95")
+    app.run(debug=True, host="127.0.0.1")
+    app.add_url_rule(
+        '/favicon.ico',
+        redirect_to=url_for('static', filename='favicon.ico')
+    )
