@@ -152,8 +152,8 @@ def parse_sensor_data(sensor_data, file_path):
 
 
 if __name__ == '__main__':
-    #app.run(debug=True, host="192.168.1.95")
-    app.run(debug=True, host="127.0.0.1")
+    app.run(debug=True, host="192.168.1.95")
+    #app.run(debug=True, host="127.0.0.1")
     app.add_url_rule(
         '/favicon.ico',
         redirect_to=url_for('static', filename='favicon.ico')

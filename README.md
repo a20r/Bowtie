@@ -22,6 +22,11 @@ PyBowtie
 	* Make bootsrap password and username field
 	* Have drop down views using bootsrap
 
+##User Login 
+* Allowing users to login for a certain CPU Id to see graphical data from the sensors and geolocation on maps
+	* Look at Google API for maps
+	* Find a way to make graphs in HTML5 so that they can be updated dynamically
+
 ###Phone Identifiers --> done
 * Need to have a way to distinguish phone nodes for different robots
 	* Setup a folder for each CPU identifier
