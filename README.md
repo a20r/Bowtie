@@ -17,7 +17,12 @@ PyBowtie
 	* pip install flask
 
 ##Improvements Needed
-###Phone Identifiers
+##Administrator website
+* Make admin website that can see all of the different phone nodes and their respective CPU Ids
+	* Make bootsrap password and username field
+	* Have drop down views using bootsrap
+
+###Phone Identifiers --> done
 * Need to have a way to distinguish phone nodes for different robots
 	* Setup a folder for each CPU identifier
 	* Have a text field to enter the phone id
