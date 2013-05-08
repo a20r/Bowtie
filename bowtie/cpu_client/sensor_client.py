@@ -50,7 +50,7 @@ class Bowtie:
 			return {"error": {"code": 4, "message": "JSON data could not be parsed"}}
 
 if __name__ == '__main__':
-	gsd = Bowtie('http://127.0.0.1', 5000, 1234)
+	gsd = Bowtie('http://192.168.1.95', 5000, 1234)
 	while True:
 		print gsd.get_data()
 		time.sleep(0.1)

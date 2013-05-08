@@ -92,6 +92,9 @@ def send_sensor_data(cpu_id):
 		return Response(json.dumps(requested_data), mimetype = 'application/json')
 	full_data = dict()
 	for it in os.walk(file_path):
+		if len(it[2]) == 0:
+			requested_data = {"error": {"code": 2, "message": "No data for " + cpu_id}}
+			return Response(json.dumps(requested_data), mimetype = 'application/json')
 		for json_file in it[2]:	
 			with open(file_path + json_file, 'r+') as sensor_file:
 				full_data[json_file.split('.')[0]] = json.loads(sensor_file.readline())
@@ -110,4 +113,4 @@ def parse_sensor_data(sensor_data, file_path):
 		sensor_file.write(json.dumps(sensor_data))
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=True, host="192.168.1.95")

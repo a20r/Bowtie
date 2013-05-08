@@ -101,6 +101,11 @@ function positionError (position) {
 function devicePositionHandler(position) {
   document.getElementById("latPos").innerHTML = position.coords.latitude;
   document.getElementById("longPos").innerHTML = position.coords.longitude;
+  document.getElementById("latPosCheckbox").checked = true;
+  document.getElementById("latPosCheckbox").disabled = false;
+  document.getElementById("longPosCheckbox").checked = true;
+  document.getElementById("longPosCheckbox").disabled = false;
+
   sendAjax({code: 0, message:"No Error"});
 }
 function sendAjax(error_data) {
