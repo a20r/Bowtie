@@ -6,7 +6,7 @@ import time
 import uuid
 
 """
-Module will be used on the CPU side to get the 
+Module will be used on the CPU side to get the
 data from the website
 
 Improvements:
@@ -21,7 +21,7 @@ class Bowtie:
 
 	def __init__(self, http_ser, port, cpu_id = None):
 		"""
-		For the cpu_id I would like to use the MAC address of the 
+		For the cpu_id I would like to use the MAC address of the
 		CPU client.
 		"""
 		if cpu_id == None:

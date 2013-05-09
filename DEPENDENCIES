@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+
+LIBS = [
+    "flask",
+]
+
+def check_library(lib):
+    try:
+        print("checking library [{0}] ".format(lib), end="... ")
+        __import__(lib)
+    except ImportError:
+        print("NOT FOUND!")
+        return lib
+    print("FOUND!")
+    return None
+
+
+if __name__ == "__main__":
+    missing = []
+
+    # check all dependencies
+    print("CHECKING DEPENDENCIES")
+    for lib in LIBS:
+        res = check_library(lib)
+        if res is not None:
+            missing.append(res)
+
+    # dependency check report
+    if missing.__len__() == 0:
+        print("All green!")
+    else:
+        print("-" * 70)
+        print("The following needs to be installed before continuing!")
+        for lib in missing:
+            print("- " + lib)
+        sys.exit(1)

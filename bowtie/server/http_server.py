@@ -23,22 +23,6 @@ __author__ = "Alex Wallar <aw204@st-andrews.ac.uk>"
 
 app = Flask(__name__)
 
-"""
-assets = Environment(app)
-js_pre = Bundle(
-    'assets/js/bootstrap.js',
-    'assets/js/bootstrap.min.js',
-    'assets/js/html5shiv.js',
-    'assets/js/sensor_client.js'
-)
-css_pre = Bundle(
-    'assests/css/boostrap-responsive.min.css',
-    'assests/css/bootstrap.min.css'
-)
-assets.register('css_pre', css_pre)
-assets.register('js_pre',js_pre)
-"""
-
 
 #application index
 @app.route('/')
@@ -149,7 +133,6 @@ def parse_sensor_data(sensor_data, file_path):
         open(file_path, 'a').close()
     with open(file_path, 'w') as sensor_file:
         sensor_file.write(json.dumps(sensor_data))
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="192.168.1.95")
