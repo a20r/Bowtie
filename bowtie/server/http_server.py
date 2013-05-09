@@ -39,7 +39,7 @@ def about():
 	"""
 	Renders the about page
 	"""
-    return make_response(render_template('about.html'))
+	return make_response(render_template('about.html'))
 
 
 @app.route('/checked/<cpu_id>/<phone_id>', methods=['POST'])
@@ -57,7 +57,7 @@ def cpu_id_not_specified():
 	"""
 	When a post or get occurs when it shouldn't
 	"""
-    return render_template('index.html', error="CPU identifier not specified")
+	return render_template('index.html', error="CPU identifier not specified")
 
 
 @app.route('/unchecked/<cpu_id>/<phone_id>', methods=['POST'])
@@ -65,11 +65,11 @@ def cpu_id_unchecked(cpu_id, phone_id):
 	"""
 	Removes the JSON data once the node is no longer transmitting
 	"""
-    try:
-        os.remove('json_data/%s/%s.json' % (cpu_id, phone_id))
-    except OSError:
-        pass
-    return render_template('index.html')
+	try:
+		os.remove('json_data/%s/%s.json' % (cpu_id, phone_id))
+	except OSError:
+		pass
+	return render_template('index.html')
 
 
 @app.route('/<cpu_id>/<data_name>', methods=['GET'])
