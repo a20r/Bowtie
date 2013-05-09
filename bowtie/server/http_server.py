@@ -36,13 +36,16 @@ def index():
 
 @app.route('/about.html')
 def about():
+	"""
+	Renders the about page
+	"""
     return make_response(render_template('about.html'))
 
 
 @app.route('/checked/<cpu_id>/<phone_id>', methods=['POST'])
 def get_sensor_data(cpu_id, phone_id):
     """
-    Gets data from the JavaScript
+    Gets data from the JavaScript for a certain phone id
     """
     sensor_data = json.loads(request.form['sensor_data'])
     parse_sensor_data(sensor_data, 'json_data/%s/%s.json' % (cpu_id, phone_id))
@@ -51,11 +54,17 @@ def get_sensor_data(cpu_id, phone_id):
 
 @app.route('/', methods=['POST', 'GET'])
 def cpu_id_not_specified():
+	"""
+	When a post or get occurs when it shouldn't
+	"""
     return render_template('index.html', error="CPU identifier not specified")
 
 
 @app.route('/unchecked/<cpu_id>/<phone_id>', methods=['POST'])
 def cpu_id_unchecked(cpu_id, phone_id):
+	"""
+	Removes the JSON data once the node is no longer transmitting
+	"""
     try:
         os.remove('json_data/%s/%s.json' % (cpu_id, phone_id))
     except OSError:
@@ -66,7 +75,7 @@ def cpu_id_unchecked(cpu_id, phone_id):
 @app.route('/<cpu_id>/<data_name>', methods=['GET'])
 def send_single_sensor_data(cpu_id, data_name):
     """
-    Sends data to a CPU client
+    Sends data for single node to a CPU client
     """
     file_path = 'json_data/%s/%s.json' % (cpu_id, data_name)
     if not path.isfile(file_path):
