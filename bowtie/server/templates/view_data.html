@@ -10,12 +10,14 @@
 
     <!-- JQUERY -->
     <script src="{{ url_for('static', filename='js/jquery-1.9.1.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/sensor_client.js') }}"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <!-- Le styles -->
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+      html, body, #map-canvas {
+        height: 80%;
       }
     </style>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
@@ -64,10 +66,6 @@
           <td><b>CPU Id:</b></td>
           <td><input type="text" name="identifier" id="cpu_id"></td>
         </tr>
-        <tr>
-          <td><b>Node Id:</b></td>
-          <td><input type="text" name="identifier" id="phone_id"></td>
-        </tr>
       </table>
 
       <div align="center">
@@ -78,32 +76,8 @@
       
       </div>
       <br>
-      <table id="sensor_table" class="table table-hover" style="display:none">
-        <tr id="tb_lr" onClick="row_clicked('doTiltLR')">
-          <td><b>Tilt Left/Right:</b></td>
-          <td id="doTiltLR"></td>
-          <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_fb">
-          <td><b>Tilt Front/Back:</b></td>
-          <td id="doTiltFB"></td>
-          <td><input type="checkbox" id="doTiltFBCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_d">
-          <td><b>Direction:</b></td>
-          <td id="doDirection"></td>
-          <td><input type="checkbox" id="doDirectionCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_lat">
-          <td><b>Latitude:</b></td>
-           <td id="latPos"></td>
-          <td><input type="checkbox" id="latPosCheckbox" checked="yes"></td>
-        </tr>
-        <tr id="tb_lon">
-          <td><b>Longitude:</b></td>
-          <td id="longPos"></td>
-          <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
-        </tr>
+      <table id="sensor_table" class="table table-hover">
+        <div id='map-canvas'></div>
       </table>
       <div class="footer">
         <p>
@@ -115,4 +89,17 @@
     </div>
   </div>
 </body>
+<script>
+var map;
+function initialize() {
+  var mapOptions = {
+    zoom: 8,
+    center: new google.maps.LatLng(-34.397, 150.644),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+}
+//initialize();
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
 </html>

@@ -23,23 +23,12 @@ __author__ = "Alex Wallar <aw204@st-andrews.ac.uk>"
 
 app = Flask(__name__)
 
-
-#application index
-@app.route('/')
-def index():
-    """
-    First page
-    """
-    response = make_response(render_template('index.html'))
-    return response
-
-
-@app.route('/about.html')
-def about():
+@app.route('/<webpage>.html')
+def load_html(webpage):
 	"""
 	Renders the about page
 	"""
-	return make_response(render_template('about.html'))
+	return make_response(render_template(webpage + '.html'))
 
 
 @app.route('/checked/<cpu_id>/<phone_id>', methods=['POST'])
