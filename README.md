@@ -2,9 +2,29 @@ PyBowtie
 ========
 
 ##Purpose:
-* The goal is to create a seamless integration between phone sensor data and robotics applications. 
-* Small scale robotics has suffered because of a lack of sensor data due to cost and CPU pin compatability
-* Bowtie offers a cheaper solution where the developer only needs a smart phone and an internet connection on the robot
+Bowtie is a sensor integration server using HTML5 and was written in Python and Javascript.
+This means sensor data can be collected from most devices and pushed to a server. The sensor 
+data is stored in a unique folder defined by the CPU Id and inside the folder 
+are JSON files that are defined by the Node Id. This makes it easy in any 
+programming language on almost any operating system to gather the sensor data. This means
+that sensor data can be gathered without any native program running.
+###Inspiration
+Many small scale robotics projects suffer due to of a lack of sensors or the difficulty to
+integrate sensors in the project. Many sensors come with limited documentation and require different
+port specifications, different voltages, some need a pulse to be sent to them before data can 
+be read, and so on. By using devices that support an internet connection and HTML5 (i.e. a 
+smart phone) as sensor nodes, a layer of abstraction is removed, which leads to better overall
+integration. A sample case is a small mobile robot that needs an orientation and GPS sensor.
+By using Bowtie, any Android phone can be used for these sensors. The phone 
+would just need to load Bowtie's specified website in the browser to gather 
+the data. To integrate the data, the robot's processing unit would need to use Bowtie's
+client side Python module, which would extract the sensor data.
+###But why get the data through a server?
+Using a main server allows for data to be easily integrated for swarm robotics. Imagine a swarm 
+of robots that are dispatched from one main robot, each with their own sensor node. All of the
+data could be gathered by a central processing unit on a main robot to make conclusions about the
+environment. Also passing the data through a server allows for a more robust, less limited system
+to grow.
 
 ##To run:
 * The server: make run_server
