@@ -17,6 +17,10 @@ PyBowtie
 	* pip install flask
 
 ##Improvements Needed
+##Using a database
+* Use a database instead of storing everything in files so further analysis of the data will be available
+	* Using sqlite3 in Python is easy 
+
 ##Administrator website
 * Make admin website that can see all of the different phone nodes and their respective CPU Ids
 	* Make bootsrap password and username field
