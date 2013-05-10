@@ -10,6 +10,7 @@
 
     <!-- JQUERY -->
     <script src="{{ url_for('static', filename='js/jquery-1.9.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/view_data.js') }}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <!-- Le styles -->
     <style>
@@ -29,7 +30,7 @@
       <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
 </head>
-<body onunload="on_exit()" style="background:lightgrey">
+<body style="background:lightgrey">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -56,10 +57,10 @@
     <div class="span5 offset3">
       
       <h1>Bowtie</h1>
-      <p class="lead">Sensor Data Gathering</p>
+      <p class="lead">Visualize sensor data</p>
       <div id="alert_msg" class="alert alert-error" style="display: none;">
         <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
-        <strong>Error!</strong> Please enter a CPU Id and Node Id before continuing 
+        <strong>Error!</strong> Please enter a CPU Id before continuing 
       </div>
       <table id="id_table" class="table table-hover" border="0">
         <tr>
@@ -71,13 +72,12 @@
       <div align="center">
 
       <p>
-      <button class="btn btn-large btn-success" type="button" id="sub_button" onClick="toggle_readonly()">Start sensing</button>
+      <button class="btn btn-large btn-success" type="button" id="sub_button" onClick="toggle_readonly()">Grab data</button>
       </p>
       
       </div>
       <br>
-      <table id="sensor_table" class="table table-hover">
-        <div id='map-canvas'></div>
+      <table id="sensor_table" class="table table-hover" style="display:none">
       </table>
       <div class="footer">
         <p>
@@ -89,17 +89,4 @@
     </div>
   </div>
 </body>
-<script>
-var map;
-function initialize() {
-  var mapOptions = {
-    zoom: 8,
-    center: new google.maps.LatLng(-34.397, 150.644),
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-}
-//initialize();
-google.maps.event.addDomListener(window, 'load', initialize);
-</script>
 </html>
