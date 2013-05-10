@@ -50,12 +50,14 @@ function toggle_readonly() {
 }
 
 // Need to use tail recursion
-function visualize_data(node_data) {
+function visualize_data(cpu_data) {
   //alert(JSON.stringify(node_data));
-  if (node_data['error']['code'] == 2) {
-    show_warning(node_data['error']['message']);
+  if (cpu_data['error']['code'] == 2) {
+    show_warning(cpu_data['error']['message']);
     return;
   }
   ready_to_stop();
-  
+  for (var node_data in cpu_data) {
+    alert(JSON.stringify(cpu_data));
+  }
 }

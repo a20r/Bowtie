@@ -79,6 +79,8 @@ function toggle_readonly() {
 function getSensorData() {
   if(window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', orientationEventHandler, false);
+    window.setInterval(sendAjax, 200);
+
   } else {
       document.getElementById("doTiltLR").innerHTML = "Not supported";
       document.getElementById("doTiltLRCheckbox").checked = false;
@@ -98,7 +100,7 @@ function orientationEventHandler(eventData) {
   var tiltFB=eventData.beta;
   var dir=eventData.alpha;
   deviceOrientationHandler(tiltLR,tiltFB,dir);
-  sendAjax({code: 0, message: "No Error"})
+  //sendAjax({code: 0, message: "No Error"})
 }
 
 // Writes the orientation data on the HTML page
@@ -127,7 +129,7 @@ function positionError (position) {
   document.getElementById("longPos").innerHTML = "Not supported";
   document.getElementById("longPosCheckbox").checked = false;
   document.getElementById("longPosCheckbox").disabled = true;
-  sendAjax({code: 1, message: "Position Error"});
+  //sendAjax({code: 1, message: "Position Error"});
 }
 
 // Writes the position of the coordinates onto the
@@ -137,16 +139,16 @@ function devicePositionHandler(position) {
   document.getElementById("longPos").innerHTML = position.coords.longitude;
   document.getElementById("latPosCheckbox").checked = true;
   document.getElementById("latPosCheckbox").disabled = false;
-  document.getElementById("longPosCheckbox").checked = true;////////////////////////////////////////////////
+  document.getElementById("longPosCheckbox").checked = true;
   document.getElementById("longPosCheckbox").disabled = false;
 
-  sendAjax({code: 0, message:"No Error"});
+  //sendAjax({code: 0, message:"No Error"});
 }
 
 // Sends the sensory data to the server via
 // Ajax if the cpu_id and the node_id have
 // been entered
-function sendAjax(error_data) {
+function sendAjax() {
   tiltLR = getIfValid("doTiltLR");
   tiltFB = getIfValid("doTiltFB");
   dir = getIfValid("doDirection");
@@ -157,7 +159,7 @@ function sendAjax(error_data) {
       type: 'POST',
       url:'/checked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value,
       data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-        tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
+        tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: null})}
     });
   }
 }

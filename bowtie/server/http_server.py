@@ -14,6 +14,7 @@ from flask import url_for
 import json
 import os.path as path
 import os
+import time
 
 """
 Main server module
@@ -38,6 +39,7 @@ def get_sensor_data(cpu_id, phone_id):
     """
     sensor_data = json.loads(request.form['sensor_data'])
     parse_sensor_data(sensor_data, 'json_data/%s/%s.json' % (cpu_id, phone_id))
+    #time.sleep(0.1)
     return render_template('index.html')
 
 
@@ -117,6 +119,7 @@ def send_sensor_data(cpu_id):
             with open(file_path + json_file, 'r+') as sensor_file:
                 sensor_json = json.loads(sensor_file.readline())
                 full_data[json_file.split('.')[0]] = sensor_json
+        full_data["error"] = {"code": 0, "message": "No error for overall data"}
     return Response(json.dumps(full_data), mimetype='application/json')
 
 
