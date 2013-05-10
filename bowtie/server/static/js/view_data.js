@@ -49,6 +49,10 @@ function toggle_readonly() {
   }
 }
 
+function println(msg) {
+  document.getElementById('sensor_table').innerHTML += (msg + "<br>");
+}
+
 // Need to use tail recursion
 function visualize_data(cpu_data) {
   //alert(JSON.stringify(node_data));
@@ -58,10 +62,20 @@ function visualize_data(cpu_data) {
   }
   ready_to_stop();
   var s_table = document.getElementById('sensor_table');
-  for (var node_data in cpu_data) {
-    //alert(JSON.stringify(cpu_data));
-    s_table.innerHTML = JSON.stringify(cpu_data);
+  new_line = "<br>";
+  s_table.innerHTML = "";
+  //println("Location");
+  for (var node_name in cpu_data) {
+    if (node_name != "error") {
+      for (var sensor_name in cpu_data[node_name]) {
+        for (var sensor_component in cpu_data[node_name][sensor_name]) {
+          s_table.innerHTML += sensor_component + " : " + cpu_data[node_name][sensor_name][sensor_component] + new_line;
+        }
+      }
+      println(cpu_data[node_name]);
+    }
   }
+
   // Need to put this in an interval
   $.getJSON('/' + document.getElementById('cpu_id').value, visualize_data);
 }
