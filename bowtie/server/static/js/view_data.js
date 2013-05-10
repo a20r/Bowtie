@@ -57,8 +57,11 @@ function visualize_data(cpu_data) {
     return;
   }
   ready_to_stop();
+  var s_table = document.getElementById('sensor_table');
   for (var node_data in cpu_data) {
     //alert(JSON.stringify(cpu_data));
-    
+    s_table.innerHTML = JSON.stringify(cpu_data);
   }
+  // Need to put this in an interval
+  $.getJSON('/' + document.getElementById('cpu_id').value, visualize_data);
 }
