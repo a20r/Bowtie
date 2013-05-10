@@ -16,7 +16,7 @@
 // Two functions that need ro run
 // in order for the code to work properly
 getLocation();
-getSensorData();
+getSensorData(200);
 
 // Sets the window exiting function
 window.onbeforeunload = on_exit;
@@ -76,10 +76,10 @@ function toggle_readonly() {
 // Sets the event handler for the orientation sensor.
 // If the data cannot be gathered, messages will be
 // shown and the checkboxes will be disabled
-function getSensorData() {
+function getSensorData(time_interval_ms) {
   if(window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', orientationEventHandler, false);
-    window.setInterval(sendAjax, 200);
+    window.setInterval(sendAjax, time_interval_ms);
 
   } else {
       document.getElementById("doTiltLR").innerHTML = "Not supported";
@@ -154,12 +154,17 @@ function sendAjax() {
   dir = getIfValid("doDirection");
   lat = getIfValid("latPos");
   lon = getIfValid("longPos");
+  if (lat == null && lon == null && document.getElementById("latPos").innerHTML == "Not supported") {
+    error_data = {code: 1, message: "Position error"}
+  } else {
+    error_data = {code: 0, message: "No error"}
+  }
   if (document.getElementById("cpu_id").hasAttribute('readonly')) {
     $.ajax({
       type: 'POST',
       url:'/checked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value,
       data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-        tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: null})}
+        tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
     });
   }
 }

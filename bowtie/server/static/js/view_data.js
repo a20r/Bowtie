@@ -58,6 +58,7 @@ function visualize_data(cpu_data) {
   }
   ready_to_stop();
   for (var node_data in cpu_data) {
-    alert(JSON.stringify(cpu_data));
+    //alert(JSON.stringify(cpu_data));
+    
   }
 }
