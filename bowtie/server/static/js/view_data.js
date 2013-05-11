@@ -70,6 +70,7 @@ function visualize_data(cpu_data) {
   //println("Location");
   for (var node_name in cpu_data) {
     if (node_name != "error") {
+      s_table.innerHTML += "<tr>" + node_name;
       for (var sensor_name in cpu_data[node_name]) {
         s_table.innerHTML += "<tr>";
         for (var sensor_component in cpu_data[node_name][sensor_name]) {
@@ -77,6 +78,7 @@ function visualize_data(cpu_data) {
         }
         s_table.innerHTML += "</tr>";
       }
+      s_table.innerHTML += "</tr>";
     }
   }
 }
