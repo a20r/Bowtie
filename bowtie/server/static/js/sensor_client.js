@@ -41,26 +41,29 @@ function on_exit() {
 
 // Toggles whether the data is being shown to the user
 // and whether it gets sent to the server
+var sendingInterval;
 function toggle_readonly() {
  var phone_id_box = document.getElementById("phone_id");
  var cpu_id_box = document.getElementById("cpu_id");
   if(phone_id_box.hasAttribute('readonly')){   
-
-      phone_id_box.removeAttribute('readonly');
-      cpu_id_box.removeAttribute('readonly');
-      document.getElementById("sub_button").innerHTML = "Start sensing";
-      document.getElementById("sub_button").className = "btn btn-large btn-success"
-      document.getElementById("sensor_table").style.display = "none";
-
-      // deletes the data from the server
-      if (phone_id_box.value != "" && cpu_id_box.value != "") {
-        $.ajax({
-          type: 'POST',
-          url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
-        });
-      }
+    try {
+      window.clearInterval(sendingInterval);
+    } catch (err) {}
+    phone_id_box.removeAttribute('readonly');
+    cpu_id_box.removeAttribute('readonly');
+    document.getElementById("sub_button").innerHTML = "Start sensing";
+    document.getElementById("sub_button").className = "btn btn-large btn-success"
+    document.getElementById("sensor_table").style.display = "none";
+    // deletes the data from the server
+    if (phone_id_box.value != "" && cpu_id_box.value != "") {
+      $.ajax({
+        type: 'POST',
+        url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
+      });
+    }
   } else {
     if(phone_id_box.value != "" && cpu_id_box.value != "") {
+      sendingInterval = window.setInterval(sendAjax, 150);
       cpu_id_box.setAttribute('readonly', 'readonly');
       phone_id_box.setAttribute('readonly', 'readonly');
       document.getElementById("sub_button").innerHTML = "Stop sensing";
@@ -79,7 +82,6 @@ function toggle_readonly() {
 function getSensorData(time_interval_ms) {
   if(window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', orientationEventHandler, false);
-    window.setInterval(sendAjax, time_interval_ms);
 
   } else {
       document.getElementById("doTiltLR").innerHTML = "Not supported";
