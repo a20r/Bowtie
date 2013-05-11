@@ -36,15 +36,17 @@ function ready_to_stop() {
 
 // Toggles whether the data is being shown to the user
 // and whether it gets sent to the server
+var intervalVar;
 function toggle_readonly() {
   var cpu_id_box = document.getElementById("cpu_id");
   if(cpu_id_box.hasAttribute('readonly')){   
+    clearInterval(intervalVar);
     ready_to_start();
   } else {
     if(cpu_id_box.value != "") {
-      $.getJSON('/' + cpu_id_box.value, visualize_data);
+      intervalVar = setInterval(function() {$.getJSON('/' + cpu_id_box.value, visualize_data)}, 50);
     } else {
-      show_warning("Please enter a CPU Id and Node Id before continuing");
+      show_warning("Please enter a CPU Id before continuing");
     }
   }
 }
@@ -58,24 +60,23 @@ function visualize_data(cpu_data) {
   //alert(JSON.stringify(node_data));
   if (cpu_data['error']['code'] == 2) {
     show_warning(cpu_data['error']['message']);
+    clearInterval(intervalVar);
+    ready_to_start();
     return;
   }
   ready_to_stop();
   var s_table = document.getElementById('sensor_table');
-  new_line = "<br>";
   s_table.innerHTML = "";
   //println("Location");
   for (var node_name in cpu_data) {
     if (node_name != "error") {
       for (var sensor_name in cpu_data[node_name]) {
+        s_table.innerHTML += "<tr>";
         for (var sensor_component in cpu_data[node_name][sensor_name]) {
-          s_table.innerHTML += sensor_component + " : " + cpu_data[node_name][sensor_name][sensor_component] + new_line;
+          s_table.innerHTML += "<td><b>" + sensor_component + "</b> </td><td>" + cpu_data[node_name][sensor_name][sensor_component] + "</td>";
         }
+        s_table.innerHTML += "</tr>";
       }
-      println(cpu_data[node_name]);
     }
   }
-
-  // Need to put this in an interval
-  $.getJSON('/' + document.getElementById('cpu_id').value, visualize_data);
 }
