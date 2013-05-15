@@ -58,5 +58,5 @@ func displayHandler() {
 func main() {
     displayHandler()
     http.HandleFunc("/checked/", dataSentHandler)
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe("aw204.host.cs.st-andrews.ac.uk:5000", nil)
 }
