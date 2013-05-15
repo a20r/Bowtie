@@ -51,7 +51,11 @@ function toggle_readonly() {
   }
 }
 
-var prev_nodes = [];
+function println(msg) {
+  document.getElementById('sensor_table').innerHTML += (msg + "<br>");
+}
+
+var prev_nodes = new Array();
 function visualize_data(cpu_data) {
   if (cpu_data['error']['code'] == 2) {
     show_warning(cpu_data['error']['message']);
@@ -62,18 +66,9 @@ function visualize_data(cpu_data) {
   ready_to_stop();
   var s_table = document.getElementById('sensor_table');
   //s_table.innerHTML = "";
+
   for (var node_name in cpu_data) {
-    if (!(node_name in prev_nodes)) {
-      prev_nodes.push(node_name);
-    }
-  }
-  for (var name in prev_nodes) {
-    if (!(prev_nodes[name] in cpu_data)) {
-      try {
-        document.getElementById(prev_nodes[name]).innerHTML = "";
-        prev_nodes.splice(name, 1);
-      } catch (err) {}
-    }
+    
   }
 
   for (var node_name in cpu_data) {
@@ -87,15 +82,14 @@ function visualize_data(cpu_data) {
       }
     } else {
       if (node_name != "error") {
-        s_table.innerHTML += "<tr><div id = " + node_name + ">" + node_name + "</div>";
-        var node_var = document.getElementById(node_name);
+        s_table.innerHTML += "<tr id = " + node_name + ">" + node_name;
         for (var sensor_name in cpu_data[node_name]) {
+          s_table.innerHTML += "<tr>";
           for (var sensor_component in cpu_data[node_name][sensor_name]) {
-            node_var.innerHTML += "<tr>";
-            node_var.innerHTML += "<td><b>" + sensor_component + "</b> </td><td id = " + node_name + "_" + sensor_component + 
+            s_table.innerHTML += "<td><b>" + sensor_component + "</b> </td><td id = " + node_name + "_" + sensor_component + 
                                   ">" + cpu_data[node_name][sensor_name][sensor_component] + "</td>";
-            node_var.innerHTML += "</tr>";
           }
+          s_table.innerHTML += "</tr>";
         }
         s_table.innerHTML += "</tr>";
       }
