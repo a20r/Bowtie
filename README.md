@@ -1,8 +1,8 @@
-PyBowtie
+GoBowtie
 ========
 
 ##Purpose:
-Bowtie is a sensor integration server using HTML5 and was written in Python and Javascript.
+Bowtie is a sensor integration server using HTML5 and was written in Go and Javascript.
 This means sensor data can be collected from most devices and pushed to a server. The sensor 
 data is stored in a unique folder defined by the CPU Id and inside the folder 
 are JSON files that are defined by the Node Id. This makes it easy in any 
@@ -31,15 +31,12 @@ to grow.
 * The CPU client: make run_client
 
 ##Requirements:
-* Pip:
-	* easy_install pip
-* Flask:
-	* pip install flask
+* sudo apt-get install golang
 
 ##Improvements Needed
 ##Using a database
 * Use a database instead of storing everything in files so further analysis of the data will be available
-	* Using sqlite3 in Python is easy 
+	* Using sqlite3 in Go is easy
 
 ##Administrator website
 * Make admin website that can see all of the different phone nodes and their respective CPU Ids
@@ -59,7 +56,4 @@ to grow.
 	* Nothing should be sending until both the phone id and the CPU id have been entered
 
 ###Launching on a server
-* Need to put the server onto an actual server for testing
-	* Google app engine?
-	* School server using a virtual env?
-	* Nathan's server?
+* Just use Go!
