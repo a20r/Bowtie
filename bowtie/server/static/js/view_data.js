@@ -44,7 +44,7 @@ function toggle_readonly() {
     ready_to_start();
   } else {
     if(cpu_id_box.value != "") {
-      intervalVar = setInterval(function() {$.getJSON('/' + cpu_id_box.value, visualize_data)}, 50);
+      intervalVar = setInterval(function() {$.getJSON('/get_data/' + cpu_id_box.value, visualize_data)}, 50);
     } else {
       show_warning("Please enter a CPU Id before continuing");
     }
@@ -57,6 +57,7 @@ function println(msg) {
 
 var prev_nodes = new Array();
 function visualize_data(cpu_data) {
+  //alert(JSON.stringify(cpu_data["error"]));
   if (cpu_data['error']['code'] == 2) {
     show_warning(cpu_data['error']['message']);
     clearInterval(intervalVar);

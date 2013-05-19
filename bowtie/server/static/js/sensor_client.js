@@ -15,8 +15,10 @@
 
 // Two functions that need ro run
 // in order for the code to work properly
-getLocation();
-getSensorData(200);
+window.onload = function() {
+  getLocation();
+  getSensorData(200);
+}
 
 // Sets the window exiting function
 window.onbeforeunload = on_exit;
