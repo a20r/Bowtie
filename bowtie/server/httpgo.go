@@ -89,8 +89,8 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
         res := make(Response)
         for _, file := range files {
             //fmt.Println(file.Name())
-            node_id := strings.Split(file.Name(), ".")[0]
             var sData SensorData
+            node_id := strings.Split(file.Name(), ".")[0]
             file_bytes, read_err := ioutil.ReadFile("json_data/" + cpu_id + "/" + node_id + ".json")
             json_err := json.Unmarshal(file_bytes, &sData)
             if read_err != nil {
@@ -101,7 +101,12 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
             }
             res[node_id] = sData
         }
-        res["error"] = Response{"code": 0, "message": "No error"}
+        fmt.Println(files)
+        if len(files) > 0 {
+            res["error"] = Response{"code": 0, "message": "No error"}
+        } else {
+           res["error"] = Response{"code": 2, "message": "No data for " + cpu_id} 
+        }
         fmt.Println(res)
         fmt.Fprint(w, res)
     }
