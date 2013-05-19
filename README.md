@@ -2,12 +2,13 @@ GoBowtie
 ========
 
 ##Purpose:
-Bowtie is a sensor integration server using HTML5 and was written in Go and Javascript.
-This means sensor data can be collected from most devices and pushed to a server. The sensor 
-data is stored in a unique folder defined by the CPU Id and inside the folder 
-are JSON files that are defined by the Node Id. This makes it easy in any 
-programming language on almost any operating system to gather the sensor data. This means
-that sensor data can be gathered without any native program running.
+Bowtie is a sensor integration server implemented using Go, HTML5 and Javascript.
+Sensory data from mobile devies are collected via the HTML5's API and pushed to a server. 
+The data is stored in a unique folder defined by the CPU Id and inside the folder are JSON 
+files that are defined by the Node Id. This makes it easy in any programming language on almost 
+any operating system to gather the sensor data. This means that sensor data can be gathered without 
+any native program running.
+
 ###Inspiration
 Many small scale robotics projects suffer due to of a lack of sensors or the difficulty to
 integrate sensors in the project. Many sensors come with limited documentation and require different
