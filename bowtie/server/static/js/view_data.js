@@ -77,8 +77,16 @@ function visualize_data(cpu_data) {
           }
         }
       }
+      var tiltLR = document.getElementById(node_name + "_tilt_horizontal").innerHTML;
+      var tiltFB = document.getElementById(node_name + "_tilt_vertical").innerHTML;
+      //alert(tiltLR + " " + tiltFB);
+      document.getElementById(node_name + "_picture").style.webkitTransform = "rotate(" + tiltLR + "deg) rotate3d(1,0,0, " + (tiltFB * -1) + "deg)";
+      document.getElementById(node_name + "_picture").style.MozTransform = "rotate(" + tiltLR + "deg)";
+      document.getElementById(node_name + "_picture").style.transform = "rotate(" + tiltLR + "deg) rotate3d(1,0,0, " + (tiltFB * -1) + "deg)";
     } else {
       if (node_name != "error") {
+        //s_table.innerHTML += "<tr><div class='container' style='-webkit-perspective: 300; perspective: 300;'>"
+        //                   + "<img src='img/black-bow-tie.png' id=" + node_name + "_picture class='logo'> </div></tr>";
         s_table.innerHTML += "<tr id = " + node_name + ">" + node_name;
         for (var sensor_name in cpu_data[node_name]) {
           s_table.innerHTML += "<tr>";

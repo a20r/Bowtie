@@ -103,12 +103,6 @@ function orientationEventHandler(eventData) {
   var tiltLR=eventData.gamma;
   var tiltFB=eventData.beta;
   var dir=eventData.alpha;
-  deviceOrientationHandler(tiltLR,tiltFB,dir);
-  //sendAjax({code: 0, message: "No Error"})
-}
-
-// Writes the orientation data on the HTML page
-function deviceOrientationHandler(tiltLR,tiltFB,dir) {
   document.getElementById("doTiltLR").innerHTML=Math.round(tiltLR);
   document.getElementById("doTiltFB").innerHTML=Math.round(tiltFB);
   document.getElementById("doDirection").innerHTML=Math.round(dir);

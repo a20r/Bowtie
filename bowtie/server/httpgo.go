@@ -131,5 +131,5 @@ func main() {
     http.HandleFunc("/unchecked/", dataRemoveHandler)
     http.HandleFunc("/get_data/", dataGetHandler)
     fmt.Println("Running server on localhost:8080")
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe("aw204.host.cs.st-andrews.ac.uk:5000", nil)
 }
