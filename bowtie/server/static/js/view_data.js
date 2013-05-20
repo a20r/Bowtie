@@ -85,18 +85,19 @@ function visualize_data(cpu_data) {
       document.getElementById(node_name + "_picture").style.transform = "rotate(" + tiltLR + "deg) rotate3d(1,0,0, " + (tiltFB * -1) + "deg)";
     } else {
       if (node_name != "error") {
-        //s_table.innerHTML += "<tr><div class='container' style='-webkit-perspective: 300; perspective: 300;'>"
-        //                   + "<img src='img/black-bow-tie.png' id=" + node_name + "_picture class='logo'> </div></tr>";
-        s_table.innerHTML += "<tr id = " + node_name + ">" + node_name;
+        s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
+        var n_table = document.getElementById(node_name);
         for (var sensor_name in cpu_data[node_name]) {
-          s_table.innerHTML += "<tr>";
+          n_table.innerHTML += "<tr>";
           for (var sensor_component in cpu_data[node_name][sensor_name]) {
-            s_table.innerHTML += "<td><b>" + sensor_component + "</b> </td><td id = " + node_name + "_" + sensor_component + 
+            n_table.innerHTML += "<td><b>" + sensor_component + "</b> </td><td id = " + node_name + "_" + sensor_component + 
                                   ">" + cpu_data[node_name][sensor_name][sensor_component] + "</td>";
           }
-          s_table.innerHTML += "</tr>";
+          n_table.innerHTML += "</tr>";
         }
-        s_table.innerHTML += "</tr>";
+        s_table.innerHTML += "</table>";
+        s_table.innerHTML += "<div class='container' style='-webkit-perspective: 300; perspective: 300;'>"
+                           + "<img src='img/black-bow-tie.png' id=" + node_name + "_picture class='logo'></div>";
       }
     }
   }
