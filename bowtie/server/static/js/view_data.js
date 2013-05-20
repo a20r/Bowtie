@@ -69,10 +69,6 @@ function visualize_data(cpu_data) {
   //s_table.innerHTML = "";
 
   for (var node_name in cpu_data) {
-    
-  }
-
-  for (var node_name in cpu_data) {
     if (document.getElementById(node_name)) {
       if (node_name != "error") {
         for (var sensor_name in cpu_data[node_name]) {
