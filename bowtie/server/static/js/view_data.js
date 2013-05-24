@@ -10,6 +10,8 @@ function warning_closed() {
   document.getElementById("alert_msg").style.display = "none";
 }
 
+// Shows a warning message in the 
+// form of a alert
 function show_warning(msg) {
   document.getElementById("alert_msg").innerHTML =  "<button type='button' class='close' onClick='warning_closed()'" + 
                                                     "data-dismiss='alert'>&times;</button>" + 
@@ -17,6 +19,8 @@ function show_warning(msg) {
   document.getElementById("alert_msg").style.display = "block";
 }
 
+// Gets the form ready for data
+// to be received from the server
 function ready_to_start() {
   var cpu_id_box = document.getElementById("cpu_id");
   cpu_id_box.removeAttribute('readonly');
@@ -25,6 +29,8 @@ function ready_to_start() {
   document.getElementById("sensor_table").style.display = "none";
 }
 
+// Gets the form ready to stop 
+// getting data from the server
 function ready_to_stop() {
   var cpu_id_box = document.getElementById("cpu_id");
   cpu_id_box.setAttribute('readonly', 'readonly');
@@ -51,16 +57,16 @@ function toggle_readonly() {
   }
 }
 
-function println(msg) {
-  document.getElementById('sensor_table').innerHTML += (msg + "<br>");
-}
-
-function makeStringPresentable(string)
-{
+// Makes the string presentable (obviously)
+// Capitalizes the first letter and 
+// puts space where there is an underscore
+function makeStringPresentable(string) {
   var spaceString = string.replace("_", " ");
   return spaceString.charAt(0).toUpperCase() + spaceString.slice(1);
 }
 
+// Creates the tables dynamically that visualize
+// the data being sent to the server
 function createTables(cpu_data, node_name, s_table) {
   if (node_name != "error") {
     s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' style='display:block -webkit-perspective: 400px;'>"
@@ -82,6 +88,7 @@ function createTables(cpu_data, node_name, s_table) {
   }
 }
 
+// Updates the existing tables with new sensor data
 function updateTables(cpu_data, node_name, s_table) {
   if (node_name != "error") {
     for (var sensor_name in cpu_data[node_name]) {
@@ -97,6 +104,7 @@ function updateTables(cpu_data, node_name, s_table) {
                                                                           " rotateY(" + tiltLR + "deg)";
 }
 
+// Takes the set difference of two arrays
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return !(a.indexOf(i) > -1);});
 };
@@ -110,18 +118,25 @@ function jsonToArray(jsondata) {
   return retArray;
 }
 
+// Revives the data if the table
+// was created and made to display none
 function reviveData(data_id) {
   document.getElementById(data_id).style.display = "block";
   document.getElementById(data_id + "_picdiv").style.display = "block";
   document.getElementById(data_id + "_header").style.display = "block";
 }
 
+// Sets the display of table to none
 function killData(data_id) {
   document.getElementById(data_id).style.display = "none";
   document.getElementById(data_id + "_picdiv").style.display = "none";
   //document.getElementById(data_id + "_header").style.display = "none";
 }
 
+// Gets rid of sensor tables
+// that are representing nodes
+// that data is not being sent
+// for
 var prev_nodes = new Array();
 function filterOldData(cpu_data) {
   if (prev_nodes.length > 0) {
@@ -134,6 +149,10 @@ function filterOldData(cpu_data) {
   }
 }
 
+// Visualizes the data by putting the data
+// values in a table. It is dynamic so
+// once a sensor node starts sending or stops
+// sending data it is noticable.
 function visualize_data(cpu_data) {
   //alert(JSON.stringify(cpu_data["error"]));
   if (cpu_data['error']['code'] == 2) {
