@@ -10,14 +10,20 @@ import (
     "encoding/json"
 )
 
+// JSON response mapping
 type Response map[string]interface{}
+
+// Type definition for disambiguation. Holds the sensor data
 type SensorData Response
 
+// Represents an file loaded
 type Page struct {
 	Title string
 	Body []byte
 }
 
+// Converts the JSON to strings
+// to be sent as a response
 func (r Response) String() (s string) {
     b, err := json.Marshal(r)
     if err != nil {
@@ -28,6 +34,8 @@ func (r Response) String() (s string) {
     return
 }
 
+// Opens a file and returns it represented
+// as a Page. 
 func loadPage(folder, title string) (*Page, error) {
     filename := folder + "/" + title
     body, err := ioutil.ReadFile(filename)
@@ -37,12 +45,15 @@ func loadPage(folder, title string) (*Page, error) {
     return &Page{Title: title, Body: body}, nil
 }
 
+// Creates a function that will be used as a handler
+// for static and template responses. See Usage!
 func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
                 fmt.Println("GET\t" + r.URL.Path)
     			var p *Page
     			var err error
     			if len(r.URL.Path) == 1 {
+                    // In case the path is just '/'
     				p, err = loadPage("templates", "index.html")
     			} else {
     				p, err = loadPage(folder, r.URL.Path[1:])
@@ -55,6 +66,8 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
 		}
 }
 
+// Removes the JSON data once the node stops
+// sending sensor data
 func dataRemoveHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
@@ -65,6 +78,8 @@ func dataRemoveHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+// Handler called when data is sent
+// to the server from a node
 func dataSentHandler(w http.ResponseWriter, r *http.Request) {
     r.ParseForm()
     fmt.Println("POST\t" + r.URL.Path)
@@ -81,6 +96,9 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
     file.Close()
 }
 
+// Responds to the GET request from a client.
+// Used for the visualization and for APIs 
+// for users to query the data.
 func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
@@ -117,6 +135,8 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+// Handles all Javascript, images, and HTML
+// file requests
 func displayHandler() {
     staticHandler := fileResponseCreator("static")
     http.HandleFunc("/", fileResponseCreator("templates"))
