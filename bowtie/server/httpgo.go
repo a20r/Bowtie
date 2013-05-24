@@ -49,7 +49,7 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
     			if p != nil {
         			w.Write(p.Body)
         		} else {
-        			fmt.Println("ERROR" + err.Error())
+        			fmt.Println("ERROR\t" + err.Error())
         		}
 		}
 }

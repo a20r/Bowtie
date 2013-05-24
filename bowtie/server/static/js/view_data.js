@@ -55,7 +55,85 @@ function println(msg) {
   document.getElementById('sensor_table').innerHTML += (msg + "<br>");
 }
 
+function makeStringPresentable(string)
+{
+  var spaceString = string.replace("_", " ");
+  return spaceString.charAt(0).toUpperCase() + spaceString.slice(1);
+}
+
+function createTables(cpu_data, node_name, s_table) {
+  if (node_name != "error") {
+    s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' style='display:block -webkit-perspective: 400px;'>"
+                       + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'>" + node_name + "</font></b>" + 
+                         "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
+                         "id=" + node_name + "_picture class='logo'></span>";
+    s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
+    var n_table = document.getElementById(node_name);
+    for (var sensor_name in cpu_data[node_name]) {
+      n_table.innerHTML += "<tr>";
+      for (var sensor_component in cpu_data[node_name][sensor_name]) {
+        n_table.innerHTML += "<td><b>" + makeStringPresentable(sensor_component) + "</b>" + 
+                             "</td><td id = " + node_name + "_" + sensor_component + ">" + 
+                             cpu_data[node_name][sensor_name][sensor_component] + "</td>";
+      }
+      n_table.innerHTML += "</tr>";
+    }
+    s_table.innerHTML += "</table>";
+  }
+}
+
+function updateTables(cpu_data, node_name, s_table) {
+  if (node_name != "error") {
+    for (var sensor_name in cpu_data[node_name]) {
+      for (var sensor_component in cpu_data[node_name][sensor_name]) {
+        document.getElementById(node_name + "_" + sensor_component).innerHTML = String(cpu_data[node_name][sensor_name][sensor_component]);
+      }
+    }
+  }
+  var tiltLR = document.getElementById(node_name + "_tilt_horizontal").innerHTML;
+  var tiltFB = document.getElementById(node_name + "_tilt_vertical").innerHTML;
+  var dir = document.getElementById(node_name + "_direction").innerHTML;
+  document.getElementById(node_name + "_picture").style.webkitTransform = "rotateX(" + (tiltFB * -1) + "deg)" + 
+                                                                          " rotateY(" + tiltLR + "deg)";
+}
+
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return !(a.indexOf(i) > -1);});
+};
+
+function jsonToArray(jsondata) { 
+  var retArray = new Array();
+  var i = 0;
+  for (var label in jsondata) {
+    retArray[i++] = label;
+  }
+  return retArray;
+}
+
+function reviveData(data_id) {
+  document.getElementById(data_id).style.display = "block";
+  document.getElementById(data_id + "_picdiv").style.display = "block";
+  document.getElementById(data_id + "_header").style.display = "block";
+}
+
+function killData(data_id) {
+  document.getElementById(data_id).style.display = "none";
+  document.getElementById(data_id + "_picdiv").style.display = "none";
+  //document.getElementById(data_id + "_header").style.display = "none";
+}
+
 var prev_nodes = new Array();
+function filterOldData(cpu_data) {
+  if (prev_nodes.length > 0) {
+    var rmData = prev_nodes.diff(jsonToArray(cpu_data));
+    for (var i in rmData) {
+      try {
+        killData(rmData[i]);
+      } catch (err) {}
+    }
+  }
+}
+
 function visualize_data(cpu_data) {
   //alert(JSON.stringify(cpu_data["error"]));
   if (cpu_data['error']['code'] == 2) {
@@ -64,41 +142,18 @@ function visualize_data(cpu_data) {
     ready_to_start();
     return;
   }
+  filterOldData(cpu_data);
+  prev_nodes = jsonToArray(cpu_data)
   ready_to_stop();
   var s_table = document.getElementById('sensor_table');
-  //s_table.innerHTML = "";
-
   for (var node_name in cpu_data) {
     if (document.getElementById(node_name)) {
-      if (node_name != "error") {
-        for (var sensor_name in cpu_data[node_name]) {
-          for (var sensor_component in cpu_data[node_name][sensor_name]) {
-            document.getElementById(node_name + "_" + sensor_component).innerHTML = String(cpu_data[node_name][sensor_name][sensor_component]);
-          }
-        }
+      if (document.getElementById(node_name).style.display == "none") {
+        reviveData(node_name);
       }
-      var tiltLR = document.getElementById(node_name + "_tilt_horizontal").innerHTML;
-      var tiltFB = document.getElementById(node_name + "_tilt_vertical").innerHTML;
-      //alert(tiltLR + " " + tiltFB);
-      document.getElementById(node_name + "_picture").style.webkitTransform = "rotate(" + tiltLR + "deg) rotate3d(1,0,0, " + (tiltFB * -1) + "deg)";
-      document.getElementById(node_name + "_picture").style.MozTransform = "rotate(" + tiltLR + "deg)";
-      document.getElementById(node_name + "_picture").style.transform = "rotate(" + tiltLR + "deg) rotate3d(1,0,0, " + (tiltFB * -1) + "deg)";
+      updateTables(cpu_data, node_name, s_table);
     } else {
-      if (node_name != "error") {
-        s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
-        var n_table = document.getElementById(node_name);
-        for (var sensor_name in cpu_data[node_name]) {
-          n_table.innerHTML += "<tr>";
-          for (var sensor_component in cpu_data[node_name][sensor_name]) {
-            n_table.innerHTML += "<td><b>" + sensor_component + "</b> </td><td id = " + node_name + "_" + sensor_component + 
-                                  ">" + cpu_data[node_name][sensor_name][sensor_component] + "</td>";
-          }
-          n_table.innerHTML += "</tr>";
-        }
-        s_table.innerHTML += "</table>";
-        s_table.innerHTML += "<div class='container' style='-webkit-perspective: 300; perspective: 300;'>"
-                           + "<img src='img/black-bow-tie.png' id=" + node_name + "_picture class='logo'></div>";
-      }
+      createTables(cpu_data, node_name, s_table);
     }
   }
 }
