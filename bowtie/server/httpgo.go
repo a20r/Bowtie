@@ -6,6 +6,7 @@ import (
     "io/ioutil"
     "net/http"
     "os"
+    "flag"
     "strings"
     "encoding/json"
 )
@@ -151,6 +152,9 @@ func main() {
     http.HandleFunc("/checked/", dataSentHandler)
     http.HandleFunc("/unchecked/", dataRemoveHandler)
     http.HandleFunc("/get_data/", dataGetHandler)
-    fmt.Println("Running server on localhost:8080")
-    http.ListenAndServe(":8080", nil)
+    var addr_flag = flag.String("addr", "localhost", "Address the http server binds to")
+    var port_flag = flag.String("port", "8080", "Port used for http server")
+    flag.Parse()
+    //fmt.Println("Running server on " + *addr_flag + ":" + *port_flag)
+    http.ListenAndServe(*addr_flag + ":" + *port_flag, nil)
 }

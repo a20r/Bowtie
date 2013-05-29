@@ -65,12 +65,22 @@ function makeStringPresentable(string) {
   return spaceString.charAt(0).toUpperCase() + spaceString.slice(1);
 }
 
+function toggleTable(tb_id) {
+  var tb = document.getElementById(tb_id);
+  if (tb.style.display == "none") {
+    tb.style.display = "block";
+  } else {
+    tb.style.display = "none";
+  }
+}
+
 // Creates the tables dynamically that visualize
 // the data being sent to the server
 function createTables(cpu_data, node_name, s_table) {
   if (node_name != "error") {
-    s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' style='display:block -webkit-perspective: 400px;'>"
-                       + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'>" + node_name + "</font></b>" + 
+    s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' onClick='toggleTable(\"" + node_name + "\")' "
+                       + "style='display:block -webkit-perspective: 400px;'>"
+                       + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'><a href='#'>" + node_name + "</a></font></b>" + 
                          "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
                          "id=" + node_name + "_picture class='logo'></span>";
     s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
@@ -167,7 +177,7 @@ function visualize_data(cpu_data) {
   var s_table = document.getElementById('sensor_table');
   for (var node_name in cpu_data) {
     if (document.getElementById(node_name)) {
-      if (document.getElementById(node_name).style.display == "none") {
+      if (document.getElementById(node_name + "_picdiv").style.display == "none") {
         reviveData(node_name);
       }
       updateTables(cpu_data, node_name, s_table);
