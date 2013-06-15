@@ -34,6 +34,12 @@ interest in urban spaces.
 
 
 ## How Bowtie Works
+Bowtie implements a client-server model. To make deployment simple, the client
+(smartphone) is not required to install anything, the only requirement is for
+the smartphone to use a HTML5 compliant web browser to visit the web page
+Bowtie is currently serving.
+
+![Client Server](images/Simple Case.png)
 
 
 ## Requirements and Dependencies
