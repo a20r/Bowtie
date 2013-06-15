@@ -1,60 +1,76 @@
-GoBowtie
-========
+# Bowtie
+Bowtie is a smartphone sensory data collector implemented in Go. To collect sensory
+data, the smartphone is required to visit a HTML5 web page served by Bowtie.
+Bowtie is capable of capturing:
 
-##Purpose:
-Bowtie is a sensor integration server implemented using Go, HTML5 and Javascript.
-Sensory data from mobile devies are collected via the HTML5's API and pushed to a server. 
-The data is stored in a unique folder defined by the CPU Id and inside the folder are JSON 
-files that are defined by the Node Id. This makes it easy in any programming language on almost 
-any operating system to gather the sensor data. This means that sensor data can be gathered without 
-any native program running.
+- Accelerometer
+- Gyroscope
+- GPS
+- Temperature
+- Camera
+- Microphone
+- And more...
 
-###Inspiration
-Many small scale robotics projects suffer due to of a lack of sensors or the difficulty to
-integrate sensors in the project. Many sensors come with limited documentation and require different
-port specifications, different voltages, some need a pulse to be sent to them before data can 
-be read, and so on. By using devices that support an internet connection and HTML5 (i.e. a 
-smart phone) as sensor nodes, a layer of abstraction is removed, which leads to better overall
-integration. A sample case is a small mobile robot that needs an orientation and GPS sensor.
-By using Bowtie, any Android phone can be used for these sensors. The phone 
-would just need to load Bowtie's specified website in the browser to gather 
-the data. To integrate the data, the robot's processing unit would need to use Bowtie's
-client side Python module, which would extract the sensor data.
-###But why get the data through a server?
-Using a main server allows for data to be easily integrated for swarm robotics. Imagine a swarm 
-of robots that are dispatched from one main robot, each with their own sensor node. All of the
-data could be gathered by a central processing unit on a main robot to make conclusions about the
-environment. Also passing the data through a server allows for a more robust, less limited system
-to grow.
 
-##To run:
-* The server: make run_server
-* The CPU client: make run_client
+## Use cases
+### Robotics
+Our initial use case is to use Bowtie for robotics purposes. We realize there
+is a large investment in terms of time and cost associated in developing the
+electronics for robots, therefore we are attempting mitigate those barriers by
+using what is already widely available, smartphones.
 
-##Requirements:
-* sudo apt-get install golang
+In particular a robot can utilize the phone's wide array of sensors without
+having to resort to specialized sensors that are difficult to be reused for
+other robots. Additionally given a swarm of robots using Bowtie, robots can
+communicate and act as a collective based on data of each other.
 
-##Improvements Needed
-##Using a database
+### Crowd Sourcing
+Crowd sourcing from multiple smartphones can be combined to build a
+spatiotemporal view of the phenomenon of interest and also to extract important
+community statistics. Given the ubiquity of mobile phones and the high density
+of people in metropolitan areas, participatory sensing can achieve an
+unprecedented level of coverage in both space and time for observing events of
+interest in urban spaces.
+
+
+## How Bowtie Works
+Bowtie implements a client-server model. To make deployment simple, the client
+(smartphone) is not required to install anything, the only requirement is for
+the smartphone to use a HTML5 compliant web browser to visit the web page
+Bowtie is currently serving.
+
+![Client Server](images/Simple Case.png)
+
+
+## Requirements and Dependencies
+
+- **[GO](http://golang.org/)** language
+
+
+## Usage
+
+    make run_server  # Run Bowtie
+    make run_client  # Run client
+
+
+## TODO
+## Using a database
 * Use a database instead of storing everything in files so further analysis of the data will be available
 	* Using sqlite3 in Go is easy
 
-##Administrator website
+## Administrator website
 * Make admin website that can see all of the different phone nodes and their respective CPU Ids
 	* Make bootsrap password and username field
 	* Have drop down views using bootsrap
 
-##User Login 
+## User Login
 * Allowing users to login for a certain CPU Id to see graphical data from the sensors and geolocation on maps
 	* Look at Google API for maps
 	* Find a way to make graphs in HTML5 so that they can be updated dynamically
 
-###Phone Identifiers --> done
+### Phone Identifiers --> done
 * Need to have a way to distinguish phone nodes for different robots
 	* Setup a folder for each CPU identifier
 	* Have a text field to enter the phone id
 	* Once the CPU checkbox is unclicked, delete the JSON in the CPU id folder for the respective phone id
 	* Nothing should be sending until both the phone id and the CPU id have been entered
-
-###Launching on a server
-* Just use Go!
