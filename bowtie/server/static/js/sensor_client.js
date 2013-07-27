@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////
 
 // Two functions that need ro run
-// in order for the code to work properly
+// in order for the code to work properly 
 window.onload = function() {
   getLocation();
   getSensorData(200);
