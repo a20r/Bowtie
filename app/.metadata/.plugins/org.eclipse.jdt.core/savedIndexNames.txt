@@ -1,4 +1,0 @@
-INDEX VERSION 1.126+/Users/wallarelvo-mac/Documents/Projects/PyBowtie/app/.metadata/.plugins/org.eclipse.jdt.core
-1231791599.index
-3516711008.index
-1622988375.index
