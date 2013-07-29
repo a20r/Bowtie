@@ -159,8 +159,22 @@ function sendAjax() {
     $.ajax({
       type: 'POST',
       url:'/checked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value,
-      data: {sensor_data: JSON.stringify({orientation: {tilt_horizontal: tiltLR, 
-        tilt_vertical: tiltFB, direction: dir}, location: {latitude: lat, longitude: lon}, error: error_data})}
+      data: {
+        sensor_data: JSON.stringify(
+          {
+            orientation: {
+              tilt_horizontal: tiltLR, 
+              tilt_vertical: tiltFB, 
+              direction: dir
+          }, 
+          location: {
+            latitude: lat, 
+            longitude: lon
+          }, 
+          error: error_data
+        }
+      )
+    }
     });
   }
 }
