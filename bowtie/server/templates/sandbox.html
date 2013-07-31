@@ -17,7 +17,10 @@
         || navigator.msGetUserMedia;
 
     // CONSTANTS
-    var STOP_WS = "STOP WS"
+    var CONNECTED_WS = "CONNECTED WS";
+    var DISCONNECTED_WS = "DISCONNECTED WS";
+    var RETRY_WS = "RETRY WS";
+    var DISCONNECT_WS = "DISCONNECT WS";
 
     // Checks to see if browser supports getUserMedia()
     function hasGetUserMedia() {
@@ -54,12 +57,11 @@
 
             ws.onopen = function () {
                 console.log("Opening websocket connection");
-                ws.send("Hello World!");
             };
 
             ws.onmessage = function(message) {
                 console.log("Recieved msg from websocket: [", message.data, "]");
-                if (message.data === STOP_WS) {
+                if (message.data === DISCONNECT_WS ) {
                     ws.close();
                 }
             }

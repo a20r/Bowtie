@@ -164,13 +164,13 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func videoStreamHandler(msg string) {
+// Video stream handler
+// Obtains data as a string encoded in Base64 and outputs the video
+// stream as images
+func videoStreamHandler(data string) {
     cpu_id := "testing"
     node_id := "testing"
     path := "./video_data/" + cpu_id + "/"
-
-    // data := strings.Split(msg, ",")[0]
-    base64_str := strings.Split(msg, ",")[1]
 
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
@@ -181,7 +181,7 @@ func videoStreamHandler(msg string) {
     }
 
     // Decode Base64 string to binary
-    img_data, err := base64.StdEncoding.DecodeString(base64_str)
+    img_data, err := base64.StdEncoding.DecodeString(data)
     if err != nil {
         fmt.Println("error:", err)
         return
@@ -192,34 +192,35 @@ func videoStreamHandler(msg string) {
     file.Close()
 }
 
+// Websocket Parser
+func websocketMsgParser(msg string) {
+    // Parse header and data
+    msg_header := strings.Split(msg, ",")[0]
+    msg_data := strings.Split(msg, ",")[1]
+
+    if (msg_header == "data:imag/jpeg;base64") {
+        videoStreamHandler(msg_data)
+    }
+}
+
 // Websocket Handler
 func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Handling websocket request with wsHandler")
     var msg string
 
-    // Process websocket message
-    err := websocket.Message.Receive(ws, &msg)
-    if err != nil {
-        fmt.Println("ProcessSocket: got error", err)
-        _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
-        return
+    // Process incomming websocket messages
+    for {
+
+        err := websocket.Message.Receive(ws, &msg)
+        if err != nil {
+            fmt.Println("ProcessSocket: got error", err)
+            _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
+            return
+        }
+        // fmt.Println("ProcessSocket: got message", msg)
+
+        websocketMsgParser(msg)
     }
-    fmt.Println("ProcessSocket: got message", msg)
-    // websocket.Message.Send(ws, "STOP WS")
-
-    // Return success
-    websocket.Message.Send(ws, "Websocket connection established!")
-
-    err = websocket.Message.Receive(ws, &msg)
-    if err != nil {
-        fmt.Println("ProcessSocket: got error", err)
-        _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
-        return
-    }
-    fmt.Println("ProcessSocket: got message", msg)
-
-    // Accepting video stream
-    videoStreamHandler(msg)
 
     fmt.Println("Finish handling websocket with wsHandler")
 }
