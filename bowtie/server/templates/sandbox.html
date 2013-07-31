@@ -16,6 +16,9 @@
         || navigator.mozGetUserMedia
         || navigator.msGetUserMedia;
 
+    // CONSTANTS
+    var STOP_VIDEO_TRANSMISSION = "STOP VIDEO TRANSMISSION"
+
     // Checks to see if browser supports getUserMedia()
     function hasGetUserMedia() {
         // Note: Opera is unprefixed.
@@ -43,29 +46,6 @@
         );
     }
 
-    function dataURIToJPG(data_uri) {
-        var binary = atob(data_uri.split(',')[1]);
-        var array = [];
-
-        for(var i = 0; i < binary.length; i++) {
-            array.push(binary.charCodeAt(i));
-        }
-
-        return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
-    }
-
-    function convertVideoToImage(time_interval) {
-        timer = setInterval(
-            function () {
-                canvas_context.drawImage(video, 0, 0, 320, 240);
-                data = canvas.toDataURL('image/jpeg', 1.0);
-                newblob = dataURIToJPG(data);
-            },
-            250
-        );
-
-    }
-
     function openWebSocket(url) {
         var ws = null;
 
@@ -73,11 +53,35 @@
             ws = new WebSocket(url);
 
             ws.onopen = function () {
-                console.log("Openened connection to websocket");
+                console.log("Opening websocket connection");
+                ws.send("Hello World!");
             };
 
+            ws.onmessage = function(message) {
+                console.log("Recieved msg from websocket: [", message.data, "]");
+                if (message.data === STOP_VIDEO_TRANSMISSION) {
+                    ws.close();
+                }
+            }
+
+            ws.onerror = function(error) {
+                if (error.reason != undefined) {
+                    console.log("Websocket Error!: " + error.reason);
+                } else {
+                    console.log("Websocket Error Detected!");
+                }
+
+                ws.close();
+                ws = null;
+            };
+
+            ws.onclose = function() {
+                ws.close();
+                ws = null;
+            }
+
         } catch (error) {
-            console.log("WebScoket Error!:" + error);
+            console.log("WebScoket Error!: " + error);
         }
 
         return ws;
@@ -85,16 +89,32 @@
 
     function transmitVideoStreamToURL(url, time_interval) {
         var ws = openWebSocket(url);
-        // convertVideoToImage(time_interval);
+        var timer = setInterval(
+            function () {
+                // condition that stops transmitting video stream to server
+                if (ws.readyState == 3) { // 3 - websocket is closed
+                    console.log("Stop video stream transmission!");
+                    clearInterval(timer);
+                } else {
+                    // draw video stream to canvas, obtain canvas data as jpg
+                    // then transmit to server
+                    canvas_context.drawImage(video, 0, 0, 320, 240);
+                    var data = canvas.toDataURL('image/jpeg', 1.0);
+                    console.log("Transmitting: [" + data + "]");
+                    ws.send(data);
+                }
+            },
+            250
+        );
+
     }
 
     // variables
-    var stream_video = true;
     var video = document.getElementById('live_stream');
     var canvas = document.getElementById('vid_img');
     var canvas_context = canvas.getContext('2d');
     var media_settings = {video: true, audio: true};
-    var ws_url = "ws://127.0.0.1:8080";
+    var ws_url = "ws://127.0.0.1:8080/websocket/";
     var time_interval = 250;
 
     // execution pre-checks

@@ -1,11 +1,19 @@
 package main
 
 import (
-    "fmt"
-    "io/ioutil"
-    "net/http"
+    // sys pkgs
     "os"
     "flag"
+
+    // io pkgs
+    "fmt"
+    "io/ioutil"
+
+    // network pkgs
+    "net/http"
+    "code.google.com/p/go.net/websocket"
+
+    // string pkgs
     "strings"
     "encoding/json"
 )
@@ -155,6 +163,50 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func videoStreamHandler(ms string) {
+    cpu_id := "testing"
+    node_id := "testing"
+    path := "./video_data/" + cpu_id + "/"
+
+    // Make and log data to a file
+    os.Mkdir(path, os.ModePerm | os.ModeType)
+    file, err := os.Create(path + node_id + ".jpg")
+
+    // Error handler
+    if err != nil {
+        fmt.Println("ERROR\t" + err.Error())
+        return
+    }
+
+    // file.Write([]byte(r.Form["sensor_data"][0]))
+    file.Close()
+}
+
+// Websocket Handler
+// Currently Used to handle video stream capture
+func wsHandler(ws *websocket.Conn) {
+    fmt.Println("Handling websocket request with wsHandler")
+    var msg string
+
+    // Process websocket message
+    err := websocket.Message.Receive(ws, &msg)
+    if err != nil {
+        fmt.Println("ProcessSocket: got error", err)
+        _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
+        return
+    }
+    fmt.Println("ProcessSocket: got message", msg)
+    websocket.Message.Send(ws, "STOP VIDEO")
+
+    // Return success
+    websocket.Message.Send(ws, "Websocket connection established!")
+
+    // Accepting video stream
+
+
+    fmt.Println("Finish handling websocket with wsHandler")
+}
+
 // Handles all incomming http requests
 func requestHandler() {
     staticHandler := fileResponseCreator("static")
@@ -163,6 +215,9 @@ func requestHandler() {
     http.HandleFunc("/js/", staticHandler)
     http.HandleFunc("/img/", staticHandler)
     http.HandleFunc("/favicon.ico", fileResponseCreator("static/img"))
+
+    // Handle webcam stream requests
+    http.Handle("/websocket/", websocket.Handler(wsHandler))
 }
 
 // MAIN EXECUTION FLOW
