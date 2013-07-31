@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<head>
+
+</head>
+<html>
+<body>
+
+<video id="live_stream" controls></video>
+<canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
+
+<script>
+
+    window.URL = window.URL || window.webkitURL;
+    navigator.getUserMedia = navigator.getUserMedia
+        || navigator.webkitGetUserMedia
+        || navigator.mozGetUserMedia
+        || navigator.msGetUserMedia;
+
+    // Checks to see if browser supports getUserMedia()
+    function hasGetUserMedia() {
+        // Note: Opera is unprefixed.
+        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    }
+
+    function streamVideo(stream) {
+        window.stream = stream;
+
+        if (window.URL) {
+            video.src = window.URL.createObjectURL(stream);
+        } else {
+            video.src = stream;
+        }
+
+        video.play();
+    }
+
+    function initVideoStream() {
+        navigator.getUserMedia(
+            media_settings,
+            streamVideo,
+            function(e) {console.log('Error! Starting video stream:', e)}
+        );
+    }
+
+    function dataURIToJPG(data_uri) {
+        var binary = atob(data_uri.split(',')[1]);
+        var array = [];
+
+        for(var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+
+        return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+    }
+
+    function convertVideoToImage(time_interval) {
+        timer = setInterval(
+            function () {
+                canvas_context.drawImage(video, 0, 0, 320, 240);
+                data = canvas.toDataURL('image/jpeg', 1.0);
+                newblob = dataURIToJPG(data);
+            },
+            250
+        );
+
+    }
+
+    function openWebSocket(url) {
+        var ws = null;
+
+        try {
+            ws = new WebSocket(url);
+
+            ws.onopen = function () {
+                console.log("Openened connection to websocket");
+            };
+
+        } catch (error) {
+            console.log("WebScoket Error!:" + error);
+        }
+
+        return ws;
+    }
+
+    function transmitVideoStreamToURL(url, time_interval) {
+        var ws = openWebSocket(url);
+        // convertVideoToImage(time_interval);
+    }
+
+    // variables
+    var stream_video = true;
+    var video = document.getElementById('live_stream');
+    var canvas = document.getElementById('vid_img');
+    var canvas_context = canvas.getContext('2d');
+    var media_settings = {video: true, audio: true};
+    var ws_url = "ws://127.0.0.1:8080";
+    var time_interval = 250;
+
+    // execution pre-checks
+    if (hasGetUserMedia()) {
+        initVideoStream();
+        transmitVideoStreamToURL(ws_url, time_interval);
+    } else {
+        alert('Error! getUserMedia() is not supported in your browser!');
+    }
+
+</script>
+
+</body>
+</html>
