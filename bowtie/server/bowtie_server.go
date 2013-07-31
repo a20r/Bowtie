@@ -16,6 +16,9 @@ import (
     // string pkgs
     "strings"
     "encoding/json"
+    "encoding/base64"
+
+    // custom pkgs
 )
 
 // JSON response mapping
@@ -107,8 +110,6 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".json")
-
-    // Error handler
     if err != nil {
         fmt.Println("ERROR\t" + err.Error())
         return
@@ -163,28 +164,36 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func videoStreamHandler(ms string) {
+func videoStreamHandler(msg string) {
     cpu_id := "testing"
     node_id := "testing"
     path := "./video_data/" + cpu_id + "/"
 
+    // data := strings.Split(msg, ",")[0]
+    base64_str := strings.Split(msg, ",")[1]
+
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".jpg")
-
-    // Error handler
     if err != nil {
         fmt.Println("ERROR\t" + err.Error())
         return
     }
 
-    // file.Write([]byte(r.Form["sensor_data"][0]))
+    // Decode Base64 string to binary
+    img_data, err := base64.StdEncoding.DecodeString(base64_str)
+    if err != nil {
+        fmt.Println("error:", err)
+        return
+    }
+
+    // Write out the image binary
+    file.Write([]byte(img_data))
     file.Close()
 }
 
 // Websocket Handler
-// Currently Used to handle video stream capture
-func wsHandler(ws *websocket.Conn) {
+func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Handling websocket request with wsHandler")
     var msg string
 
@@ -196,13 +205,21 @@ func wsHandler(ws *websocket.Conn) {
         return
     }
     fmt.Println("ProcessSocket: got message", msg)
-    websocket.Message.Send(ws, "STOP VIDEO")
+    // websocket.Message.Send(ws, "STOP WS")
 
     // Return success
     websocket.Message.Send(ws, "Websocket connection established!")
 
-    // Accepting video stream
+    err = websocket.Message.Receive(ws, &msg)
+    if err != nil {
+        fmt.Println("ProcessSocket: got error", err)
+        _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
+        return
+    }
+    fmt.Println("ProcessSocket: got message", msg)
 
+    // Accepting video stream
+    videoStreamHandler(msg)
 
     fmt.Println("Finish handling websocket with wsHandler")
 }
@@ -217,7 +234,7 @@ func requestHandler() {
     http.HandleFunc("/favicon.ico", fileResponseCreator("static/img"))
 
     // Handle webcam stream requests
-    http.Handle("/websocket/", websocket.Handler(wsHandler))
+    http.Handle("/websocket/", websocket.Handler(websocketHandler))
 }
 
 // MAIN EXECUTION FLOW

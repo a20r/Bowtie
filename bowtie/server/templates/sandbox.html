@@ -17,7 +17,7 @@
         || navigator.msGetUserMedia;
 
     // CONSTANTS
-    var STOP_VIDEO_TRANSMISSION = "STOP VIDEO TRANSMISSION"
+    var STOP_WS = "STOP WS"
 
     // Checks to see if browser supports getUserMedia()
     function hasGetUserMedia() {
@@ -59,7 +59,7 @@
 
             ws.onmessage = function(message) {
                 console.log("Recieved msg from websocket: [", message.data, "]");
-                if (message.data === STOP_VIDEO_TRANSMISSION) {
+                if (message.data === STOP_WS) {
                     ws.close();
                 }
             }
