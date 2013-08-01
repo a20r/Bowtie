@@ -119,7 +119,6 @@
     var ws_url = "ws://127.0.0.1:8080/websocket/";
     var time_interval = 250;
 
-    // execution pre-checks
     if (hasGetUserMedia()) {
         initVideoStream();
         transmitVideoStreamToURL(ws_url, time_interval);

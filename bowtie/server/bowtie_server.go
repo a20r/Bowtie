@@ -172,6 +172,7 @@ func videoStreamHandler(data string) {
     node_id := "testing"
     path := "./video_data/" + cpu_id + "/"
 
+
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".jpg")
@@ -198,7 +199,7 @@ func websocketMsgParser(msg string) {
     msg_header := strings.Split(msg, ",")[0]
     msg_data := strings.Split(msg, ",")[1]
 
-    if (msg_header == "data:imag/jpeg;base64") {
+    if (msg_header == "data:image/jpeg;base64") {
         videoStreamHandler(msg_data)
     }
 }
