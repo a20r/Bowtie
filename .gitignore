@@ -1,2 +1,4 @@
 .DS_Store
 *.pyc
+bowtie/server/json_data/
+bowtie/server/video_data/
