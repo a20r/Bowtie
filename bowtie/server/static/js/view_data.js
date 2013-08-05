@@ -26,56 +26,75 @@ function show_warning(msg) {
 // Gets the form ready for data
 // to be received from the server
 function ready_to_start() {
-  var cpu_id_box = document.getElementById("cpu_id");
-  cpu_id_box.removeAttribute('readonly');
-  document.getElementById("sub_button").innerHTML = "Grab data";
-  document.getElementById("sub_button").className = "btn btn-large btn-success"
-  document.getElementById("sensor_table").style.display = "none";
+    $("#cpu_id").removeAttr('readonly');
+
+    $("#sub_button").html("Grab data");
+    $("#sub_button").prop(
+        "class", 
+        "btn btn-large btn-success"
+    );
+
+    $("#sensor_table").css("display", "none");
 }
 
 // Gets the form ready to stop 
 // getting data from the server
 function ready_to_stop() {
-  var cpu_id_box = document.getElementById("cpu_id");
-  cpu_id_box.setAttribute('readonly', 'readonly');
-  document.getElementById("sub_button").innerHTML = "Stop grabbing";
-  document.getElementById("sub_button").className = "btn btn-large btn-primary btn-danger";
-  document.getElementById("sensor_table").style.display = "block";
-  warning_closed();
+    $("#cpu_id").prop("readonly", "readonly");
+
+    $("#sub_button").html("Stop grabbing");
+    $("#sub_button").prop(
+        "class", 
+        "btn btn-large btn-primary btn-danger"
+    );
+
+    $("#sensor_table").css("display", "block");
+    warning_closed();
 }
 
 // Toggles whether the data is being shown to the user
 // and whether it gets sent to the server
 var intervalVar;
 function toggle_readonly() {
-  var cpu_id_box = document.getElementById("cpu_id");
-  if(cpu_id_box.hasAttribute('readonly')){   
-    clearInterval(intervalVar);
-    ready_to_start();
-  } else {
-    if(cpu_id_box.value != "") {
-      intervalVar = setInterval(function() {$.getJSON('/get_data/' + cpu_id_box.value, visualize_data)}, 50);
+    if(
+            $("#cpu_id").attr('readonly') != undefined
+    ) {   
+        clearInterval(intervalVar);
+        ready_to_start();
     } else {
-      show_warning("Please enter a CPU Id before continuing");
+        if(cpu_id_box.value != "") {
+            intervalVar = setInterval(
+                function() {
+                    $.getJSON(
+                        '/get_data/' + cpu_id_box.value, 
+                        visualize_data
+                    );
+                }, 50
+            );
+        } else {
+            show_warning("Please enter a CPU Id before continuing");
+        }
     }
-  }
 }
 
 // Makes the string presentable (obviously)
 // Capitalizes the first letter and 
 // puts space where there is an underscore
 function makeStringPresentable(string) {
-  var spaceString = string.replace("_", " ");
-  return spaceString.charAt(0).toUpperCase() + spaceString.slice(1);
+    var spaceString = string.replace("_", " ");
+    return (
+        spaceString.charAt(0).toUpperCase() + 
+        spaceString.slice(1)
+    );
 }
 
 function toggleTable(tb_id) {
-  var tb = document.getElementById(tb_id);
-  if (tb.style.display == "none") {
-    tb.style.display = "block";
-  } else {
-    tb.style.display = "none";
-  }
+    var tb = $("#" + tb_id);
+    if (tb.css("display") == "none") {
+        tb.style.display = "block";
+    } else {
+        tb.style.display = "none";
+    }
 }
 
 // Creates the tables dynamically that visualize
