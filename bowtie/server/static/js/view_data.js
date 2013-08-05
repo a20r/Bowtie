@@ -66,7 +66,7 @@ function toggle_readonly() {
             intervalVar = setInterval(
                 function() {
                     $.getJSON(
-                        '/get_data/' + cpu_id_box.value, 
+                        '/get_data/' + $("#cpu_id").val(), 
                         visualize_data
                     );
                 }, 50
