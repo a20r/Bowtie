@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////
 
 // Two functions that need ro run
-// in order for the code to work properly 
+// in order for the code to work properly
 window.onload = function() {
   getLocation();
   getSensorData(200);
@@ -26,18 +26,25 @@ window.onbeforeunload = on_exit;
 // Occurs when somebody clicks the alert
 // close button
 function warning_closed() {
-  document.getElementById("alert_msg").style.display = "none";
+  $("#alert_msg").css("display", "none");
 }
 
 // Function fires once the page is closed
 function on_exit() {
-  var phone_id_box = document.getElementById("phone_id");
-  var cpu_id_box = document.getElementById("cpu_id");
-  if (phone_id_box.value != "" && cpu_id_box.value != "") {
-    $.ajax({
-      type: 'POST',
-      url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
-    });
+    if (
+            $("#phone_id").val() != "" && 
+            $("#cpu_id").val() != ""
+    ) {
+        $.ajax(
+            {
+                type: 'POST',
+                url : (
+                    '/unchecked/' + 
+                    $("#cpu_id").val() + '/' + 
+                    $("#phone_id").val()
+                )
+            }
+        );
   }
 }
 
@@ -45,148 +52,215 @@ function on_exit() {
 // and whether it gets sent to the server
 var sendingInterval;
 function toggle_readonly() {
- var phone_id_box = document.getElementById("phone_id");
- var cpu_id_box = document.getElementById("cpu_id");
-  if(phone_id_box.hasAttribute('readonly')){   
-    try {
-      window.clearInterval(sendingInterval);
-    } catch (err) {}
-    phone_id_box.removeAttribute('readonly');
-    cpu_id_box.removeAttribute('readonly');
-    document.getElementById("sub_button").innerHTML = "Start sensing";
-    document.getElementById("sub_button").className = "btn btn-large btn-success"
-    document.getElementById("sensor_table").style.display = "none";
+    var phone_id_box = document.getElementById("phone_id");
+    var cpu_id_box = document.getElementById("cpu_id");
+    if(phone_id_box.hasAttribute('readonly')) { 
+
+        try {
+            window.clearInterval(sendingInterval);
+        } catch (err) {}
+
+        phone_id_box.removeAttribute('readonly');
+        cpu_id_box.removeAttribute('readonly');
+
+        $("#sub_button").html("Start sensing");
+        $("#sub_button").attr(
+            "class", 
+            "btn btn-large btn-success"
+        );
+
+        $("#sensor_table").css(
+            "display", 
+            "none"
+        );
+
     // deletes the data from the server
-    if (phone_id_box.value != "" && cpu_id_box.value != "") {
-      $.ajax({
-        type: 'POST',
-        url:'/unchecked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value
-      });
-    }
-  } else {
-    if(phone_id_box.value != "" && cpu_id_box.value != "") {
-      sendingInterval = window.setInterval(sendAjax, 150);
-      cpu_id_box.setAttribute('readonly', 'readonly');
-      phone_id_box.setAttribute('readonly', 'readonly');
-      document.getElementById("sub_button").innerHTML = "Stop sensing";
-      document.getElementById("sub_button").className = "btn btn-large btn-primary btn-danger";
-      document.getElementById("sensor_table").style.display = "block";
-      document.getElementById("alert_msg").style.display = "none";
+        if (
+                phone_id_box.value != "" && 
+                cpu_id_box.value != ""
+        ) {
+            $.ajax(
+                {
+                    type : 'POST',
+                    url : (
+                        '/unchecked/' + 
+                        $("#cpu_id").val() + '/' + 
+                        $("#phone_id").val()
+                    )
+                }
+            );
+        }
     } else {
-      document.getElementById("alert_msg").style.display = "block";
+        if (
+                phone_id_box.value != "" && 
+                cpu_id_box.value != ""
+        ) {
+            sendingInterval = window.setInterval(sendAjax, 150);
+
+            cpu_id_box.setAttribute('readonly', 'readonly');
+            phone_id_box.setAttribute('readonly', 'readonly');
+
+            $("#sub_button").html("Stop sensing");
+            $("#sub_button").attr(
+                "class", 
+                "btn btn-large btn-primary btn-danger"
+            );
+
+            $("#sensor_table").css("display", "block");
+            $("#alert_msg").css("display", "none");
+        } else {
+            $("#alert_msg").css("display", "block");
+        }
     }
-  }
 }
 
 // Sets the event handler for the orientation sensor.
 // If the data cannot be gathered, messages will be
 // shown and the checkboxes will be disabled
 function getSensorData(time_interval_ms) {
-  if(window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', orientationEventHandler, false);
-
-  } else {
-      document.getElementById("doTiltLR").innerHTML = "Not supported";
-      document.getElementById("doTiltLRCheckbox").checked = false;
-      document.getElementById("doTiltLRCheckbox").disabled = true;
-      document.getElementById("doTiltFB").innerHTML = "Not supported";
-      document.getElementById("doTiltFBCheckbox").checked = false;
-      document.getElementById("doTiltFBCheckbox").disabled = true;
-      document.getElementById("doDirection").innerHTML = "Not supported";
-      document.getElementById("doDirectionCheckbox").checked = false;
-      document.getElementById("doDirectionCheckbox").disabled = true;
+    if(window.DeviceOrientationEvent) {
+        window.addEventListener(
+            'deviceorientation', 
+            orientationEventHandler, 
+            false
+        );
+    } else {
+        $("#doTiltLR").html("Not supported");
+        $("#doTiltLRCheckbox").prop("checked", false);
+        $("#doTiltLRCheckbox").prop("disabled", true);
+        $("#doTiltFB").html("Not supported");
+        $("#doTiltFBCheckbox").prop("checked", false);
+        $("#doTiltFBCheckbox").prop("disabled", true);
+        $("#doDirection").html("Not supported");
+        $("#doDirectionCheckbox").prop("checked", false);
+        $("#doDirectionCheckbox").prop("disabled", true);
     }
 }
 
 // Handles the orientation data
 function orientationEventHandler(eventData) {
-  var tiltLR=eventData.gamma;
-  var tiltFB=eventData.beta;
-  var dir=eventData.alpha;
-  document.getElementById("doTiltLR").innerHTML=Math.round(tiltLR);
-  document.getElementById("doTiltFB").innerHTML=Math.round(tiltFB);
-  document.getElementById("doDirection").innerHTML=Math.round(dir);
+    var tiltLR = eventData.gamma;
+    var tiltFB = eventData.beta;
+    var dir = eventData.alpha;
+
+    $("#doTiltLR").html(
+        Math.round(tiltLR)
+    );
+
+    $("#doTiltFB").html(
+        Math.round(tiltFB)
+    );
+
+    $("#doDirection").html(
+        Math.round(dir)
+    );
 }
 
 // Sets the locaction event handlers
 function getLocation() {
-  if (navigator.geolocation) {
-    var timeoutVal = 6000;
-    var extraGeoParam = {enableHighAccuracy: true, timeout: timeoutVal, maximumAge: 0};
-    navigator.geolocation.watchPosition(devicePositionHandler, positionError, extraGeoParam);
-  } else {
-    alert("Geolocation is not supported by this browser");
-  }
+    if (navigator.geolocation) {
+        var timeoutVal = 6000;
+
+        var extraGeoParam = {
+            enableHighAccuracy: true, 
+            timeout: timeoutVal, 
+            maximumAge: 0
+        };
+
+        navigator.geolocation.watchPosition(
+            devicePositionHandler, 
+            positionError, 
+            extraGeoParam
+        );
+    } else {
+        alert("Geolocation is not supported by this browser");
+    }
 }
 
 // Fired if getting the position raises an error
 function positionError (position) { 
-  document.getElementById("latPos").innerHTML = "Not supported";
-  document.getElementById("latPosCheckbox").checked = false;
-  document.getElementById("latPosCheckbox").disabled = true;
-  document.getElementById("longPos").innerHTML = "Not supported";
-  document.getElementById("longPosCheckbox").checked = false;
-  document.getElementById("longPosCheckbox").disabled = true;
-  //sendAjax({code: 1, message: "Position Error"});
+    $("#latPos").html("Not supported");
+    $("#latPosCheckbox").prop("checked", false);
+    $("#latPosCheckbox").prop("disabled", true);
+    $("#longPos").html("Not supported");
+    $("#longPosCheckbox").prop("checked", false);
+    $("#longPosCheckbox").prop("disabled", true);
 }
 
 // Writes the position of the coordinates onto the
 // HTML page
 function devicePositionHandler(position) {
-  document.getElementById("latPos").innerHTML = position.coords.latitude;
-  document.getElementById("longPos").innerHTML = position.coords.longitude;
-  document.getElementById("latPosCheckbox").disabled = false;
-  document.getElementById("longPosCheckbox").disabled = false;
-
-  //sendAjax({code: 0, message:"No Error"});
+    $("#latPos").html(position.coords.latitude);
+    $("#longPos").html(position.coords.longitude);
+    $("#latPosCheckbox").prop("disabled", false);
+    $("#longPosCheckbox").prop("disabled", false);
 }
 
 // Sends the sensory data to the server via
 // Ajax if the cpu_id and the node_id have
 // been entered
 function sendAjax() {
-  tiltLR = getIfValid("doTiltLR");
-  tiltFB = getIfValid("doTiltFB");
-  dir = getIfValid("doDirection");
-  lat = getIfValid("latPos");
-  lon = getIfValid("longPos");
-  if (lat == null && lon == null && document.getElementById("latPos").innerHTML == "Not supported") {
-    error_data = {code: 1, message: "Position error"}
-  } else {
-    error_data = {code: 0, message: "No error"}
-  }
-  if (document.getElementById("cpu_id").hasAttribute('readonly')) {
-    $.ajax({
-      type: 'POST',
-      url:'/checked/' + document.getElementById("cpu_id").value + '/' + document.getElementById("phone_id").value,
-      data: {
-        sensor_data: JSON.stringify(
-          {
-            orientation: {
-              tilt_horizontal: tiltLR, 
-              tilt_vertical: tiltFB, 
-              direction: dir
-          }, 
-          location: {
-            latitude: lat, 
-            longitude: lon
-          }, 
-          error: error_data
-        }
-      )
+    tiltLR = getIfValid("doTiltLR");
+    tiltFB = getIfValid("doTiltFB");
+    dir = getIfValid("doDirection");
+
+    lat = getIfValid("latPos");
+    lon = getIfValid("longPos");
+    if (
+            lat == null && 
+            lon == null && 
+            $("#latPos").html() == "Not supported"
+    ) {
+        error_data = {code: 1, message: "Position error"}
+    } else {
+        error_data = {code: 0, message: "No error"}
     }
-    });
-  }
+    if (
+            $("#cpu_id").attr('readonly') != undefined
+    ) {
+        $.ajax(
+            {
+                type : 'POST',
+
+                url : (
+                    '/checked/' + 
+                    $("#cpu_id").val() + '/' + 
+                    $("#phone_id").val()
+                ),
+
+                data: {
+                    sensor_data: JSON.stringify(
+                        {
+                            orientation: {
+                                tilt_horizontal: tiltLR, 
+                                tilt_vertical: tiltFB, 
+                                direction: dir
+                            }, 
+
+                            location: {
+                                latitude: lat, 
+                                longitude: lon
+                            },
+
+                            error: error_data
+                        }
+                    )
+                }
+            }
+        );
+    }
 }
 
 // Checks if the data is valid before sending
 // it out
 function getIfValid(element_id) {
-  if (document.getElementById(element_id).innerHTML == "Not supported" ||
-      document.getElementById(element_id).innerHTML == "" || 
-      !document.getElementById(element_id + "Checkbox").checked) {
-    return null;
-  } else {
-    return parseFloat(document.getElementById(element_id).innerHTML);
-  }
+    if (
+            $("#" + element_id).html() == "Not supported" ||
+            $("#" + element_id).html() == "" || 
+            !$("#" + element_id + "Checkbox").prop("checked")
+    ) {
+        return null;
+    } else {
+        return parseFloat(document.getElementById(element_id).innerHTML);
+    }
 }

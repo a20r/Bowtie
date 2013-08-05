@@ -7,16 +7,20 @@
 // Occurs when somebody clicks the alert
 // close button
 function warning_closed() {
-  document.getElementById("alert_msg").style.display = "none";
+    $("#alert_msg").css("display", "none");
 }
 
 // Shows a warning message in the 
 // form of a alert
 function show_warning(msg) {
-  document.getElementById("alert_msg").innerHTML =  "<button type='button' class='close' onClick='warning_closed()'" + 
-                                                    "data-dismiss='alert'>&times;</button>" + 
-                                                    "<strong>Error!</strong> " + msg;
-  document.getElementById("alert_msg").style.display = "block";
+    $("#alert_msg").html(
+        "<button type='button' class='close' " + 
+        "onClick='warning_closed()'" + 
+        "data-dismiss='alert'>&times;</button>" + 
+        "<strong>Error!</strong> " + msg
+    );
+
+    $("#alert_msg").css("display", "block");
 }
 
 // Gets the form ready for data
@@ -103,7 +107,11 @@ function updateTables(cpu_data, node_name, s_table) {
   if (node_name != "error") {
     for (var sensor_name in cpu_data[node_name]) {
       for (var sensor_component in cpu_data[node_name][sensor_name]) {
-        document.getElementById(node_name + "_" + sensor_component).innerHTML = String(cpu_data[node_name][sensor_name][sensor_component]);
+        if (cpu_data[node_name][sensor_name][sensor_component] != null) {
+            document.getElementById(node_name + "_" + sensor_component).innerHTML = String(cpu_data[node_name][sensor_name][sensor_component]);
+        } else {
+            document.getElementById(node_name + "_" + sensor_component).innerHTML = "Not Retrieved";
+        }
       }
     }
   }
