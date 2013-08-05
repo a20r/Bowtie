@@ -62,7 +62,7 @@ function toggle_readonly() {
         clearInterval(intervalVar);
         ready_to_start();
     } else {
-        if(cpu_id_box.value != "") {
+        if($("#cpu_id").val() != "") {
             intervalVar = setInterval(
                 function() {
                     $.getJSON(
@@ -91,9 +91,9 @@ function makeStringPresentable(string) {
 function toggleTable(tb_id) {
     var tb = $("#" + tb_id);
     if (tb.css("display") == "none") {
-        tb.style.display = "block";
+        tb.css("display", "block");
     } else {
-        tb.style.display = "none";
+        tb.css("display", "none");
     }
 }
 
