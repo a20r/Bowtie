@@ -8,6 +8,7 @@
 <video id="live_stream" controls></video>
 <canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
 
+<script src="js/recorder.js"></script>
 <script>
 
     window.URL = window.URL || window.webkitURL;
@@ -41,12 +42,67 @@
         video.play();
     }
 
-    function initVideoStream() {
-        navigator.getUserMedia(
-            media_settings,
-            streamVideo,
-            function(e) {console.log('Error! Starting video stream:', e)}
+    function downloadWAV(blob) {
+        Recorder.forceDownload(blob, "recording.wav");
+    }
+
+    function streamAudio(stream) {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+        var audio_context = new AudioContext();
+        var input_point = audio_context.createGain();
+
+        // Create an AudioNode from the stream.
+        var real_audio_input = audio_context.createMediaStreamSource(stream);
+        audio_input = real_audio_input;
+        audio_input.connect(input_point);
+
+        // Create audio recorder
+        audio_recorder = new Recorder(input_point);
+
+        // Record and download
+        audio_recorder.clear();
+        audio_recorder.record();
+        console.log("Recording!");
+
+        setTimeout(
+            function() {
+                console.log("Stopping!");
+                audio_recorder.stop();
+                audio_recorder.exportWAV(downloadWAV);
+            },
+            10000
         );
+    }
+
+    function initVideoStream() {
+        var video_status = true;
+
+        navigator.getUserMedia(
+            {video: true},
+            streamVideo,
+            function(e) {
+                console.log('Error! Failed to initialize video stream:', e);
+                video_status = false;
+            }
+        );
+
+        return video_status;
+    }
+
+    function initAudioStream() {
+        var audio_status = true;
+
+        navigator.getUserMedia(
+            {audio: true},
+            streamAudio,
+            function(e) {
+                console.log('Error! Failed to initialize audio stream:', e);
+                audio_status = false;
+            }
+        );
+
+        return audio_status;
     }
 
     function openWebSocket(url) {
@@ -108,20 +164,24 @@
             },
             250
         );
-
     }
 
     // variables
     var video = document.getElementById('live_stream');
     var canvas = document.getElementById('vid_img');
     var canvas_context = canvas.getContext('2d');
-    var media_settings = {video: true, audio: true};
     var ws_url = "ws://127.0.0.1:8080/websocket/";
     var time_interval = 250;
 
+
     if (hasGetUserMedia()) {
-        initVideoStream();
-        transmitVideoStreamToURL(ws_url, time_interval);
+        // if (initVideoStream()) {
+            // transmitVideoStreamToURL(ws_url, time_interval);
+        // }
+
+        if (initAudioStream()) {
+            console.log("Streaming audio!");
+        }
     } else {
         alert('Error! getUserMedia() is not supported in your browser!');
     }
