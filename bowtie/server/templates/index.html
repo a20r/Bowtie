@@ -15,7 +15,7 @@
     <!-- Le styles -->
     <style>
       body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        /* padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -27,34 +27,37 @@
       <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
 </head>
-<body onunload="on_exit()" style="background:lightgrey">
-  <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<body onunload="on_exit()">
+  <div class="navbar">
+    <div class="container">
+      <!-- .navbar-toggle is used as the toggle for collapsed navbar content -->
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
-        </button>
-        <a class="brand" href="/">Bowtie</a>
-        <a class="brand" href="./view_data.html">Visualization</a>
-        <a class="brand" href="./about.html">About</a>
-        <a class="brand" href="https://github.com/Alehins/PyBowtie">GitHub</a>
-        <!--<img src="../static/favicon.ico"/>-->
-        <div class="nav-collapse collapse">
-          <ul class="nav">
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </div>
-  </div>
+      </button>
+
+      <!-- Be sure to leave the brand out there if you want it shown -->
+      <a class="navbar-brand" href="/">Bowtie</a>
+
+      <!-- Place everything within .nav-collapse to hide it until above 768px -->
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="./view_data.html">Visualization</a></li>
+          <li><a href="./about.html">About</a></li>
+          <li><a href="https://github.com/Alehins/PyBowtie">GitHub</a></li>
+        </ul>
+      </div><!-- /.nav-collapse -->
+    </div><!-- /.container -->
+  </div><!-- /.navbar -->
 
   <div class="container">
 
-    <div class="span5 offset3">
+    <div class="col-lg-5 col-lg-offset-3">
       
-      <h1>Bowtie</h1>
-      <p class="lead">Gather data from a node</p>
+      <div class="page-header">
+        <h1>Bowtie <small>Gather data from a node</small></h1>
+      </div>
       <div id="alert_msg" class="alert alert-error" style="display: none;">
         <button type="button" class="close" onClick="warning_closed()" data-dismiss="alert">&times;</button>
         <strong>Error!</strong> Please enter a CPU Id and Node Id before continuing 
@@ -105,7 +108,7 @@
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
       </table>
-      <div class="footer">
+      <div class="footer" style="padding-top: 60px;">
         <p>
           Creators: <a href="http://uk.linkedin.com/pub/alexander-wallar/68/985/b87/">Alex Wallar</a>,  
           <a href="http://uk.linkedin.com/pub/aleksejs-sazonovs/23/bab/a56/">Aleksejs Sazonovs</a> and 
