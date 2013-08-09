@@ -1,16 +1,14 @@
-function VideoCapturer(video, canvas, ws_url, time_interval) {
-    VideoCapturer.ready_to_transmit = false;
+var video_capturer = {
+    ready: false,
+    video: null,
+    canvas: null,
+    canvas_context: null,
 
-    VideoCapturer.video = video;
-    VideoCapturer.canvas = canvas;
-    VideoCapturer.canvas_context = canvas.getContext('2d');
-
-    this.ws_url = ws_url;
-    this.time_interval = time_interval;
+    ws_url: null,
+    time_interval: null
 }
 
-VideoCapturer.prototype.initVideoStream = function() {
-    var video_status = true;
+function initVideoStream() {
     navigator.getUserMedia = navigator.getUserMedia
         || navigator.webkitGetUserMedia
         || navigator.mozGetUserMedia
@@ -19,53 +17,60 @@ VideoCapturer.prototype.initVideoStream = function() {
     console.log("Initializing video stream");
     navigator.getUserMedia(
         {video: true},
-        this.streamVideo,
+        streamVideo,
         function(e) {
             console.log('Error! Failed to initialize video stream:', e);
-            video_status = false;
+            alert('Error! Failed to initialize video stream!');
         }
     );
-
-    return video_status;
 }
 
-VideoCapturer.prototype.streamVideo = function(stream) {
+function streamVideo(stream) {
     window.stream = stream;
     window.URL = window.URL || window.webkitURL;
 
     console.log("Streaming video");
     if (window.URL) {
-        VideoCapturer.video.src = window.URL.createObjectURL(stream);
+        video.src = window.URL.createObjectURL(stream);
     } else {
-        VideoCapturer.video.src = stream;
+        video.src = stream;
     }
-    VideoCapturer.video.play();
-    VideoCapturer.ready_to_transmit = true;
+    video.play();
+    video_capturer.ready = true;
 }
 
-VideoCapturer.prototype.transmitVideoToURL = function() {
+function transmitVideoToURL(video_capturer) {
     console.log("Transmitting video to url");
     var ws_client = new WebSocketClient();
-    var ws = ws_client.init(this.ws_url);
+    var ws = ws_client.init(video_capturer.ws_url);
 
     try {
-    var timer = setInterval(
-        function () {
-            // condition that stops transmitting video stream to server
-            if (ws.readyState == 3) { // 3 - websocket is closed
-                console.log("Stop video stream transmission!");
-                clearInterval(timer);
-            } else if (VideoCapturer.ready_to_transmit != false) {
-                // draw video stream to canvas, obtain canvas data as jpg
-                // then transmit to server
-                VideoCapturer.canvas_context.drawImage(VideoCapturer.video, 0, 0, 320, 240);
-                var data = this.canvas.toDataURL('image/jpeg', 1.0);
-                console.log("Transmitting: [" + data + "]");
-                ws.send(data);
-            }
-        },
-        this.time_interval
-    );
+        var timer = setInterval(
+            function () {
+                // condition that stops transmitting video stream to server
+                if (ws.readyState == 3) { // 3 - websocket is closed
+                    console.log("Stop video stream transmission!");
+                    clearInterval(timer);
+                } else if (video_capturer.ready != false) {
+                    // draw video stream to canvas, obtain canvas data as jpg
+                    // then transmit to server
+                    video_capturer.canvas_context.drawImage(
+                        video_capturer.video,
+                        0,
+                        0,
+                        320,
+                        240
+                    );
+                    var data = video_capturer.canvas.toDataURL(
+                        'image/jpeg',
+                        1.0
+                    );
+                    console.log("Transmitting: [" + data + "]");
+                    ws.send(data);
+                }
+            },
+            video_capturer.time_interval
+        );
     } catch (error) {
         console.log(error);
     }

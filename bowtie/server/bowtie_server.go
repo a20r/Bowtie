@@ -166,7 +166,7 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 
 // Video stream handler
 // Obtains data as a string encoded in Base64 and outputs the video
-// stream as images
+// stream a single image
 func videoStreamHandler(data string) {
     cpu_id := "testing"
     node_id := "testing"
@@ -193,18 +193,46 @@ func videoStreamHandler(data string) {
     file.Close()
 }
 
+// Audio stream handler
+// Obtains data as a string encoded in Base64 and outputs the audio
+// stream as a single wav file
+func audioStreamHandler(data string) {
+    cpu_id := "testing"
+    node_id := "testing"
+    path := "./audio_data/" + cpu_id + "/"
+
+
+    // Make and log data to a file
+    os.Mkdir(path, os.ModePerm | os.ModeType)
+    file, err := os.Create(path + node_id + ".wav")
+    if err != nil {
+        fmt.Println("ERROR\t" + err.Error())
+        return
+    }
+
+    // Decode Base64 string to binary
+    audio_data, err := base64.StdEncoding.DecodeString(data)
+    if err != nil {
+        fmt.Println("error:", err)
+        return
+    }
+
+    // Write out the image binary
+    file.Write([]byte(audio_data))
+    file.Close()
+}
+
 // Websocket Parser
 func websocketMsgParser(msg string) {
-    fmt.Println("Parsing Websocket message");
     // Parse header and data
     msg_header := strings.Split(msg, ",")[0]
     msg_data := strings.Split(msg, ",")[1]
 
-    fmt.Println("HEADER: " + msg_header);
+    fmt.Println("Parsing Websocket message [" + msg_header + "]")
     if (msg_header == "data:image/jpeg;base64") {
         videoStreamHandler(msg_data)
     } else if (msg_header == "data:audio/wav;base64") {
-        fmt.Println("GOT: " + msg_data);
+        audioStreamHandler(msg_data)
     }
 }
 

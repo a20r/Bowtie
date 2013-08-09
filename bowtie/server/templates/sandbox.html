@@ -11,31 +11,39 @@
 <script src="js/websocket_client.js"></script>
 <script src="js/audio_recorder/recorder.js"></script>
 <script src="js/sensor_capturers/video_capturer.js"></script>
+<script src="js/sensor_capturers/audio_capturer.js"></script>
 <script>
 
-    // VARIABLES
-    var video = document.getElementById('live_stream');
-    var canvas = document.getElementById('vid_img');
-
-    var ws_url = "ws://127.0.0.1:8080/websocket/";
-    var time_interval = 250;
-
-    var video = new VideoCapturer(video, canvas, ws_url, time_interval);
-
-    // Checks to see if browser supports getUserMedia()
     function hasGetUserMedia() {
         // Note: Opera is unprefixed.
         return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia || navigator.msGetUserMedia);
     }
 
-    if (hasGetUserMedia()) {
-        video.initVideoStream();
-        video.transmitVideoToURL();
+    // VARIABLES
+    var video = document.getElementById('live_stream');
+    var canvas = document.getElementById('vid_img');
+    var ws_url = "ws://127.0.0.1:8080/websocket/";
+    var time_interval = 1000;
 
-        // if (initAudioStream()) {
-        //     console.log("Streaming audio!");
-        // }
+    // Setup
+    // Video Capturer
+    video_capturer.video = video;
+    video_capturer.canvas = canvas;
+    video_capturer.canvas_context = canvas.getContext("2d");
+    video_capturer.ws_url = ws_url;
+    video_capturer.time_interval = time_interval;
+
+    // Audio Capturer
+    audio_capturer.ws_url = ws_url;
+    audio_capturer.time_interval = time_interval;
+
+    if (hasGetUserMedia()) {
+        // initVideoStream();
+        // transmitVideoToURL(video_capturer);
+
+        initAudioStream();
+        transmitAudioToURL(audio_capturer);
     } else {
         alert('Error! getUserMedia() is not supported in your browser!');
     }

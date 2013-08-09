@@ -1,42 +1,29 @@
-function AudioCapturer() {
+var audio_capturer = {
+    ready: false,
+    recorder: null,
 
+    ws: null,
+    ws_url: null,
+    time_interval: null
 }
 
-AudioCapturer.prototype.initAudioStream = function() {
-    var audio_status = true;
+function initAudioStream() {
+    navigator.getUserMedia = navigator.getUserMedia
+        || navigator.webkitGetUserMedia
+        || navigator.mozGetUserMedia
+        || navigator.msGetUserMedia;
 
     navigator.getUserMedia(
         {audio: true},
         streamAudio,
         function(e) {
             console.log('Error! Failed to initialize audio stream:', e);
-            audio_status = false;
+            alert('Error! Failed to initialize audio stream!');
         }
     );
-
-    return audio_status;
 }
 
-AudioCapturer.prototype.streamAudio = function(stream) {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-    var audio_context = new AudioContext();
-    var input_point = audio_context.createGain();
-
-    // Create an AudioNode from the stream.
-    var real_audio_input = audio_context.createMediaStreamSource(stream);
-    audio_input = real_audio_input;
-    audio_input.connect(input_point);
-
-    // Create audio recorder
-    audio_recorder = new Recorder(input_point);
-
-    // Record and transmit
-    var interval = 1000
-    intervalRecordAndTransmit(audio_recorder, interval);
-}
-
-AudioCapturer.prototype.blobToBase64 = function(blob) {
+function blobToBase64(blob) {
     var reader = new FileReader();
     reader.readAsDataURL(blob);
 
@@ -47,39 +34,66 @@ AudioCapturer.prototype.blobToBase64 = function(blob) {
 
     reader.onloadend = function(reader_event) {
         // when finished encoding blob to base64
-        return reader_event.target.result;
+        data = reader_event.target.result;
+        console.log("DATA: " + data);
+        audio_capturer.ws.send(data)
     }
 
     reader.onerror = function(reader_event) {
         console.log("FileReader Error!:" + reader_event);
-        return null;
+        alert("Failed to encode audio binary to Base64!");
     }
 }
 
-AudioCapturer.prototype.transmitAudioStreamToURL = function(blob) {
-    setTimeout(
-        function() {
-            return blobToBase64(blob);
-        },
-        1000
-    );
+function streamAudio(stream) {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audio_context = new AudioContext();
+    var input_point = audio_context.createGain();
+
+    console.log("Streaming audio");
+
+    // Create an AudioNode from the stream.
+    var real_audio_input = audio_context.createMediaStreamSource(stream);
+    audio_input = real_audio_input;
+    audio_input.connect(input_point);
+
+    // Create audio recorder
+    audio_capturer.recorder = new Recorder(input_point);
+    audio_capturer.ready = true;
+    console.log("ready!!");
 }
 
-AudioCapturer.prototype.intervalRecord = function(audio_recorder, interval) {
-    var ws = openWebSocket(ws_url);
 
-    audio_recorder.clear();
-    audio_recorder.record();
+function encodeAudio(blob) {
+    return blobToBase64(blob);
+}
+
+function recordInterval(audio_capturer) {
     console.log("Start recording!");
+    audio_capturer.recorder.clear();
+    audio_capturer.recorder.record();
 
     setTimeout(
         function() {
             console.log("Stop recording!");
-            audio_recorder.stop();
-            var data = audio_recorder.exportWAV(transmitAudioStreamToURL);
-            console.log("DATA : " +  data);
+            audio_capturer.recorder.stop();
+            audio_capturer.recorder.exportWAV(blobToBase64);
         },
-        interval
+        audio_capturer.time_interval
     );
 }
 
+function transmitAudioToURL(audio_capturer) {
+    console.log("Recording audio in intervals");
+    var ws_client = new WebSocketClient();
+    audio_capturer.ws = ws_client.init(this.ws_url);
+
+    setInterval(
+        function() {
+            if (audio_capturer.ready == true) {
+                recordInterval(audio_capturer);
+            }
+        },
+        audio_capturer.time_interval
+    );
+}
