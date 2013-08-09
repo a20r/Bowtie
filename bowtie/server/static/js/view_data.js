@@ -107,7 +107,7 @@ function createTables(cpu_data, node_name, s_table) {
                          "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
                          "id=" + node_name + "_picture class='logo'></span>";
     s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
-    var n_table = document.getElementById(node_name)d;
+    var n_table = document.getElementById(node_name);
     for (var sensor_name in cpu_data[node_name]) {
       n_table.innerHTML += "<tr>";
       for (var sensor_component in cpu_data[node_name][sensor_name]) {
