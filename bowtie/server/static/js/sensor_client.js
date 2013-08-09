@@ -52,9 +52,12 @@ function on_exit() {
 // and whether it gets sent to the server
 var sendingInterval;
 function toggle_readonly() {
+
     var phone_id_box = document.getElementById("phone_id");
     var cpu_id_box = document.getElementById("cpu_id");
     if(phone_id_box.hasAttribute('readonly')) { 
+
+        $("#accelerometer-chart").css("display", "none");
 
         try {
             window.clearInterval(sendingInterval);
@@ -99,6 +102,9 @@ function toggle_readonly() {
 
             cpu_id_box.setAttribute('readonly', 'readonly');
             phone_id_box.setAttribute('readonly', 'readonly');
+            $("#accelerometer-chart").empty();
+            $("#accelerometer-chart").css("display", "block");
+            realtime_demo();
 
             $("#sub_button").html("Stop sensing");
             $("#sub_button").attr(
