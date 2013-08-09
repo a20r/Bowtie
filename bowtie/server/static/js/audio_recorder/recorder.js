@@ -23,7 +23,7 @@ SOFTWARE.
 
 (function(window){
 
-  var WORKER_PATH = 'js/recorderWorker.js';
+  var WORKER_PATH = 'js/audio_recorder/recorderWorker.js';
 
   var Recorder = function(source, cfg){
     var config = cfg || {};

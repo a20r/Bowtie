@@ -195,12 +195,16 @@ func videoStreamHandler(data string) {
 
 // Websocket Parser
 func websocketMsgParser(msg string) {
+    fmt.Println("Parsing Websocket message");
     // Parse header and data
     msg_header := strings.Split(msg, ",")[0]
     msg_data := strings.Split(msg, ",")[1]
 
+    fmt.Println("HEADER: " + msg_header);
     if (msg_header == "data:image/jpeg;base64") {
         videoStreamHandler(msg_data)
+    } else if (msg_header == "data:audio/wav;base64") {
+        fmt.Println("GOT: " + msg_data);
     }
 }
 
@@ -211,7 +215,6 @@ func websocketHandler(ws *websocket.Conn) {
 
     // Process incomming websocket messages
     for {
-
         err := websocket.Message.Receive(ws, &msg)
         if err != nil {
             fmt.Println("ProcessSocket: got error", err)
@@ -219,7 +222,6 @@ func websocketHandler(ws *websocket.Conn) {
             return
         }
         // fmt.Println("ProcessSocket: got message", msg)
-
         websocketMsgParser(msg)
     }
 
