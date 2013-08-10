@@ -62,7 +62,7 @@ function realtime_demo () {
 
     var
       start = (new Date()).getTime(),
-      length = 500, // 500ms animation length
+      length = 100, // 500ms animation length
       max = i - 1,  // One new point comes in at a time
       min = i - 51, // Show 50 in the top
       offset = 0;   // Animation frame offset
@@ -98,7 +98,7 @@ function realtime_demo () {
         setTimeout(frame, 20);
       } else {
         // Pretend new data comes in every second
-        setTimeout(getNewData, 500);
+        setTimeout(getNewData, 100);
       }
     })();
   }
