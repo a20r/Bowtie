@@ -4,14 +4,17 @@ function realtime_demo () {
     x = [],
     dataA = [],
     dataB = [],
-    data = [[x, dataA], [x, dataB]],
+    dataC = [],
+    data = [[x, dataA], [x, dataB], [x, dataC]],
     options, i, timesries;
 
   // Mock Data:
   function sample(i) {
     x.push(i);
-    dataA.push(Math.sin(i / 6) * (Math.random() + 1) / 2);
-    dataB.push(Math.sin(i / 6 + Math.PI / 2) * (Math.random() + 1) / 2);
+    dataA.push(+$("#doTiltLR").html());
+    dataB.push(+$("#doTiltFB").html());
+    dataC.push(+$("#doDirection").html());
+
   }
 
   // Initial Data:
