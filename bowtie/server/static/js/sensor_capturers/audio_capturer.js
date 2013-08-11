@@ -35,7 +35,7 @@ function blobToBase64(blob) {
     reader.onloadend = function(reader_event) {
         // when finished encoding blob to base64
         data = reader_event.target.result;
-        console.log("Transmitting: " + data);
+        console.log("Transmitting audio slice!");
         audio_capturer.ws.send(data)
     }
 
@@ -76,9 +76,12 @@ function transmitAudioToURL(audio_capturer) {
     var ws_client = new WebSocketClient();
     audio_capturer.ws = ws_client.init(this.ws_url);
 
-    setInterval(
+    var timer = setInterval(
         function() {
-            if (audio_capturer.ready == true) {
+            if (audio_capturer.ws.readyState == 3) { // 3 - websocket is closed
+                console.log("Stop audio stream transmission!");
+                clearInterval(timer);
+            } else if (audio_capturer.ready == true) {
                 console.log("Start recording!");
                 audio_capturer.recorder.clear();
                 audio_capturer.recorder.record();

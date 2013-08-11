@@ -65,7 +65,7 @@ function transmitVideoToURL(video_capturer) {
                         'image/jpeg',
                         1.0
                     );
-                    console.log("Transmitting: [" + data + "]");
+                    console.log("Transmitting video slice!");
                     ws.send(data);
                 }
             },
