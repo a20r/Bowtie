@@ -199,7 +199,6 @@ func audioStreamHandler(data string) {
     group_id := "testing"
     node_id := "testing"
     path := "./audio_data/" + group_id + "/"
-    fmt.Println("here")
 
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
