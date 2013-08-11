@@ -100,25 +100,25 @@ function toggleTable(tb_id) {
 // Creates the tables dynamically that visualize
 // the data being sent to the server
 function createTables(cpu_data, node_name, s_table) {
-  if (node_name != "error") {
-    s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' onClick='toggleTable(\"" + node_name + "\")' "
-                       + "style='display:block -webkit-perspective: 400px;'>"
-                       + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'><a href='#'>" + node_name + "</a></font></b>" + 
-                         "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
-                         "id=" + node_name + "_picture class='logo'></span>";
-    s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
-    var n_table = document.getElementById(node_name);
-    for (var sensor_name in cpu_data[node_name]) {
-      n_table.innerHTML += "<tr>";
-      for (var sensor_component in cpu_data[node_name][sensor_name]) {
-        n_table.innerHTML += "<td><b>" + makeStringPresentable(sensor_component) + "</b>" + 
-                             "</td><td id = " + node_name + "_" + sensor_component + ">" + 
-                             cpu_data[node_name][sensor_name][sensor_component] + "</td>";
-      }
-      n_table.innerHTML += "</tr>";
+    if (node_name != "error") {
+        s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' onClick='toggleTable(\"" + node_name + "\")' "
+                           + "style='display:block -webkit-perspective: 400px;'>"
+                           + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'><a href='#'>" + node_name + "</a></font></b>" + 
+                             "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
+                             "id=" + node_name + "_picture class='logo'></span>";
+        s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
+        var n_table = document.getElementById(node_name);
+        for (var sensor_name in cpu_data[node_name]) {
+            n_table.innerHTML += "<tr>";
+            for (var sensor_component in cpu_data[node_name][sensor_name]) {
+                n_table.innerHTML += "<td><b>" + makeStringPresentable(sensor_component) + "</b>" + 
+                                     "</td><td id = " + node_name + "_" + sensor_component + ">" + 
+                                     cpu_data[node_name][sensor_name][sensor_component] + "</td>";
+            }
+            n_table.innerHTML += "</tr>";
+        }
+        s_table.innerHTML += "</table>";
     }
-    s_table.innerHTML += "</table>";
-  }
 }
 
 // Updates the existing tables with new sensor data
