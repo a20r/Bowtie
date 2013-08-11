@@ -87,8 +87,8 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
 func dataRemoveHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
-    cpu_id, node_id := urlVars[1], urlVars[2]
-    err := os.Remove("json_data/" + cpu_id + "/" + node_id + ".json")
+    group_id, node_id := urlVars[1], urlVars[2]
+    err := os.Remove("json_data/" + group_id + "/" + node_id + ".json")
 
     if err != nil {
         fmt.Println("ERROR\t" + err.Error())
@@ -103,9 +103,9 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
     // Parse form and extract data details
     r.ParseForm()
     urlVars := strings.Split(r.URL.Path[1:], "/")
-    cpu_id := urlVars[1]
+    group_id := urlVars[1]
     node_id := urlVars[2]
-    path := "./json_data/" + cpu_id + "/"
+    path := "./json_data/" + group_id + "/"
 
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
@@ -125,11 +125,11 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
 func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
-    cpu_id := urlVars[1]
-    files, err := ioutil.ReadDir("json_data/" + cpu_id)
+    group_id := urlVars[1]
+    files, err := ioutil.ReadDir("json_data/" + group_id)
 
     if err != nil {
-        res := Response{"error": Response{"code": 2, "message": "No data for " + cpu_id}}
+        res := Response{"error": Response{"code": 2, "message": "No data for " + group_id}}
         fmt.Fprint(w, res)
         fmt.Println("ERROR\t" + err.Error())
 
@@ -140,7 +140,7 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
             //fmt.Println(file.Name())
             var sData SensorData
             node_id := strings.Split(file.Name(), ".")[0]
-            file_bytes, read_err := ioutil.ReadFile("json_data/" + cpu_id + "/" + node_id + ".json")
+            file_bytes, read_err := ioutil.ReadFile("json_data/" + group_id + "/" + node_id + ".json")
             json_err := json.Unmarshal(file_bytes, &sData)
 
             if read_err != nil {
@@ -156,7 +156,7 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
         if len(files) > 0 {
             res["error"] = Response{"code": 0, "message": "No error"}
         } else {
-            res["error"] = Response{"code": 2, "message": "No data for " + cpu_id}
+            res["error"] = Response{"code": 2, "message": "No data for " + group_id}
         }
 
         fmt.Println("RESPONSE\t" + res.String())
@@ -168,9 +168,9 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 // Obtains data as a string encoded in Base64 and outputs the video
 // stream a single image
 func videoStreamHandler(data string) {
-    cpu_id := "testing"
+    group_id := "testing"
     node_id := "testing"
-    path := "./video_data/" + cpu_id + "/"
+    path := "./video_data/" + group_id + "/"
 
 
     // Make and log data to a file
@@ -197,9 +197,9 @@ func videoStreamHandler(data string) {
 // Obtains data as a string encoded in Base64 and outputs the audio
 // stream as a single wav file
 func audioStreamHandler(data string) {
-    cpu_id := "testing"
+    group_id := "testing"
     node_id := "testing"
-    path := "./audio_data/" + cpu_id + "/"
+    path := "./audio_data/" + group_id + "/"
 
 
     // Make and log data to a file
