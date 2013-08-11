@@ -13,6 +13,7 @@ function initAudioStream() {
         || navigator.mozGetUserMedia
         || navigator.msGetUserMedia;
 
+    console.log("Initializing audio stream");
     navigator.getUserMedia(
         {audio: true},
         streamAudio,
@@ -51,7 +52,6 @@ function streamAudio(stream) {
     var input_point = audio_context.createGain();
 
     console.log("Streaming audio");
-
     // Create an AudioNode from the stream.
     var real_audio_input = audio_context.createMediaStreamSource(stream);
     audio_input = real_audio_input;
@@ -68,27 +68,22 @@ function encodeAudio(blob) {
     return blobToBase64(blob);
 }
 
-function recordInterval(audio_capturer) {
-}
-
 function transmitAudioToURL(audio_capturer) {
-    console.log("Recording audio in intervals");
-    var ws_client = new WebSocketClient();
-    audio_capturer.ws = ws_client.init(this.ws_url);
+    console.log("Transmitting audio to url");
 
     var timer = setInterval(
         function() {
-            if (audio_capturer.ws.readyState == 3) { // 3 - websocket is closed
+            if (audio_capturer.ws.readyState == 3) { // 3 - socket is closed
                 console.log("Stop audio stream transmission!");
                 clearInterval(timer);
             } else if (audio_capturer.ready == true) {
-                console.log("Start recording!");
+                // start recording
                 audio_capturer.recorder.clear();
                 audio_capturer.recorder.record();
 
                 setTimeout(
                     function() {
-                        console.log("Stop recording!");
+                        // stop recording
                         audio_capturer.recorder.stop();
                         audio_capturer.recorder.exportWAV(blobToBase64);
                     },

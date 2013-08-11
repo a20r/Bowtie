@@ -4,6 +4,7 @@ var video_capturer = {
     canvas: null,
     canvas_context: null,
 
+    ws: null,
     ws_url: null,
     time_interval: null
 }
@@ -41,38 +42,31 @@ function streamVideo(stream) {
 
 function transmitVideoToURL(video_capturer) {
     console.log("Transmitting video to url");
-    var ws_client = new WebSocketClient();
-    var ws = ws_client.init(video_capturer.ws_url);
 
-    try {
-        var timer = setInterval(
-            function () {
-                // condition that stops transmitting video stream to server
-                if (ws.readyState == 3) { // 3 - websocket is closed
-                    console.log("Stop video stream transmission!");
-                    clearInterval(timer);
-                } else if (video_capturer.ready != false) {
-                    // draw video stream to canvas, obtain canvas data as jpg
-                    // then transmit to server
-                    video_capturer.canvas_context.drawImage(
-                        video_capturer.video,
-                        0,
-                        0,
-                        320,
-                        240
-                    );
-                    var data = video_capturer.canvas.toDataURL(
-                        'image/jpeg',
-                        1.0
-                    );
-                    console.log("Transmitting video slice!");
-                    ws.send(data);
-                }
-            },
-            video_capturer.time_interval
-        );
-    } catch (error) {
-        console.log(error);
-    }
-
+    var timer = setInterval(
+        function () {
+            // condition that stops transmitting video stream to server
+            if (video_capturer.ws.readyState == 3) { // 3 - socket is closed
+                console.log("Stop video stream transmission!");
+                clearInterval(timer);
+            } else if (video_capturer.ready != false) {
+                // draw video stream to canvas, obtain canvas data as jpg
+                // then transmit to server
+                video_capturer.canvas_context.drawImage(
+                    video_capturer.video,
+                    0,
+                    0,
+                    320,
+                    240
+                );
+                var data = video_capturer.canvas.toDataURL(
+                    'image/jpeg',
+                    1.0
+                );
+                console.log("Transmitting video slice!");
+                video_capturer.ws.send(data);
+            }
+        },
+        video_capturer.time_interval
+    );
 }

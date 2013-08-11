@@ -13,7 +13,7 @@ WebSocketClient.prototype.init = function(url) {
         ws = new WebSocket(url);
 
         ws.onopen = function () {
-            console.log("Opening websocket connection");
+            console.log("Established websocket connection!");
         };
 
         ws.onmessage = function(message) {
@@ -35,6 +35,7 @@ WebSocketClient.prototype.init = function(url) {
         };
 
         ws.onclose = function() {
+            console.log("Closed websocket connection!");
             ws.close();
             ws = null;
         }
