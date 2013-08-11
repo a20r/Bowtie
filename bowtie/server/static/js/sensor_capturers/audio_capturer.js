@@ -77,20 +77,20 @@ function transmitAudioToURL(audio_capturer) {
                 console.log("Stop audio stream transmission!");
                 clearInterval(timer);
             } else if (audio_capturer.ready == true) {
-                // start recording
-                audio_capturer.recorder.clear();
-                audio_capturer.recorder.record();
-
                 setTimeout(
                     function() {
                         // stop recording
                         audio_capturer.recorder.stop();
                         audio_capturer.recorder.exportWAV(blobToBase64);
+
+                        // start recording
+                        audio_capturer.recorder.clear();
+                        audio_capturer.recorder.record();
                     },
                     audio_capturer.time_interval
                 );
             }
         },
-        audio_capturer.time_interval * 2
+        audio_capturer.time_interval
     );
 }
