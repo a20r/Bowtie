@@ -35,7 +35,7 @@ function blobToBase64(blob) {
     reader.onloadend = function(reader_event) {
         // when finished encoding blob to base64
         data = reader_event.target.result;
-        console.log("DATA: " + data);
+        console.log("Transmitting: " + data);
         audio_capturer.ws.send(data)
     }
 
@@ -69,18 +69,6 @@ function encodeAudio(blob) {
 }
 
 function recordInterval(audio_capturer) {
-    console.log("Start recording!");
-    audio_capturer.recorder.clear();
-    audio_capturer.recorder.record();
-
-    setTimeout(
-        function() {
-            console.log("Stop recording!");
-            audio_capturer.recorder.stop();
-            audio_capturer.recorder.exportWAV(blobToBase64);
-        },
-        audio_capturer.time_interval
-    );
 }
 
 function transmitAudioToURL(audio_capturer) {
@@ -91,9 +79,20 @@ function transmitAudioToURL(audio_capturer) {
     setInterval(
         function() {
             if (audio_capturer.ready == true) {
-                recordInterval(audio_capturer);
+                console.log("Start recording!");
+                audio_capturer.recorder.clear();
+                audio_capturer.recorder.record();
+
+                setTimeout(
+                    function() {
+                        console.log("Stop recording!");
+                        audio_capturer.recorder.stop();
+                        audio_capturer.recorder.exportWAV(blobToBase64);
+                    },
+                    audio_capturer.time_interval
+                );
             }
         },
-        audio_capturer.time_interval
+        audio_capturer.time_interval * 2
     );
 }
