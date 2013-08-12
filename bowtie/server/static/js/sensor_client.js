@@ -16,7 +16,7 @@
 var audioInterval = undefined;
 var videoInterval = undefined;
 var sendingInterval = undefined;
-var waitTime = 100; // ms
+var waitTime = 200; // ms
 
 // Two functions that need ro run
 // in order for the code to work properly
@@ -40,7 +40,7 @@ function getUserMediaData() {
     var canvas = document.getElementById('vid_img');
 
     // change the IP for different testing scenarios!!!
-    var ws_url = "ws://82.196.12.41/websocket/";
+    var ws_url = "ws://localhost:8080/websocket/";
 
     var time_interval = 1000;
 
@@ -62,8 +62,7 @@ function getUserMediaData() {
         video_capturer.ws = ws;
         audio_capturer.ws = ws;
 
-        //initVideoStream();
-        initAudioStream();
+        initMediaStream();
     } else {
         alert('Error! getUserMedia() is not supported in your browser!');
     }
@@ -317,7 +316,9 @@ function getIfValid(element_id) {
     ) {
         return null;
     } else {
-        return parseFloat(document.getElementById(element_id).innerHTML);
+        return parseFloat(
+            $("#" + element_id).html()
+        );
     }
 }
 
