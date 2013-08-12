@@ -63,7 +63,7 @@ function getUserMediaData() {
         audio_capturer.ws = ws;
 
         initVideoStream();
-        initAudioStream();
+        //initAudioStream();
     } else {
         alert('Error! getUserMedia() is not supported in your browser!');
     }
@@ -147,7 +147,7 @@ function toggle_readonly() {
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
 
-            audioInterval = transmitAudioToURL(audio_capturer);
+            //audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
             cpu_id_box.setAttribute('readonly', 'readonly');
