@@ -58,7 +58,7 @@ function getUserMediaData() {
 
     if (hasGetUserMedia()) {
         var ws_client = new WebSocketClient();
-        var ws = ws_client.init(this.ws_url);
+        var ws = ws_client.init(ws_url);
         video_capturer.ws = ws;
         audio_capturer.ws = ws;
 
