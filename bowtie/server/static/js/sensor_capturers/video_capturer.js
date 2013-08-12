@@ -29,7 +29,7 @@ function initVideoStream() {
 function streamVideo(stream) {
     window.stream = stream;
     window.URL = window.URL || window.webkitURL;
-
+    var video = document.getElementById("live_stream")
     console.log("Streaming video");
     if (window.URL) {
         video.src = window.URL.createObjectURL(stream);
