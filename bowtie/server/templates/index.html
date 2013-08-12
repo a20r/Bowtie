@@ -84,9 +84,7 @@
       <p>
       <button class="btn btn-large btn-success" type="button" id="sub_button" onClick="toggle_readonly()">Start sensing</button>
       </p>
-      
       </div>
-      <br>
       <table id="sensor_table" class="table table-hover" style="display:none">
         <tr id="tb_lr" onClick="row_clicked('doTiltLR')">
           <td><b>Tilt Left/Right:</b></td>
@@ -114,8 +112,12 @@
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <video id="live_stream" autoplay></video>
-          <canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
+          <tb>
+            <video id="live_stream" autoplay></video>
+          </tb>
+          <tb>
+            <canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
+          </tb>
         </tr>
       </table>
     <div id="accelerometer-chart" style="display: none;"></div>

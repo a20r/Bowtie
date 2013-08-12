@@ -37,7 +37,6 @@ function hasGetUserMedia() {
 
 function getUserMediaData() {
     var video = document.getElementById('live_stream');
-    alert(video);
     var canvas = document.getElementById('vid_img');
 
     // change the IP for different testing scenarios!!!
