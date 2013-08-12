@@ -71,7 +71,7 @@ function encodeAudio(blob) {
 function transmitAudioToURL(audio_capturer) {
     console.log("Transmitting audio to url");
 
-    var timer = setInterval(
+    return setInterval(
         function() {
             if (audio_capturer.ws.readyState == 3) { // 3 - socket is closed
                 console.log("Stop audio stream transmission!");

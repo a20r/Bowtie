@@ -43,7 +43,7 @@ function streamVideo(stream) {
 function transmitVideoToURL(video_capturer) {
     console.log("Transmitting video to url");
 
-    var timer = setInterval(
+    return setInterval(
         function () {
             // condition that stops transmitting video stream to server
             if (video_capturer.ws.readyState == 3) { // 3 - socket is closed

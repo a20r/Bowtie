@@ -23,6 +23,10 @@
     <link href="css/envision.min.css" rel="stylesheet">
     <script src="js/envision.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/websocket_client.js"></script>
+    <script src="js/audio_recorder/recorder.js"></script>
+    <script src="js/sensor_capturers/video_capturer.js"></script>
+    <script src="js/sensor_capturers/audio_capturer.js"></script>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -108,6 +112,10 @@
           <td><b>Longitude:</b></td>
           <td id="longPos"></td>
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
+        </tr>
+        <tr>
+          <video id="live_stream" autoplay></video>
+          <canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
         </tr>
       </table>
     <div id="accelerometer-chart" style="display: none;"></div>

@@ -13,19 +13,60 @@
 //
 ////////////////////////////////////////////////
 
+var audioInterval = undefined;
+var videoInterval = undefined;
+var sendingInterval = undefined;
+var waitTime = 100; // ms
+
 // Two functions that need ro run
 // in order for the code to work properly
 window.onload = function() {
   getLocation();
-  getSensorData(100);
+  getSensorData();
   getUserMediaData();
 }
 
 // Sets the window exiting function
 window.onbeforeunload = on_exit;
 
+function hasGetUserMedia() {
+    // Note: Opera is unprefixed.
+    return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+
 function getUserMediaData() {
-    
+    var video = document.getElementById('live_stream');
+    var canvas = document.getElementById('vid_img');
+
+    // change the IP for different testing scenarios!!!
+    var ws_url = "ws://82.196.12.41/websocket/";
+
+    var time_interval = 1000;
+
+    // Setup
+    // Video Capturer
+    video_capturer.video = video;
+    video_capturer.canvas = canvas;
+    video_capturer.canvas_context = canvas.getContext("2d");
+    video_capturer.ws_url = ws_url;
+    video_capturer.time_interval = time_interval;
+
+    // Audio Capturer
+    audio_capturer.ws_url = ws_url;
+    audio_capturer.time_interval = time_interval;
+
+    if (hasGetUserMedia()) {
+        var ws_client = new WebSocketClient();
+        var ws = ws_client.init(this.ws_url);
+        video_capturer.ws = ws;
+        audio_capturer.ws = ws;
+
+        initVideoStream();
+        initAudioStream();
+    } else {
+        alert('Error! getUserMedia() is not supported in your browser!');
+    }
 }
 
 // Occurs when somebody clicks the alert
@@ -55,7 +96,6 @@ function on_exit() {
 
 // Toggles whether the data is being shown to the user
 // and whether it gets sent to the server
-var sendingInterval;
 function toggle_readonly() {
 
     var phone_id_box = document.getElementById("phone_id");
@@ -65,7 +105,9 @@ function toggle_readonly() {
         $("#accelerometer-chart").css("display", "none");
 
         try {
-            window.clearInterval(sendingInterval);
+            clearInterval(sendingInterval);
+            clearInterval(audioInterval);
+            clearInterval(videoInterval);
         } catch (err) {}
 
         phone_id_box.removeAttribute('readonly');
@@ -103,7 +145,10 @@ function toggle_readonly() {
                 phone_id_box.value != "" && 
                 cpu_id_box.value != ""
         ) {
-            sendingInterval = window.setInterval(sendAjax, 150);
+            sendingInterval = window.setInterval(sendAjax, waitTime);
+
+            audioInterval = transmitAudioToURL(audio_capturer);
+            videoInterval = transmitVideoToURL(video_capturer);
 
             cpu_id_box.setAttribute('readonly', 'readonly');
             phone_id_box.setAttribute('readonly', 'readonly');
@@ -128,7 +173,7 @@ function toggle_readonly() {
 // Sets the event handler for the orientation sensor.
 // If the data cannot be gathered, messages will be
 // shown and the checkboxes will be disabled
-function getSensorData(time_interval_ms) {
+function getSensorData() {
     if(window.DeviceOrientationEvent) {
         window.addEventListener(
             'deviceorientation', 
