@@ -17,11 +17,16 @@
 // in order for the code to work properly
 window.onload = function() {
   getLocation();
-  getSensorData(200);
+  getSensorData(100);
+  getUserMediaData();
 }
 
 // Sets the window exiting function
 window.onbeforeunload = on_exit;
+
+function getUserMediaData() {
+    
+}
 
 // Occurs when somebody clicks the alert
 // close button
@@ -270,3 +275,4 @@ function getIfValid(element_id) {
         return parseFloat(document.getElementById(element_id).innerHTML);
     }
 }
+
