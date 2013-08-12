@@ -40,7 +40,7 @@ function getUserMediaData() {
     var canvas = document.getElementById('vid_img');
 
     // change the IP for different testing scenarios!!!
-    var ws_url = "ws://localhost:8080/websocket/";
+    var ws_url = "ws://82.196.12.41/websocket/";
 
     var time_interval = 1000;
 
