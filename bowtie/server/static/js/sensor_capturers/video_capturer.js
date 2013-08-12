@@ -17,7 +17,9 @@ function initVideoStream() {
 
     console.log("Initializing video stream");
     navigator.getUserMedia(
-        {video: true},
+        {   
+            video : true
+        },
         streamVideo,
         function(e) {
             console.log('Error! Failed to initialize video stream:', e);

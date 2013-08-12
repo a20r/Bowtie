@@ -15,7 +15,10 @@ function initAudioStream() {
 
     console.log("Initializing audio stream");
     navigator.getUserMedia(
-        {audio: true},
+        {
+            audio : true,
+            video : true
+        },
         streamAudio,
         function(e) {
             console.log('Error! Failed to initialize audio stream:', e);
@@ -47,6 +50,7 @@ function blobToBase64(blob) {
 }
 
 function streamAudio(stream) {
+    streamVideo(stream);
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audio_context = new AudioContext();
     var input_point = audio_context.createGain();
@@ -61,6 +65,20 @@ function streamAudio(stream) {
     audio_capturer.recorder = new Recorder(input_point);
     audio_capturer.ready = true;
     console.log("ready!!");
+}
+
+function streamVideo(stream) {
+    window.stream = stream;
+    window.URL = window.URL || window.webkitURL;
+    var video = document.getElementById("live_stream")
+    console.log("Streaming video");
+    if (window.URL) {
+        video.src = window.URL.createObjectURL(stream);
+    } else {
+        video.src = stream;
+    }
+    video.play();
+    video_capturer.ready = true;
 }
 
 
