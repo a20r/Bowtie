@@ -57,13 +57,11 @@ function getUserMediaData() {
     audio_capturer.time_interval = time_interval;
 
     if (hasGetUserMedia()) {
+        alert('here');
         var ws_client = new WebSocketClient();
         var ws = ws_client.init(this.ws_url);
         video_capturer.ws = ws;
         audio_capturer.ws = ws;
-
-        initVideoStream();
-        initAudioStream();
     } else {
         alert('Error! getUserMedia() is not supported in your browser!');
     }
@@ -146,7 +144,8 @@ function toggle_readonly() {
                 cpu_id_box.value != ""
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
-
+            initVideoStream();
+            initAudioStream();
             audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
