@@ -86,7 +86,7 @@
       </p>
       </div>
       <table id="sensor_table" class="table table-hover" style="display:none">
-        <tr id="tb_lr" onClick="row_clicked('doTiltLR')">
+        <tr id="tb_lr">
           <td><b>Tilt Left/Right:</b></td>
           <td id="doTiltLR"></td>
           <td><input type="checkbox" id="doTiltLRCheckbox" checked="yes"></td>
@@ -112,12 +112,12 @@
           <td><input type="checkbox" id="longPosCheckbox" checked="yes"></td>
         </tr>
         <tr>
-          <tb>
+          <td>
             <video id="live_stream" autoplay></video>
-          </tb>
-          <tb>
+          </td>
+          <td>
             <canvas id="vid_img" width="320" height="240" style="display: none;"></canvas>
-          </tb>
+          </td>
         </tr>
       </table>
     <div id="accelerometer-chart" style="display: none;"></div>
