@@ -42,7 +42,7 @@ function getUserMediaData() {
     // change the IP for different testing scenarios!!!
     var ws_url = "ws://82.196.12.41/websocket/";
 
-    var time_interval = 200;
+    var time_interval = 1000;
 
     // Setup
     // Video Capturer

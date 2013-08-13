@@ -41,7 +41,7 @@ function transmitVideoToURL(video_capturer) {
             if (video_capturer.ws.readyState == 3) { // 3 - socket is closed
                 console.log("Stop video stream transmission!");
                 clearInterval(timer);
-            } else {
+            } else if (video_capturer.ready != false) {
                 // draw video stream to canvas, obtain canvas data as jpg
                 // then transmit to server
                 video_capturer.canvas_context.drawImage(
@@ -150,7 +150,7 @@ function transmitAudioToURL(audio_capturer) {
             if (audio_capturer.ws.readyState == 3) { // 3 - socket is closed
                 console.log("Stop audio stream transmission!");
                 clearInterval(timer);
-            } else {
+            } else if (audio_capturer.ready == true) {
                 setTimeout(
                     function() {
                         // stop recording
