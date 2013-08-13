@@ -56,14 +56,7 @@ function getUserMediaData() {
     audio_capturer.ws_url = ws_url;
     audio_capturer.time_interval = time_interval;
 
-    if (hasGetUserMedia()) {
-        var ws_client = new WebSocketClient();
-        var ws = ws_client.init(ws_url);
-        video_capturer.ws = ws;
-        audio_capturer.ws = ws;
-
-        initMediaStream();
-    } else {
+    if (!hasGetUserMedia()) {
         alert('Error! getUserMedia() is not supported in your browser!');
     }
 }
