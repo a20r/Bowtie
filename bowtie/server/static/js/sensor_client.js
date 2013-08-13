@@ -17,6 +17,7 @@ var audioInterval = undefined;
 var videoInterval = undefined;
 var sendingInterval = undefined;
 var waitTime = 200; // ms
+var ws_url = "ws://82.196.12.41/websocket/";
 
 // Two functions that need ro run
 // in order for the code to work properly
@@ -39,8 +40,7 @@ function getUserMediaData() {
     var video = document.getElementById('live_stream');
     var canvas = document.getElementById('vid_img');
 
-    // change the IP for different testing scenarios!!!
-    var ws_url = "ws://82.196.12.41/websocket/";
+    // change the IP for different testing scenarios!!
 
     var time_interval = 1000;
 
