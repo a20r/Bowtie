@@ -26,7 +26,7 @@ function show_warning(msg) {
 // Gets the form ready for data
 // to be received from the server
 function ready_to_start() {
-    $("#cpu_id").removeAttr('readonly');
+    $("#group_id").removeAttr('readonly');
 
     $("#sub_button").html("Grab data");
     $("#sub_button").prop(
@@ -40,7 +40,7 @@ function ready_to_start() {
 // Gets the form ready to stop 
 // getting data from the server
 function ready_to_stop() {
-    $("#cpu_id").prop("readonly", "readonly");
+    $("#group_id").prop("readonly", "readonly");
 
     $("#sub_button").html("Stop grabbing");
     $("#sub_button").prop(
@@ -57,16 +57,16 @@ function ready_to_stop() {
 var intervalVar;
 function toggle_readonly() {
     if(
-            $("#cpu_id").attr('readonly') != undefined
+            $("#group_id").attr('readonly') != undefined
     ) {   
         clearInterval(intervalVar);
         ready_to_start();
     } else {
-        if($("#cpu_id").val() != "") {
+        if($("#group_id").val() != "") {
             intervalVar = setInterval(
                 function() {
                     $.getJSON(
-                        '/get_data/' + $("#cpu_id").val(), 
+                        '/get_data/' + $("#group_id").val(), 
                         visualize_data
                     );
                 }, 50

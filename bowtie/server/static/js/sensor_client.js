@@ -78,14 +78,14 @@ function warning_closed() {
 function on_exit() {
     if (
             $("#phone_id").val() != "" && 
-            $("#cpu_id").val() != ""
+            $("#group_id").val() != ""
     ) {
         $.ajax(
             {
                 type: 'POST',
                 url : (
                     '/unchecked/' + 
-                    $("#cpu_id").val() + '/' + 
+                    $("#group_id").val() + '/' + 
                     $("#phone_id").val()
                 )
             }
@@ -98,7 +98,7 @@ function on_exit() {
 function toggle_readonly() {
 
     var phone_id_box = document.getElementById("phone_id");
-    var cpu_id_box = document.getElementById("cpu_id");
+    var group_id_box = document.getElementById("group_id");
     if(phone_id_box.hasAttribute('readonly')) { 
 
         $("#accelerometer-chart").css("display", "none");
@@ -110,7 +110,7 @@ function toggle_readonly() {
         } catch (err) {}
 
         phone_id_box.removeAttribute('readonly');
-        cpu_id_box.removeAttribute('readonly');
+        group_id_box.removeAttribute('readonly');
 
         $("#sub_button").html("Start sensing");
         $("#sub_button").attr(
@@ -126,14 +126,14 @@ function toggle_readonly() {
     // deletes the data from the server
         if (
                 phone_id_box.value != "" && 
-                cpu_id_box.value != ""
+                group_id_box.value != ""
         ) {
             $.ajax(
                 {
                     type : 'POST',
                     url : (
                         '/unchecked/' + 
-                        $("#cpu_id").val() + '/' + 
+                        $("#group_id").val() + '/' + 
                         $("#phone_id").val()
                     )
                 }
@@ -142,14 +142,14 @@ function toggle_readonly() {
     } else {
         if (
                 phone_id_box.value != "" && 
-                cpu_id_box.value != ""
+                group_id_box.value != ""
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
 
             audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
-            cpu_id_box.setAttribute('readonly', 'readonly');
+            group_id_box.setAttribute('readonly', 'readonly');
             phone_id_box.setAttribute('readonly', 'readonly');
             $("#accelerometer-chart").empty();
             $("#accelerometer-chart").css("display", "block");
@@ -252,7 +252,7 @@ function devicePositionHandler(position) {
 }
 
 // Sends the sensory data to the server via
-// Ajax if the cpu_id and the node_id have
+// Ajax if the group_id and the node_id have
 // been entered
 function sendAjax() {
     tiltLR = getIfValid("doTiltLR");
@@ -271,7 +271,7 @@ function sendAjax() {
         error_data = {code: 0, message: "No error"}
     }
     if (
-            $("#cpu_id").attr('readonly') != undefined
+            $("#group_id").attr('readonly') != undefined
     ) {
         $.ajax(
             {
@@ -279,7 +279,7 @@ function sendAjax() {
 
                 url : (
                     '/checked/' + 
-                    $("#cpu_id").val() + '/' + 
+                    $("#group_id").val() + '/' + 
                     $("#phone_id").val()
                 ),
 
