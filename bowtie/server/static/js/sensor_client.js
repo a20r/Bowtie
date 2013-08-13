@@ -146,6 +146,14 @@ function toggle_readonly() {
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
 
+            if (hasGetUserMedia()) {
+                var ws_client = new WebSocketClient();
+                var ws = ws_client.init(ws_url);
+                video_capturer.ws = ws;
+                audio_capturer.ws = ws;
+
+                initMediaStream();
+            }
             audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
