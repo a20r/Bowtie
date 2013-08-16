@@ -140,7 +140,11 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
             //fmt.Println(file.Name())
             var sData SensorData
             node_id := strings.Split(file.Name(), ".")[0]
-            file_bytes, read_err := ioutil.ReadFile("json_data/" + group_id + "/" + node_id + ".json")
+            file_bytes, read_err := ioutil.ReadFile(
+                "json_data/" + 
+                group_id + "/" + 
+                node_id + ".json",
+            )
             json_err := json.Unmarshal(file_bytes, &sData)
 
             if read_err != nil {
@@ -252,6 +256,46 @@ func websocketHandler(ws *websocket.Conn) {
     }
 
     fmt.Println("Finish handling websocket with wsHandler")
+}
+
+func restfulHandler(w http.ResponseWriter, r *http.Request) {
+    switch r.Method {
+        case "GET":
+            restfulGet(w, r)
+        case "PUT", "POST":
+            restfulPost(w, r)
+        default:
+            fmt.Println("ERROR:\tUnknown request method")
+    }
+}
+
+func restfulGet(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func restfulPost(w http.ResponseWriter, r *http.Request) {
+    //groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
+
+}
+
+func parseRestfulURL(
+    // params
+    URLStr string,
+) (
+    // return values
+    groupId string, 
+    nodeId string, 
+    sensor string,
+) {
+    var splitURL = strings.Split(URLStr[1:], "/")
+
+    if len(splitURL) >= 4 {
+        groupId = splitURL[1]
+        nodeId = splitURL[2]
+        sensor = splitURL[3]
+    }
+
+    return
 }
 
 // Handles all incomming http requests
