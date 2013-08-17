@@ -18,6 +18,9 @@ import (
     "encoding/json"
     "encoding/base64"
 
+    // rethinkdb
+    rethink "github.com/christopherhesse/rethinkgo"
+
     // custom pkgs
 )
 
@@ -32,6 +35,9 @@ type Page struct {
     Title string
     Body []byte
 }
+
+// database session
+var _, _ = rethink.Connect("localhost:28015", "bowtie_db")
 
 // Converts the JSON to strings
 // to be sent as a response
@@ -247,7 +253,7 @@ func websocketHandler(ws *websocket.Conn) {
     for {
         err := websocket.Message.Receive(ws, &msg)
         if err != nil {
-            fmt.Println("ProcessSocket: got error", err)
+            fmt.Println("ProcessSocket:\tgot error", err)
             _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
             return
         }
