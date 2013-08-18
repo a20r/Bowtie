@@ -428,10 +428,10 @@ func requestHandler() {
 // MAIN EXECUTION FLOW
 func main() {
 
-    if dbErr != nil {
-        fmt.Println(dbErr)
-        return
-    } 
+    // if dbErr != nil {
+    //     fmt.Println(dbErr)
+    //     return
+    // } 
 
     requestHandler()
 
