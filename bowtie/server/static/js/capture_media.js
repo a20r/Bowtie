@@ -1,3 +1,8 @@
+var transmission_details = {
+    group_id: null,
+    node_id: null
+}
+
 var video_capturer = {
     ready: false,
     video: null,
@@ -35,7 +40,7 @@ function streamVideo(stream) {
 function transmitVideoToURL(video_capturer) {
     console.log("Transmitting video to url");
 
-    return setInterval(
+    var timer = setInterval(
         function () {
             // condition that stops transmitting video stream to server
             if (video_capturer.ws.readyState == 3) { // 3 - socket is closed
@@ -56,11 +61,22 @@ function transmitVideoToURL(video_capturer) {
                     1.0
                 );
                 console.log("Transmitting video slice!");
-                video_capturer.ws.send(data);
+                video_capturer.ws.send(
+                    JSON.stringify(
+                        {
+                            "Media_Type": "video",
+                            "Group_ID": transmission_details.group_id,
+                            "Node_ID": transmission_details.node_id,
+                            "Data": data,
+                        }
+                    )
+                );
             }
         },
         video_capturer.time_interval
     );
+
+    return timer;
 }
 
 function initMediaStream() {
@@ -96,7 +112,16 @@ function blobToBase64(blob) {
         // when finished encoding blob to base64
         data = reader_event.target.result;
         console.log("Transmitting audio slice!");
-        audio_capturer.ws.send(data)
+        audio_capturer.ws.send(
+            JSON.stringify(
+                {
+                    "Media_Type": "audio",
+                    "Group_ID": transmission_details.group_id,
+                    "Node_ID": transmission_details.node_id,
+                    "Data": data,
+                }
+            )
+        )
     }
 
     reader.onerror = function(reader_event) {
@@ -145,7 +170,7 @@ function encodeAudio(blob) {
 function transmitAudioToURL(audio_capturer) {
     console.log("Transmitting audio to url");
 
-    return setInterval(
+    var timer = setInterval(
         function() {
             if (audio_capturer.ws.readyState == 3) { // 3 - socket is closed
                 console.log("Stop audio stream transmission!");
@@ -167,4 +192,6 @@ function transmitAudioToURL(audio_capturer) {
         },
         audio_capturer.time_interval
     );
+
+    return timer;
 }
