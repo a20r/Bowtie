@@ -15,3 +15,8 @@
 2013-08-18T14:07:33.658369000 1228.539236s info: Applying data {"databases":{"7666e9c5-7cad-4ae8-94dc-c64e12589ef6":null}}
 2013-08-18T14:07:38.680687000 1233.561682s info: Applying data {"databases":{"new":{"name":"bowtie_db"}}}
 2013-08-18T14:07:54.248709000 1249.130109s info: Applying data {"rdb_namespaces":{"new":{"name":"sensor_table","primary_uuid":"00000000-0000-0000-0000-000000000000","database":"edb4468d-6d13-4091-8a30-0b73eeb163f0","ack_expectations":{"00000000-0000-0000-0000-000000000000":{"expectation":1,"hard_durability":true}}}}}
+2013-08-18T17:33:43.676921000 13006.425762s info: Server got SIGINT; shutting down...
+2013-08-18T17:33:43.677093000 13006.425935s info: Shutting down client connections...
+2013-08-18T17:33:43.717103000 13006.465945s info: All client connections closed.
+2013-08-18T17:33:43.717127000 13006.465968s info: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2013-08-18T17:33:43.719264000 13006.468106s info: Storage engine shut down.
