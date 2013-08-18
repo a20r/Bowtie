@@ -20,7 +20,7 @@ import (
     "encoding/base64"
 
     // rethinkdb
-    //rethink "github.com/christopherhesse/rethinkgo"
+    rethink "github.com/christopherhesse/rethinkgo"
 
     // custom pkgs
 )
@@ -37,16 +37,8 @@ type Page struct {
     Body []byte
 }
 
-// Media slice
-type MediaSlice struct {
-    Media_Type string
-    Group_ID string
-    Node_ID string
-    Data string
-}
-
 // database session
-//var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
+var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 
 // Converts the JSON to strings
 // to be sent as a response
@@ -186,9 +178,9 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 // Video stream handler
 // Obtains data as a string encoded in Base64 and outputs the video
 // stream a single image
-func videoStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
+func videoStreamHandler(data string) {
+    group_id := "testing"
+    node_id := "testing"
     path := "./video_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -200,32 +192,23 @@ func videoStreamHandler(ms MediaSlice) {
     }
 
     // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:image/jpeg;base64") {
-        img_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            fmt.Println("error:", err)
-            return
-        }
-        file.Write([]byte(img_data))
-
-    } else {
-        err := "video data format [" + data_header + "] not supported!"
+    img_data, err := base64.StdEncoding.DecodeString(data)
+    if err != nil {
         fmt.Println("error:", err)
+        return
     }
 
     // Write out the image binary
+    file.Write([]byte(img_data))
     file.Close()
 }
 
 // Audio stream handler
 // Obtains data as a string encoded in Base64 and outputs the audio
 // stream as a single wav file
-func audioStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
+func audioStreamHandler(data string) {
+    group_id := "testing"
+    node_id := "testing"
     path := "./audio_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -237,42 +220,28 @@ func audioStreamHandler(ms MediaSlice) {
     }
 
     // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:audio/wav;base64") {
-        audio_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            fmt.Println("error:", err)
-            return
-        }
-
-        // Write out the image binary
-        file.Write([]byte(audio_data))
-    } else {
-        err := "audio data format [" + data_header + "] not supported!"
+    audio_data, err := base64.StdEncoding.DecodeString(data)
+    if err != nil {
         fmt.Println("error:", err)
+        return
     }
 
+    // Write out the image binary
+    file.Write([]byte(audio_data))
     file.Close()
 }
 
 // Websocket Parser
 func websocketMsgParser(msg string) {
-    b := []byte(msg)
-    var ms MediaSlice
+    // Parse header and data
+    msg_header := strings.Split(msg, ",")[0]
+    msg_data := strings.Split(msg, ",")[1]
 
-    err := json.Unmarshal(b, &ms)
-    if err != nil {
-        fmt.Println("ProcessSocket:\tgot error", err)
-        return
-    }
-
-    fmt.Println("Parsing Websocket message [" + ms.Media_Type + "]")
-    if (ms.Media_Type == "video") {
-        videoStreamHandler(ms)
-    } else if (ms.Media_Type == "audio") {
-        audioStreamHandler(ms)
+    fmt.Println("Parsing Websocket message [" + msg_header + "]")
+    if (msg_header == "data:image/jpeg;base64") {
+        videoStreamHandler(msg_data)
+    } else if (msg_header == "data:audio/wav;base64") {
+        audioStreamHandler(msg_data)
     }
 }
 
@@ -296,121 +265,121 @@ func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Finish handling websocket with wsHandler")
 }
 
-// func restfulHandler(w http.ResponseWriter, r *http.Request) {
-//     switch r.Method {
-//         case "GET":
-//             restfulGet(w, r)
-//         case "PUT", "POST":
-//             restfulPost(w, r)
-//         default:
-//             fmt.Println("ERROR:\tUnknown request method")
-//     }
-// }
+func restfulHandler(w http.ResponseWriter, r *http.Request) {
+    switch r.Method {
+        case "GET":
+            restfulGet(w, r)
+        case "PUT", "POST":
+            restfulPost(w, r)
+        default:
+            fmt.Println("ERROR:\tUnknown request method")
+    }
+}
 
-// func restfulGet(w http.ResponseWriter, r *http.Request) {
+func restfulGet(w http.ResponseWriter, r *http.Request) {
 
-// }
+}
 
-// /*
-//     Handles the sensor data posting. The actual sensor
-//     data is stored in the JSON form.
+/*
+    Handles the sensor data posting. The actual sensor
+    data is stored in the JSON form.
 
-//     The current structure of this JSON is as follows:
+    The current structure of this JSON is as follows:
 
-//     sensorData : JSON.stringify(
-//         {
-//             value : `value of the sensor being sent`
-//             type : `the data type of value`
-//             time : `time stamp from when it was sent`
-//             //token : `authentication token`
-//         }
-//     )
-// */
-// func restfulPost(w http.ResponseWriter, r *http.Request) {
-//     fmt.Println("POST\t" + r.URL.Path)
+    sensorData : JSON.stringify(
+        {
+            value : `value of the sensor being sent`
+            type : `the data type of value`
+            time : `time stamp from when it was sent`
+            //token : `authentication token`
+        }
+    )
+*/
+func restfulPost(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("POST\t" + r.URL.Path)
 
-//     // decodes the JSON data to be sent to the database
-//     var sData SensorData
-//     r.ParseForm()
-//     json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
+    // decodes the JSON data to be sent to the database
+    var sData SensorData
+    r.ParseForm()
+    json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
 
 
-//     groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
-//     // checks if the entry is already in the database
-//     var groupData []interface{}
-//     rethink.Table("sensor_table").GetAll(
-//         "groupId", 
-//         groupId,
-//     ).Run(session).All(&groupData)
+    groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
+    // checks if the entry is already in the database
+    var groupData []interface{}
+    rethink.Table("sensor_table").GetAll(
+        "groupId", 
+        groupId,
+    ).Run(session).All(&groupData)
 
-//     entryExists := len(groupData) > 0
+    entryExists := len(groupData) > 0
 
-//     // FIX THIS SHIT BRO!
-//     if entryExists {
+    // FIX THIS SHIT BRO!
+    if entryExists {
 
-//         var nodeExists bool
-//         rethink.Table("sensor_table").GetAll(
-//             "groupId",
-//             groupId,
-//         ).Nth(0).Attr("nodes").Contains(nodeId).Run(session).One(&nodeExists)
+        var nodeExists bool
+        rethink.Table("sensor_table").GetAll(
+            "groupId",
+            groupId,
+        ).Nth(0).Attr("nodes").Contains(nodeId).Run(session).One(&nodeExists)
 
-//         if nodeExists {
-//             var mergedNode interface{}
-//             rethink.Table("sensor_table").GetAll(
-//                 "groupId",
-//                 groupId,
-//             ).Nth(0).Attr("nodes").Attr(nodeId).Merge(
-//                 rethink.Map{
-//                     sensor : rethink.Map{
-//                         "value" : sData["value"],
-//                         "type" : sData["type"],
-//                         "time" : sData["time"],
-//                     },
-//                 },
-//             ).Run(session).One(&mergedNode)
+        if nodeExists {
+            var mergedNode interface{}
+            rethink.Table("sensor_table").GetAll(
+                "groupId",
+                groupId,
+            ).Nth(0).Attr("nodes").Attr(nodeId).Merge(
+                rethink.Map{
+                    sensor : rethink.Map{
+                        "value" : sData["value"],
+                        "type" : sData["type"],
+                        "time" : sData["time"],
+                    },
+                },
+            ).Run(session).One(&mergedNode)
 
-//             rethink.Table("sensor_table").GetAll(
-//                 "groupId",
-//                 groupId,
-//             ).Nth(0).Attr("nodes")
-//         }
-//     } else {
-//         rethink.Table("sensor_table").Insert(
-//             rethink.Map{
-//                 "groupId" : groupId,
-//                 "nodes" : rethink.Map{
-//                     nodeId : rethink.Map{
-//                         sensor : rethink.Map{
-//                             "value" : sData["value"],
-//                             "type" : sData["type"],
-//                             "time" : sData["time"],
-//                         },
-//                     },
-//                 },
-//             },
-//         ).Run(session).Exec()
-//     }
-// }
+            rethink.Table("sensor_table").GetAll(
+                "groupId",
+                groupId,
+            ).Nth(0).Attr("nodes")
+        }
+    } else {
+        rethink.Table("sensor_table").Insert(
+            rethink.Map{
+                "groupId" : groupId,
+                "nodes" : rethink.Map{
+                    nodeId : rethink.Map{
+                        sensor : rethink.Map{
+                            "value" : sData["value"],
+                            "type" : sData["type"],
+                            "time" : sData["time"],
+                        },
+                    },
+                },
+            },
+        ).Run(session).Exec()
+    }
+}
 
-// func parseRestfulURL(
-//     // params
-//     URLStr string,
-// ) (
-//     // return values
-//     groupId string, 
-//     nodeId string, 
-//     sensor string,
-// ) {
-//     var splitURL = strings.Split(URLStr[1:], "/")
+func parseRestfulURL(
+    // params
+    URLStr string,
+) (
+    // return values
+    groupId string, 
+    nodeId string, 
+    sensor string,
+) {
+    var splitURL = strings.Split(URLStr[1:], "/")
 
-//     if len(splitURL) >= 4 {
-//         groupId = splitURL[1]
-//         nodeId = splitURL[2]
-//         sensor = splitURL[3]
-//     }
+    if len(splitURL) >= 4 {
+        groupId = splitURL[1]
+        nodeId = splitURL[2]
+        sensor = splitURL[3]
+    }
 
-//     return
-// }
+    return
+}
 
 // Handles all incomming http requests
 func requestHandler() {
