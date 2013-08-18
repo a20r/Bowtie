@@ -46,7 +46,7 @@ type MediaSlice struct {
 }
 
 // database session
-var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
+//var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 
 // Converts the JSON to strings
 // to be sent as a response
