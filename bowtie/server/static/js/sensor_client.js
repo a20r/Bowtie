@@ -1,13 +1,12 @@
-
 ////////////////////////////////////////////////
 // sensor_client.js
 //
 // Main JavaScript code for the Bowtie website.
 // In charge of retrieving the sensor data
-// and sending it to the server. 
-// Improvements: 
+// and sending it to the server.
+// Improvements:
 //    Need to make sure that the sensor data
-//    stops sending once the page has been 
+//    stops sending once the page has been
 //    changed. For instance when the user
 //    clicks on the about page.
 //
@@ -70,15 +69,15 @@ function warning_closed() {
 // Function fires once the page is closed
 function on_exit() {
     if (
-            $("#phone_id").val() != "" && 
+            $("#phone_id").val() != "" &&
             $("#group_id").val() != ""
     ) {
         $.ajax(
             {
                 type: 'POST',
                 url : (
-                    '/unchecked/' + 
-                    $("#group_id").val() + '/' + 
+                    '/unchecked/' +
+                    $("#group_id").val() + '/' +
                     $("#phone_id").val()
                 )
             }
@@ -92,7 +91,7 @@ function toggle_readonly() {
 
     var phone_id_box = document.getElementById("phone_id");
     var group_id_box = document.getElementById("group_id");
-    if(phone_id_box.hasAttribute('readonly')) { 
+    if(phone_id_box.hasAttribute('readonly')) {
 
         $("#accelerometer-chart").css("display", "none");
 
@@ -107,26 +106,26 @@ function toggle_readonly() {
 
         $("#sub_button").html("Start sensing");
         $("#sub_button").attr(
-            "class", 
+            "class",
             "btn btn-large btn-success"
         );
 
         $("#sensor_table").css(
-            "display", 
+            "display",
             "none"
         );
 
     // deletes the data from the server
         if (
-                phone_id_box.value != "" && 
+                phone_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
             $.ajax(
                 {
                     type : 'POST',
                     url : (
-                        '/unchecked/' + 
-                        $("#group_id").val() + '/' + 
+                        '/unchecked/' +
+                        $("#group_id").val() + '/' +
                         $("#phone_id").val()
                     )
                 }
@@ -134,7 +133,7 @@ function toggle_readonly() {
         }
     } else {
         if (
-                phone_id_box.value != "" && 
+                phone_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
@@ -147,6 +146,10 @@ function toggle_readonly() {
 
                 initMediaStream();
             }
+
+            // Transmitting video and audio
+            transmission_details.group_id = $("#group_id").val();
+            transmission_details.node_id = $("#phone_id").val();
             audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
@@ -158,7 +161,7 @@ function toggle_readonly() {
 
             $("#sub_button").html("Stop sensing");
             $("#sub_button").attr(
-                "class", 
+                "class",
                 "btn btn-large btn-primary btn-danger"
             );
 
@@ -176,8 +179,8 @@ function toggle_readonly() {
 function getSensorData() {
     if(window.DeviceOrientationEvent) {
         window.addEventListener(
-            'deviceorientation', 
-            orientationEventHandler, 
+            'deviceorientation',
+            orientationEventHandler,
             false
         );
     } else {
@@ -218,14 +221,14 @@ function getLocation() {
         var timeoutVal = 6000;
 
         var extraGeoParam = {
-            enableHighAccuracy: true, 
-            timeout: timeoutVal, 
+            enableHighAccuracy: true,
+            timeout: timeoutVal,
             maximumAge: 0
         };
 
         navigator.geolocation.watchPosition(
-            devicePositionHandler, 
-            positionError, 
+            devicePositionHandler,
+            positionError,
             extraGeoParam
         );
     } else {
@@ -234,7 +237,7 @@ function getLocation() {
 }
 
 // Fired if getting the position raises an error
-function positionError (position) { 
+function positionError (position) {
     $("#latPos").html("Not supported");
     $("#latPosCheckbox").prop("checked", false);
     $("#latPosCheckbox").prop("disabled", true);
@@ -263,8 +266,8 @@ function sendAjax() {
     lat = getIfValid("latPos");
     lon = getIfValid("longPos");
     if (
-            lat == null && 
-            lon == null && 
+            lat == null &&
+            lon == null &&
             $("#latPos").html() == "Not supported"
     ) {
         error_data = {code: 1, message: "Position error"}
@@ -279,8 +282,8 @@ function sendAjax() {
                 type : 'POST',
 
                 url : (
-                    '/checked/' + 
-                    $("#group_id").val() + '/' + 
+                    '/checked/' +
+                    $("#group_id").val() + '/' +
                     $("#phone_id").val()
                 ),
 
@@ -288,13 +291,13 @@ function sendAjax() {
                     sensor_data: JSON.stringify(
                         {
                             orientation: {
-                                tilt_horizontal: tiltLR, 
-                                tilt_vertical: tiltFB, 
+                                tilt_horizontal: tiltLR,
+                                tilt_vertical: tiltFB,
                                 direction: dir
-                            }, 
+                            },
 
                             location: {
-                                latitude: lat, 
+                                latitude: lat,
                                 longitude: lon
                             },
 
@@ -312,7 +315,7 @@ function sendAjax() {
 function getIfValid(element_id) {
     if (
             $("#" + element_id).html() == "Not supported" ||
-            $("#" + element_id).html() == "" || 
+            $("#" + element_id).html() == "" ||
             !$("#" + element_id + "Checkbox").prop("checked")
     ) {
         return null;
@@ -322,4 +325,3 @@ function getIfValid(element_id) {
         );
     }
 }
-
