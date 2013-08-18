@@ -17,6 +17,7 @@ var videoInterval = undefined;
 var sendingInterval = undefined;
 var waitTime = 200; // ms
 var ws_url = "ws://82.196.12.41/websocket/";
+// var ws_url = "ws://127.0.0.1:8080/websocket/";
 
 // Two functions that need ro run
 // in order for the code to work properly
@@ -69,7 +70,7 @@ function warning_closed() {
 // Function fires once the page is closed
 function on_exit() {
     if (
-            $("#phone_id").val() != "" &&
+            $("#node_id").val() != "" &&
             $("#group_id").val() != ""
     ) {
         $.ajax(
@@ -78,7 +79,7 @@ function on_exit() {
                 url : (
                     '/unchecked/' +
                     $("#group_id").val() + '/' +
-                    $("#phone_id").val()
+                    $("#node_id").val()
                 )
             }
         );
@@ -89,9 +90,9 @@ function on_exit() {
 // and whether it gets sent to the server
 function toggle_readonly() {
 
-    var phone_id_box = document.getElementById("phone_id");
+    var node_id_box = document.getElementById("node_id");
     var group_id_box = document.getElementById("group_id");
-    if(phone_id_box.hasAttribute('readonly')) {
+    if(node_id_box.hasAttribute('readonly')) {
 
         $("#accelerometer-chart").css("display", "none");
 
@@ -101,7 +102,7 @@ function toggle_readonly() {
             clearInterval(videoInterval);
         } catch (err) {}
 
-        phone_id_box.removeAttribute('readonly');
+        node_id_box.removeAttribute('readonly');
         group_id_box.removeAttribute('readonly');
 
         $("#sub_button").html("Start sensing");
@@ -117,7 +118,7 @@ function toggle_readonly() {
 
     // deletes the data from the server
         if (
-                phone_id_box.value != "" &&
+                node_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
             $.ajax(
@@ -126,14 +127,14 @@ function toggle_readonly() {
                     url : (
                         '/unchecked/' +
                         $("#group_id").val() + '/' +
-                        $("#phone_id").val()
+                        $("#node_id").val()
                     )
                 }
             );
         }
     } else {
         if (
-                phone_id_box.value != "" &&
+                node_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
             sendingInterval = window.setInterval(sendAjax, waitTime);
@@ -149,12 +150,12 @@ function toggle_readonly() {
 
             // Transmitting video and audio
             transmission_details.group_id = $("#group_id").val();
-            transmission_details.node_id = $("#phone_id").val();
+            transmission_details.node_id = $("#node_id").val();
             audioInterval = transmitAudioToURL(audio_capturer);
             videoInterval = transmitVideoToURL(video_capturer);
 
             group_id_box.setAttribute('readonly', 'readonly');
-            phone_id_box.setAttribute('readonly', 'readonly');
+            node_id_box.setAttribute('readonly', 'readonly');
             $("#accelerometer-chart").empty();
             $("#accelerometer-chart").css("display", "block");
             realtime_demo();
@@ -284,7 +285,7 @@ function sendAjax() {
                 url : (
                     '/checked/' +
                     $("#group_id").val() + '/' +
-                    $("#phone_id").val()
+                    $("#node_id").val()
                 ),
 
                 data: {
