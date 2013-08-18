@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -37,7 +38,7 @@ type Page struct {
 }
 
 // database session
-var _, _ = rethink.Connect("localhost:28015", "bowtie_db")
+var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 
 // Converts the JSON to strings
 // to be sent as a response
@@ -279,9 +280,28 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func restfulPost(w http.ResponseWriter, r *http.Request) {
-    //groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
+/*
+    Handles the sensor data posting. The actual sensor
+    data is stored in the JSON form.
 
+    The current structure of this JSON is as follows:
+
+    sensorData : JSON.stringify(
+        {
+            value : `value of the sensor being sent`
+            type : `the data type of value`
+            time : `time stamp from when it was sent`
+            //token : `authentication token`
+        }
+    )
+*/
+func restfulPost(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("POST\t" + r.URL.Path)
+    groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
+
+    // decodes the JSON data to be sent to the database
+    var sData SensorData
+    json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
 }
 
 func parseRestfulURL(
@@ -319,6 +339,12 @@ func requestHandler() {
 
 // MAIN EXECUTION FLOW
 func main() {
+
+    if dbErr != nil {
+        fmt.Println(dbErr)
+        return
+    } 
+
     requestHandler()
 
     http.HandleFunc("/checked/", dataSentHandler)

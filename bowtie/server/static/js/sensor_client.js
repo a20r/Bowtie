@@ -17,7 +17,8 @@ var audioInterval = undefined;
 var videoInterval = undefined;
 var sendingInterval = undefined;
 var waitTime = 200; // ms
-var ws_url = "ws://82.196.12.41/websocket/";
+//var ws_url = "ws://82.196.12.41/websocket/";
+var ws_url = "ws://localhost:8000/websocket/";
 
 // Two functions that need ro run
 // in order for the code to work properly

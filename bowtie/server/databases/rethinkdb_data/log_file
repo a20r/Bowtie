@@ -1,0 +1,17 @@
+2013-08-18T13:47:05.456659000 0.306383s info: Creating directory /Users/wallarelvo-mac/Documents/Projects/Bowtie/bowtie/server/databases/rethinkdb_data
+2013-08-18T13:47:05.457116000 0.306839s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/Users/wallarelvo-mac/Documents/Projects/Bowtie/bowtie/server/databases/rethinkdb_data' did not already exist.)
+2013-08-18T13:47:05.457179000 0.306903s info: Running rethinkdb 1.5.2 (CLANG 4.1 ((tags/Apple/clang-421.11.66)))...
+2013-08-18T13:47:05.550669000 0.400392s info: Running on Darwin 12.2.1 x86_64
+2013-08-18T13:47:05.550766000 0.400490s info: Loading data from directory /Users/wallarelvo-mac/Documents/Projects/Bowtie/bowtie/server/databases/rethinkdb_data
+2013-08-18T13:47:08.030214000 2.880013s info: Listening for intracluster connections on port 29015
+2013-08-18T13:47:08.031635000 2.881435s info: Listening for client driver connections on port 28015
+2013-08-18T13:47:08.031650000 2.881449s info: Listening for administrative HTTP connections on port 8080
+2013-08-18T13:47:08.031652000 2.881451s info: Listening on addresses: 127.0.0.1
+2013-08-18T13:47:08.031652000 2.881452s info: To fully expose RethinkDB on the network, bind to all addresses
+2013-08-18T13:47:08.031653000 2.881452s info: by running rethinkdb with the `--bind all' command line option.
+2013-08-18T13:47:08.031654000 2.881453s info: Server ready
+2013-08-18T13:49:46.316216000 161.170023s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
+2013-08-18T14:07:18.205763000 1213.086250s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
+2013-08-18T14:07:33.658369000 1228.539236s info: Applying data {"databases":{"7666e9c5-7cad-4ae8-94dc-c64e12589ef6":null}}
+2013-08-18T14:07:38.680687000 1233.561682s info: Applying data {"databases":{"new":{"name":"bowtie_db"}}}
+2013-08-18T14:07:54.248709000 1249.130109s info: Applying data {"rdb_namespaces":{"new":{"name":"sensor_table","primary_uuid":"00000000-0000-0000-0000-000000000000","database":"edb4468d-6d13-4091-8a30-0b73eeb163f0","ack_expectations":{"00000000-0000-0000-0000-000000000000":{"expectation":1,"hard_durability":true}}}}}
