@@ -297,11 +297,68 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
 */
 func restfulPost(w http.ResponseWriter, r *http.Request) {
     fmt.Println("POST\t" + r.URL.Path)
-    groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
 
     // decodes the JSON data to be sent to the database
     var sData SensorData
+    r.ParseForm()
     json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
+
+
+    groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
+    // checks if the entry is already in the database
+    var groupData []interface{}
+    rethink.Table("sensor_table").GetAll(
+        "groupId", 
+        groupId,
+    ).Run(session).All(&groupData)
+
+    entryExists := len(groupData) > 0
+
+    // FIX THIS SHIT BRO!
+    if entryExists {
+
+        var nodeExists bool
+        rethink.Table("sensor_table").GetAll(
+            "groupId",
+            groupId,
+        ).Nth(0).Attr("nodes").Contains(nodeId).Run(session).One(&nodeExists)
+
+        if nodeExists {
+            var mergedNode interface{}
+            rethink.Table("sensor_table").GetAll(
+                "groupId",
+                groupId,
+            ).Nth(0).Attr("nodes").Attr(nodeId).Merge(
+                rethink.Map{
+                    sensor : rethink.Map{
+                        "value" : sData["value"],
+                        "type" : sData["type"],
+                        "time" : sData["time"],
+                    },
+                },
+            ).Run(session).One(&mergedNode)
+
+            rethink.Table("sensor_table").GetAll(
+                "groupId",
+                groupId,
+            ).Nth(0).Attr("nodes")
+        }
+    } else {
+        rethink.Table("sensor_table").Insert(
+            rethink.Map{
+                "groupId" : groupId,
+                "nodes" : rethink.Map{
+                    nodeId : rethink.Map{
+                        sensor : rethink.Map{
+                            "value" : sData["value"],
+                            "type" : sData["type"],
+                            "time" : sData["time"],
+                        },
+                    },
+                },
+            },
+        ).Run(session).Exec()
+    }
 }
 
 func parseRestfulURL(
