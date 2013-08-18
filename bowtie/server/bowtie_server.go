@@ -20,7 +20,7 @@ import (
     "encoding/base64"
 
     // rethinkdb
-    rethink "github.com/christopherhesse/rethinkgo"
+    //rethink "github.com/christopherhesse/rethinkgo"
 
     // custom pkgs
 )
