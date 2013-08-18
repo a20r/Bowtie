@@ -401,7 +401,6 @@ func main() {
         fmt.Println(dbErr)
         return
     } 
-
     requestHandler()
 
     http.HandleFunc("/checked/", dataSentHandler)
