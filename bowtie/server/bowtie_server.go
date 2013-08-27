@@ -41,6 +41,14 @@ type Page struct {
     Body []byte
 }
 
+// Media slice
+type MediaSlice struct {
+    Media_Type string
+    Group_ID string
+    Node_ID string
+    Data string
+}
+
 // database session
 var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 
@@ -182,9 +190,9 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 // Video stream handler
 // Obtains data as a string encoded in Base64 and outputs the video
 // stream a single image
-func videoStreamHandler(data string) {
-    group_id := "testing"
-    node_id := "testing"
+func videoStreamHandler(ms MediaSlice) {
+    group_id := ms.Group_ID
+    node_id := ms.Node_ID
     path := "./video_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -196,23 +204,32 @@ func videoStreamHandler(data string) {
     }
 
     // Decode Base64 string to binary
-    img_data, err := base64.StdEncoding.DecodeString(data)
-    if err != nil {
+    data_header := strings.Split(ms.Data, ",")[0]
+    data_raw := strings.Split(ms.Data, ",")[1]
+
+    if (data_header == "data:image/jpeg;base64") {
+        img_data, err := base64.StdEncoding.DecodeString(data_raw)
+        if err != nil {
+            fmt.Println("error:", err)
+            return
+        }
+        file.Write([]byte(img_data))
+
+    } else {
+        err := "video data format [" + data_header + "] not supported!"
         fmt.Println("error:", err)
-        return
     }
 
     // Write out the image binary
-    file.Write([]byte(img_data))
     file.Close()
 }
 
 // Audio stream handler
 // Obtains data as a string encoded in Base64 and outputs the audio
 // stream as a single wav file
-func audioStreamHandler(data string) {
-    group_id := "testing"
-    node_id := "testing"
+func audioStreamHandler(ms MediaSlice) {
+    group_id := ms.Group_ID
+    node_id := ms.Node_ID
     path := "./audio_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -224,28 +241,42 @@ func audioStreamHandler(data string) {
     }
 
     // Decode Base64 string to binary
-    audio_data, err := base64.StdEncoding.DecodeString(data)
-    if err != nil {
+    data_header := strings.Split(ms.Data, ",")[0]
+    data_raw := strings.Split(ms.Data, ",")[1]
+
+    if (data_header == "data:audio/wav;base64") {
+        audio_data, err := base64.StdEncoding.DecodeString(data_raw)
+        if err != nil {
+            fmt.Println("error:", err)
+            return
+        }
+
+        // Write out the image binary
+        file.Write([]byte(audio_data))
+    } else {
+        err := "audio data format [" + data_header + "] not supported!"
         fmt.Println("error:", err)
-        return
     }
 
-    // Write out the image binary
-    file.Write([]byte(audio_data))
     file.Close()
 }
 
 // Websocket Parser
 func websocketMsgParser(msg string) {
-    // Parse header and data
-    msg_header := strings.Split(msg, ",")[0]
-    msg_data := strings.Split(msg, ",")[1]
+    b := []byte(msg)
+    var ms MediaSlice
 
-    fmt.Println("Parsing Websocket message [" + msg_header + "]")
-    if (msg_header == "data:image/jpeg;base64") {
-        videoStreamHandler(msg_data)
-    } else if (msg_header == "data:audio/wav;base64") {
-        audioStreamHandler(msg_data)
+    err := json.Unmarshal(b, &ms)
+    if err != nil {
+        fmt.Println("ProcessSocket:\tgot error", err)
+        return
+    }
+
+    fmt.Println("Parsing Websocket message [" + ms.Media_Type + "]")
+    if (ms.Media_Type == "video") {
+        videoStreamHandler(ms)
+    } else if (ms.Media_Type == "audio") {
+        audioStreamHandler(ms)
     }
 }
 
