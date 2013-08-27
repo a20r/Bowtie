@@ -18,9 +18,13 @@ import (
     "strings"
     "encoding/json"
     "encoding/base64"
+    "errors"
+
+    //ADTs
+    //"container/list"
 
     // rethinkdb
-    //rethink "github.com/christopherhesse/rethinkgo"
+    rethink "github.com/christopherhesse/rethinkgo"
 
     // custom pkgs
 )
@@ -29,7 +33,7 @@ import (
 type Response map[string]interface{}
 
 // Type definition for disambiguation. Holds the sensor data
-type SensorData Response
+type SensorData map[string]interface{}
 
 // Represents an file loaded
 type Page struct {
@@ -37,24 +41,16 @@ type Page struct {
     Body []byte
 }
 
-// Media slice
-type MediaSlice struct {
-    Media_Type string
-    Group_ID string
-    Node_ID string
-    Data string
-}
-
 // database session
-//var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
+var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 
 // Converts the JSON to strings
 // to be sent as a response
 func (r Response) String() (s string) {
     b, err := json.Marshal(r)
     if err != nil {
-            s = ""
-            return
+        s = ""
+        return
     }
     s = string(b)
     return
@@ -186,9 +182,9 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 // Video stream handler
 // Obtains data as a string encoded in Base64 and outputs the video
 // stream a single image
-func videoStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
+func videoStreamHandler(data string) {
+    group_id := "testing"
+    node_id := "testing"
     path := "./video_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -200,32 +196,23 @@ func videoStreamHandler(ms MediaSlice) {
     }
 
     // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:image/jpeg;base64") {
-        img_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            fmt.Println("error:", err)
-            return
-        }
-        file.Write([]byte(img_data))
-
-    } else {
-        err := "video data format [" + data_header + "] not supported!"
+    img_data, err := base64.StdEncoding.DecodeString(data)
+    if err != nil {
         fmt.Println("error:", err)
+        return
     }
 
     // Write out the image binary
+    file.Write([]byte(img_data))
     file.Close()
 }
 
 // Audio stream handler
 // Obtains data as a string encoded in Base64 and outputs the audio
 // stream as a single wav file
-func audioStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
+func audioStreamHandler(data string) {
+    group_id := "testing"
+    node_id := "testing"
     path := "./audio_data/" + group_id + "/"
 
     // Make and log data to a file
@@ -237,42 +224,28 @@ func audioStreamHandler(ms MediaSlice) {
     }
 
     // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:audio/wav;base64") {
-        audio_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            fmt.Println("error:", err)
-            return
-        }
-
-        // Write out the image binary
-        file.Write([]byte(audio_data))
-    } else {
-        err := "audio data format [" + data_header + "] not supported!"
+    audio_data, err := base64.StdEncoding.DecodeString(data)
+    if err != nil {
         fmt.Println("error:", err)
+        return
     }
 
+    // Write out the image binary
+    file.Write([]byte(audio_data))
     file.Close()
 }
 
 // Websocket Parser
 func websocketMsgParser(msg string) {
-    b := []byte(msg)
-    var ms MediaSlice
+    // Parse header and data
+    msg_header := strings.Split(msg, ",")[0]
+    msg_data := strings.Split(msg, ",")[1]
 
-    err := json.Unmarshal(b, &ms)
-    if err != nil {
-        fmt.Println("ProcessSocket:\tgot error", err)
-        return
-    }
-
-    fmt.Println("Parsing Websocket message [" + ms.Media_Type + "]")
-    if (ms.Media_Type == "video") {
-        videoStreamHandler(ms)
-    } else if (ms.Media_Type == "audio") {
-        audioStreamHandler(ms)
+    fmt.Println("Parsing Websocket message [" + msg_header + "]")
+    if (msg_header == "data:image/jpeg;base64") {
+        videoStreamHandler(msg_data)
+    } else if (msg_header == "data:audio/wav;base64") {
+        audioStreamHandler(msg_data)
     }
 }
 
@@ -296,121 +269,277 @@ func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Finish handling websocket with wsHandler")
 }
 
-// func restfulHandler(w http.ResponseWriter, r *http.Request) {
-//     switch r.Method {
-//         case "GET":
-//             restfulGet(w, r)
-//         case "PUT", "POST":
-//             restfulPost(w, r)
-//         default:
-//             fmt.Println("ERROR:\tUnknown request method")
-//     }
-// }
+// using a more defined type for the restful API
+type NodeSensorData struct {
+    Value interface{} `value` 
+    Type string `type`
+    Time string `time`
+}
 
-// func restfulGet(w http.ResponseWriter, r *http.Request) {
+func (nsd NodeSensorData) String() string {
+    bytes, err := json.Marshal(nsd)
+    if err != nil {
+        return ""
+    } else {
+        return string(bytes)
+    }
+}
 
-// }
+// for easier querying
+type BowtieQueries struct {
+    Session *rethink.Session
+    GroupId string
+    NodeId string
+    Sensor string
+}
 
-// /*
-//     Handles the sensor data posting. The actual sensor
-//     data is stored in the JSON form.
+func (bq BowtieQueries) GroupExists() bool {
+    var groupData []interface{}
+    rethink.Table("sensor_table").GetAll(
+        "groupId", 
+        bq.GroupId,
+    ).Run(bq.Session).All(&groupData)
 
-//     The current structure of this JSON is as follows:
+    return len(groupData) > 0
+}
 
-//     sensorData : JSON.stringify(
-//         {
-//             value : `value of the sensor being sent`
-//             type : `the data type of value`
-//             time : `time stamp from when it was sent`
-//             //token : `authentication token`
-//         }
-//     )
-// */
-// func restfulPost(w http.ResponseWriter, r *http.Request) {
-//     fmt.Println("POST\t" + r.URL.Path)
+func (bq BowtieQueries) NodeExists() bool {
+    var nodeExists bool
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Contains(
+        bq.NodeId,
+    ).Run(bq.Session).One(&nodeExists)
 
-//     // decodes the JSON data to be sent to the database
-//     var sData SensorData
-//     r.ParseForm()
-//     json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
+    return nodeExists
+}
 
+func (bq BowtieQueries) InsertGroupWithData(sData NodeSensorData) {
+    rethink.Table("sensor_table").Insert(
+        rethink.Map{
+            "groupId" : bq.GroupId,
+            "nodes" : rethink.Map{
+                bq.NodeId : rethink.Map{
+                    bq.Sensor : rethink.Map{
+                        "value" : sData.Value,
+                        "type" : sData.Type,
+                        "time" : sData.Time,
+                    },
+                },
+            },
+        },
+    ).Run(bq.Session).Exec()
+}
 
-//     groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
-//     // checks if the entry is already in the database
-//     var groupData []interface{}
-//     rethink.Table("sensor_table").GetAll(
-//         "groupId", 
-//         groupId,
-//     ).Run(session).All(&groupData)
+// creates node if not there, updates if it exists
+func (bq BowtieQueries) UpdateNode(sData NodeSensorData) error {
 
-//     entryExists := len(groupData) > 0
+    if !bq.GroupExists() {
+        return errors.New("Group does not yet exist")
+    }
 
-//     // FIX THIS SHIT BRO!
-//     if entryExists {
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
 
-//         var nodeExists bool
-//         rethink.Table("sensor_table").GetAll(
-//             "groupId",
-//             groupId,
-//         ).Nth(0).Attr("nodes").Contains(nodeId).Run(session).One(&nodeExists)
+    if len(nodes[bq.NodeId]) > 0 {
+        nodes[bq.NodeId][bq.Sensor] = rethink.Map{
+            "value" : sData.Value,
+            "type" : sData.Type,
+            "time" : sData.Time,
+        }
+    } else { 
+        nodes[bq.NodeId] = rethink.Map{
+            bq.Sensor : rethink.Map{
+                "value" : sData.Value,
+                "type" : sData.Type,
+                "time" : sData.Time,
+            },
+        }
+    }
 
-//         if nodeExists {
-//             var mergedNode interface{}
-//             rethink.Table("sensor_table").GetAll(
-//                 "groupId",
-//                 groupId,
-//             ).Nth(0).Attr("nodes").Attr(nodeId).Merge(
-//                 rethink.Map{
-//                     sensor : rethink.Map{
-//                         "value" : sData["value"],
-//                         "type" : sData["type"],
-//                         "time" : sData["time"],
-//                     },
-//                 },
-//             ).Run(session).One(&mergedNode)
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Update(
+        rethink.Map{
+            "nodes" : nodes,
+        },
+    ).Run(bq.Session).Exec()
 
-//             rethink.Table("sensor_table").GetAll(
-//                 "groupId",
-//                 groupId,
-//             ).Nth(0).Attr("nodes")
-//         }
-//     } else {
-//         rethink.Table("sensor_table").Insert(
-//             rethink.Map{
-//                 "groupId" : groupId,
-//                 "nodes" : rethink.Map{
-//                     nodeId : rethink.Map{
-//                         sensor : rethink.Map{
-//                             "value" : sData["value"],
-//                             "type" : sData["type"],
-//                             "time" : sData["time"],
-//                         },
-//                     },
-//                 },
-//             },
-//         ).Run(session).Exec()
-//     }
-// }
+    return nil
+}
 
-// func parseRestfulURL(
-//     // params
-//     URLStr string,
-// ) (
-//     // return values
-//     groupId string, 
-//     nodeId string, 
-//     sensor string,
-// ) {
-//     var splitURL = strings.Split(URLStr[1:], "/")
+func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
+    node, err := bq.GetNode()
+    if err != nil {
+        return nil, err
+    }
+    if node[bq.Sensor] == nil {
+        return nil, errors.New("Sensor does not exist")
+    }
+    sensor := node[bq.Sensor].(map[string]interface{})
+    return &NodeSensorData{
+        sensor["value"],
+        sensor["type"].(string),
+        sensor["time"].(string),
+    }, nil
+}
 
-//     if len(splitURL) >= 4 {
-//         groupId = splitURL[1]
-//         nodeId = splitURL[2]
-//         sensor = splitURL[3]
-//     }
+func (bq BowtieQueries) GetNode() (rethink.Map, error) {
+    if !bq.GroupExists() {
+        return nil, errors.New("Group does not yet exist")
+    }
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
 
-//     return
-// }
+    if len(nodes[bq.NodeId]) == 0 {
+        return nil, errors.New("Node does not exist")
+    }
+
+    return nodes[bq.NodeId], nil
+}
+
+func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
+    if !bq.GroupExists() {
+        return nil, errors.New("Group does not yet exist")
+    }
+    var group rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Run(bq.Session).One(&group)
+
+    return group, nil
+}
+
+func makeBowtieQueriesWithPath(
+    URLStr string, 
+    rethinkSession *rethink.Session,
+) *BowtieQueries {
+    groupId, nodeId, sensor := parseRestfulURL(URLStr)
+
+    bq := BowtieQueries{
+        rethinkSession,
+        groupId,
+        nodeId,
+        sensor,
+    }
+
+    return &bq
+}
+
+func parseRestfulURL(
+    // params
+    URLStr string,
+) (
+    // return values
+    groupId string, 
+    nodeId string, 
+    sensor string,
+) {
+    var splitURL = strings.Split(URLStr[1:], "/")
+
+    if len(splitURL) >= 4 {
+        groupId = splitURL[1]
+        nodeId = splitURL[2]
+        sensor = splitURL[3]
+    }
+
+    return
+}
+
+func restfulHandler(w http.ResponseWriter, r *http.Request) {
+    switch r.Method {
+        case "GET":
+            restfulGet(w, r)
+        case "PUT", "POST":
+            restfulPost(w, r)
+        default:
+            fmt.Println("ERROR:\tUnknown request method")
+    }
+}
+
+func restfulGet(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("GET\t" + r.URL.Path)
+    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+    sensorData, err := bq.GetSensorData()
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{
+                "Error" : err.Error(),
+            },
+        )
+    } else {
+        fmt.Fprint(w, sensorData)
+    }
+}
+
+/*
+    Handles the sensor data posting. The actual sensor
+    data is stored in the JSON form.
+
+    The current structure of this JSON is as follows:
+
+    sensorData : JSON.stringify(
+        {
+            value : `value of the sensor being sent`
+            type : `the data type of value`
+            time : `time stamp from when it was sent`
+            //token : `authentication token`
+        }
+    )
+*/
+func restfulPost(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("POST\t" + r.URL.Path)
+
+    // decodes the JSON data to be sent to the database
+    var sData NodeSensorData
+    r.ParseForm()
+    json.Unmarshal(
+        []byte (r.Form["sensorData"][0]), 
+        &sData,
+    )
+
+    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+
+    if bq.GroupExists() {
+        bq.UpdateNode(sData)
+    } else {
+        bq.InsertGroupWithData(sData)
+    }
+}
+
+func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("GET\t" + r.URL.Path)
+    groupId := strings.Split(r.URL.Path[1:], "/")[1]
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        groupId,
+    ).Nth(0).Attr("nodes").Run(session).One(&nodes)
+
+    nodeIds := make([]string, len(nodes))
+    i := 0
+    for key := range nodes {
+        nodeIds[i] = key
+        i = i + 1
+    }
+
+    bytes, err := json.Marshal(nodeIds)
+    if err != nil {
+        fmt.Fprint(w, Response{"Error" : "Not able to marshal JSON data"})
+    } else {
+        w.Write(bytes) 
+    }
+}
 
 // Handles all incomming http requests
 func requestHandler() {
@@ -428,16 +557,18 @@ func requestHandler() {
 // MAIN EXECUTION FLOW
 func main() {
 
-    // if dbErr != nil {
-    //     fmt.Println(dbErr)
-    //     return
-    // } 
-
+    if dbErr != nil {
+        fmt.Println(dbErr)
+        return
+    } 
     requestHandler()
 
     http.HandleFunc("/checked/", dataSentHandler)
     http.HandleFunc("/unchecked/", dataRemoveHandler)
     http.HandleFunc("/get_data/", dataGetHandler)
+
+    http.HandleFunc("/sensors/", restfulHandler)
+    http.HandleFunc("/nodes/", restfulNodesHandler)
 
     var addr_flag = flag.String("addr", "localhost", "Address the http server binds to")
     var port_flag = flag.String("port", "8080", "Port used for http server")
