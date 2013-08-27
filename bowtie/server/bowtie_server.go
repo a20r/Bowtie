@@ -29,7 +29,7 @@ import (
 type Response map[string]interface{}
 
 // Type definition for disambiguation. Holds the sensor data
-type SensorData Response
+type SensorData map[string]interface{}
 
 // Represents an file loaded
 type Page struct {
@@ -265,6 +265,161 @@ func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Finish handling websocket with wsHandler")
 }
 
+// for easier querying
+type BowtieQueries struct {
+    Session *rethink.Session
+    GroupId string
+    NodeId string
+    Sensor string
+}
+
+// using a more defined type for the restful API
+type NodeSensorData struct {
+    Value interface{} `value`
+    Type string `type`
+    Time string `time`
+}
+
+func (bq BowtieQueries) GroupExists() bool {
+    var groupData []interface{}
+    rethink.Table("sensor_table").GetAll(
+        "groupId", 
+        bq.GroupId,
+    ).Run(bq.Session).All(&groupData)
+
+    return len(groupData) > 0
+}
+
+func (bq BowtieQueries) NodeExists() bool {
+    var nodeExists bool
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Contains(
+        bq.NodeId,
+    ).Run(bq.Session).One(&nodeExists)
+
+    return nodeExists
+}
+
+func (bq BowtieQueries) InsertGroupWithData(sData NodeSensorData) {
+    rethink.Table("sensor_table").Insert(
+        rethink.Map{
+            "groupId" : bq.GroupId,
+            "nodes" : rethink.Map{
+                bq.NodeId : rethink.Map{
+                    bq.Sensor : rethink.Map{
+                        "value" : sData.Value,
+                        "type" : sData.Type,
+                        "time" : sData.Time,
+                    },
+                },
+            },
+        },
+    ).Run(bq.Session).Exec()
+}
+
+// creates node if not there, updates if it exists
+func (bq BowtieQueries) UpdateNode(sData NodeSensorData) {
+
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+
+    if len(nodes[bq.NodeId]) > 0 {
+        nodes[bq.NodeId][bq.Sensor] = rethink.Map{
+            "value" : sData.Value,
+            "type" : sData.Type,
+            "time" : sData.Time,
+        }
+    } else { 
+        nodes[bq.NodeId] = rethink.Map{
+            bq.Sensor : rethink.Map{
+                "value" : sData.Value,
+                "type" : sData.Type,
+                "time" : sData.Time,
+            },
+        }
+    }
+
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Update(
+        rethink.Map{
+            "nodes" : nodes,
+        },
+    ).Run(bq.Session).Exec()
+}
+
+func (bq BowtieQueries) GetSensor() *NodeSensorData {
+    node := bq.GetNode()
+    sensor := node[bq.Sensor].(map[string]interface{})
+    return &NodeSensorData{
+        sensor["value"],
+        sensor["type"].(string),
+        sensor["time"].(string),
+    }
+}
+
+func (bq BowtieQueries) GetNode() rethink.Map {
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+
+    return nodes[bq.NodeId]
+}
+
+func (bq BowtieQueries) GetGroup() rethink.Map {
+    var group rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Run(bq.Session).One(&group)
+
+    return group
+}
+
+func makeBowtieQueriesWithPath(
+    URLStr string, 
+    rethinkSession *rethink.Session,
+) *BowtieQueries {
+    groupId, nodeId, sensor := parseRestfulURL(URLStr)
+
+    bq := BowtieQueries{
+        rethinkSession,
+        groupId,
+        nodeId,
+        sensor,
+    }
+
+    return &bq
+}
+
+func parseRestfulURL(
+    // params
+    URLStr string,
+) (
+    // return values
+    groupId string, 
+    nodeId string, 
+    sensor string,
+) {
+    var splitURL = strings.Split(URLStr[1:], "/")
+
+    if len(splitURL) >= 4 {
+        groupId = splitURL[1]
+        nodeId = splitURL[2]
+        sensor = splitURL[3]
+    }
+
+    return
+}
+
 func restfulHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
@@ -299,86 +454,42 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     fmt.Println("POST\t" + r.URL.Path)
 
     // decodes the JSON data to be sent to the database
-    var sData SensorData
+    var sData NodeSensorData
     r.ParseForm()
-    json.Unmarshal([]byte (r.Form["sensorData"][0]), &sData)
+    json.Unmarshal(
+        []byte (r.Form["sensorData"][0]), 
+        &sData,
+    )
 
+    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
-    groupId, nodeId, sensor := parseRestfulURL(r.URL.Path)
-    // checks if the entry is already in the database
-    var groupData []interface{}
-    rethink.Table("sensor_table").GetAll(
-        "groupId", 
-        groupId,
-    ).Run(session).All(&groupData)
-
-    entryExists := len(groupData) > 0
-
-    // FIX THIS SHIT BRO!
-    if entryExists {
-
-        var nodeExists bool
-        rethink.Table("sensor_table").GetAll(
-            "groupId",
-            groupId,
-        ).Nth(0).Attr("nodes").Contains(nodeId).Run(session).One(&nodeExists)
-
-        if nodeExists {
-            var mergedNode interface{}
-            rethink.Table("sensor_table").GetAll(
-                "groupId",
-                groupId,
-            ).Nth(0).Attr("nodes").Attr(nodeId).Merge(
-                rethink.Map{
-                    sensor : rethink.Map{
-                        "value" : sData["value"],
-                        "type" : sData["type"],
-                        "time" : sData["time"],
-                    },
-                },
-            ).Run(session).One(&mergedNode)
-
-            rethink.Table("sensor_table").GetAll(
-                "groupId",
-                groupId,
-            ).Nth(0).Attr("nodes")
-        }
+    if bq.GroupExists() {
+        bq.UpdateNode(sData)
     } else {
-        rethink.Table("sensor_table").Insert(
-            rethink.Map{
-                "groupId" : groupId,
-                "nodes" : rethink.Map{
-                    nodeId : rethink.Map{
-                        sensor : rethink.Map{
-                            "value" : sData["value"],
-                            "type" : sData["type"],
-                            "time" : sData["time"],
-                        },
-                    },
-                },
-            },
-        ).Run(session).Exec()
+        bq.InsertGroupWithData(sData)
     }
 }
 
-func parseRestfulURL(
-    // params
-    URLStr string,
-) (
-    // return values
-    groupId string, 
-    nodeId string, 
-    sensor string,
-) {
-    var splitURL = strings.Split(URLStr[1:], "/")
+func queryTests() {
 
-    if len(splitURL) >= 4 {
-        groupId = splitURL[1]
-        nodeId = splitURL[2]
-        sensor = splitURL[3]
+    sData := NodeSensorData{
+        12,
+        "number",
+        "now",
     }
 
-    return
+    bq := makeBowtieQueriesWithPath(
+        "/sensors/ballsTestGroup2/testNode2/testSensor2", 
+        session,
+    )
+
+    if bq.GroupExists() {
+        bq.UpdateNode(sData)
+    } else {
+        bq.InsertGroupWithData(sData)
+    }
+
+    fmt.Println(bq.GetSensor())
 }
 
 // Handles all incomming http requests
@@ -407,11 +518,14 @@ func main() {
     http.HandleFunc("/unchecked/", dataRemoveHandler)
     http.HandleFunc("/get_data/", dataGetHandler)
 
+    http.HandleFunc("/sensors/", restfulHandler)
+
     var addr_flag = flag.String("addr", "localhost", "Address the http server binds to")
     var port_flag = flag.String("port", "8080", "Port used for http server")
 
     flag.Parse()
 
+    queryTests()
     //fmt.Println("Running server on " + *addr_flag + ":" + *port_flag)
     http.ListenAndServe(*addr_flag + ":" + *port_flag, nil)
 }
