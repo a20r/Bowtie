@@ -537,7 +537,7 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         fmt.Fprint(w, Response{"Error" : "Not able to marshal JSON data"})
     } else {
-        w.Write(bytes)
+        w.Write(bytes) 
     }
 }
 
