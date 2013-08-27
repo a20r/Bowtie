@@ -18,6 +18,10 @@ import (
     "strings"
     "encoding/json"
     "encoding/base64"
+    "errors"
+
+    //ADTs
+    //"container/list"
 
     // rethinkdb
     rethink "github.com/christopherhesse/rethinkgo"
@@ -329,7 +333,11 @@ func (bq BowtieQueries) InsertGroupWithData(sData NodeSensorData) {
 }
 
 // creates node if not there, updates if it exists
-func (bq BowtieQueries) UpdateNode(sData NodeSensorData) {
+func (bq BowtieQueries) UpdateNode(sData NodeSensorData) error {
+
+    if !bq.GroupExists() {
+        return errors.New("Group does not yet exist")
+    }
 
     var nodes map[string]rethink.Map
     rethink.Table("sensor_table").GetAll(
@@ -361,21 +369,29 @@ func (bq BowtieQueries) UpdateNode(sData NodeSensorData) {
             "nodes" : nodes,
         },
     ).Run(bq.Session).Exec()
+
+    return nil
 }
 
-func (bq BowtieQueries) GetSensorData() *NodeSensorData {
-    node := bq.GetNode()
+func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
+    node, err := bq.GetNode()
+    if err != nil {
+        return nil, err
+    }
+    if node[bq.Sensor] == nil {
+        return nil, errors.New("Sensor does not exist")
+    }
     sensor := node[bq.Sensor].(map[string]interface{})
     return &NodeSensorData{
         sensor["value"],
         sensor["type"].(string),
         sensor["time"].(string),
-    }
+    }, nil
 }
 
-func (bq BowtieQueries) GetNode() rethink.Map {
+func (bq BowtieQueries) GetNode() (rethink.Map, error) {
     if !bq.GroupExists() {
-        panic("Group does not exist")
+        return nil, errors.New("Group does not yet exist")
     }
     var nodes map[string]rethink.Map
     rethink.Table("sensor_table").GetAll(
@@ -384,15 +400,15 @@ func (bq BowtieQueries) GetNode() rethink.Map {
     ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
 
     if len(nodes[bq.NodeId]) == 0 {
-        panic("Node does not exist")
+        return nil, errors.New("Node does not exist")
     }
 
-    return nodes[bq.NodeId]
+    return nodes[bq.NodeId], nil
 }
 
-func (bq BowtieQueries) GetGroup() rethink.Map {
+func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
     if !bq.GroupExists() {
-        panic("Group does not exist")
+        return nil, errors.New("Group does not yet exist")
     }
     var group rethink.Map
     rethink.Table("sensor_table").GetAll(
@@ -400,7 +416,7 @@ func (bq BowtieQueries) GetGroup() rethink.Map {
         bq.GroupId,
     ).Nth(0).Run(bq.Session).One(&group)
 
-    return group
+    return group, nil
 }
 
 func makeBowtieQueriesWithPath(
@@ -451,9 +467,19 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restfulGet(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("GET\t" + r.URL.Path)
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
-    sensorData := bq.GetSensorData()
-    fmt.Fprint(w, sensorData)
+    sensorData, err := bq.GetSensorData()
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{
+                "Error" : err.Error(),
+            },
+        )
+    } else {
+        fmt.Fprint(w, sensorData)
+    }
 }
 
 /*
@@ -491,6 +517,30 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("GET\t" + r.URL.Path)
+    groupId := strings.Split(r.URL.Path[1:], "/")[1]
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        groupId,
+    ).Nth(0).Attr("nodes").Run(session).One(&nodes)
+
+    nodeIds := make([]string, 3)
+    i := 0
+    for key := range nodes {
+        nodeIds[i] = key
+        i = i + 1
+    }
+
+    bytes, err := json.Marshal(nodeIds)
+    if err != nil {
+        fmt.Fprint(w, Response{"Error" : "Not able to marshal JSON data"})
+    } else {
+        w.Write(bytes)
+    }
+}
+
 // Handles all incomming http requests
 func requestHandler() {
     staticHandler := fileResponseCreator("static")
@@ -518,6 +568,7 @@ func main() {
     http.HandleFunc("/get_data/", dataGetHandler)
 
     http.HandleFunc("/sensors/", restfulHandler)
+    http.HandleFunc("/nodes/", restfulNodesHandler)
 
     var addr_flag = flag.String("addr", "localhost", "Address the http server binds to")
     var port_flag = flag.String("port", "8080", "Port used for http server")
