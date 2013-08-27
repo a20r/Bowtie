@@ -45,8 +45,8 @@ var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
 func (r Response) String() (s string) {
     b, err := json.Marshal(r)
     if err != nil {
-            s = ""
-            return
+        s = ""
+        return
     }
     s = string(b)
     return
@@ -265,19 +265,28 @@ func websocketHandler(ws *websocket.Conn) {
     fmt.Println("Finish handling websocket with wsHandler")
 }
 
+// using a more defined type for the restful API
+type NodeSensorData struct {
+    Value interface{} `value` 
+    Type string `type`
+    Time string `time`
+}
+
+func (nsd NodeSensorData) String() string {
+    bytes, err := json.Marshal(nsd)
+    if err != nil {
+        return ""
+    } else {
+        return string(bytes)
+    }
+}
+
 // for easier querying
 type BowtieQueries struct {
     Session *rethink.Session
     GroupId string
     NodeId string
     Sensor string
-}
-
-// using a more defined type for the restful API
-type NodeSensorData struct {
-    Value interface{} `value`
-    Type string `type`
-    Time string `time`
 }
 
 func (bq BowtieQueries) GroupExists() bool {
@@ -354,7 +363,7 @@ func (bq BowtieQueries) UpdateNode(sData NodeSensorData) {
     ).Run(bq.Session).Exec()
 }
 
-func (bq BowtieQueries) GetSensor() *NodeSensorData {
+func (bq BowtieQueries) GetSensorData() *NodeSensorData {
     node := bq.GetNode()
     sensor := node[bq.Sensor].(map[string]interface{})
     return &NodeSensorData{
@@ -365,16 +374,26 @@ func (bq BowtieQueries) GetSensor() *NodeSensorData {
 }
 
 func (bq BowtieQueries) GetNode() rethink.Map {
+    if !bq.GroupExists() {
+        panic("Group does not exist")
+    }
     var nodes map[string]rethink.Map
     rethink.Table("sensor_table").GetAll(
         "groupId",
         bq.GroupId,
     ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
 
+    if len(nodes[bq.NodeId]) == 0 {
+        panic("Node does not exist")
+    }
+
     return nodes[bq.NodeId]
 }
 
 func (bq BowtieQueries) GetGroup() rethink.Map {
+    if !bq.GroupExists() {
+        panic("Group does not exist")
+    }
     var group rethink.Map
     rethink.Table("sensor_table").GetAll(
         "groupId",
@@ -432,7 +451,9 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restfulGet(w http.ResponseWriter, r *http.Request) {
-
+    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+    sensorData := bq.GetSensorData()
+    fmt.Fprint(w, sensorData)
 }
 
 /*
@@ -489,7 +510,7 @@ func queryTests() {
         bq.InsertGroupWithData(sData)
     }
 
-    fmt.Println(bq.GetSensor())
+    fmt.Println(bq.GetSensorData())
 }
 
 // Handles all incomming http requests
