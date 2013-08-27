@@ -491,28 +491,6 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func queryTests() {
-
-    sData := NodeSensorData{
-        12,
-        "number",
-        "now",
-    }
-
-    bq := makeBowtieQueriesWithPath(
-        "/sensors/ballsTestGroup2/testNode2/testSensor2", 
-        session,
-    )
-
-    if bq.GroupExists() {
-        bq.UpdateNode(sData)
-    } else {
-        bq.InsertGroupWithData(sData)
-    }
-
-    fmt.Println(bq.GetSensorData())
-}
-
 // Handles all incomming http requests
 func requestHandler() {
     staticHandler := fileResponseCreator("static")
@@ -546,7 +524,6 @@ func main() {
 
     flag.Parse()
 
-    queryTests()
     //fmt.Println("Running server on " + *addr_flag + ":" + *port_flag)
     http.ListenAndServe(*addr_flag + ":" + *port_flag, nil)
 }

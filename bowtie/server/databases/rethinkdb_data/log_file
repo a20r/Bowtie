@@ -42,3 +42,5 @@
 2013-08-26T18:55:29.052104000 0.270015s info: Server ready
 2013-08-26T18:56:04.876111000 36.094938s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
 2013-08-26T22:00:08.929517000 8213.431195s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
+2013-08-26T23:18:19.581575000 12904.202379s info: Applying data {"rdb_namespaces":{"54e426f3-be42-4a2b-8259-6f09b01843cb":null}}
+2013-08-26T23:18:27.456400000 12912.077407s info: Applying data {"rdb_namespaces":{"new":{"name":"sensor_table","primary_uuid":"00000000-0000-0000-0000-000000000000","database":"edb4468d-6d13-4091-8a30-0b73eeb163f0","ack_expectations":{"00000000-0000-0000-0000-000000000000":{"expectation":1,"hard_durability":true}}}}}
