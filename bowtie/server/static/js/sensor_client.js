@@ -19,8 +19,8 @@ var videoInterval = undefined;
 var sendingInterval = undefined;
 var waitTime = 200; // ms
 
-//var ws_url = "ws://localhost:8000/websocket/";
-var ws_url = "ws://82.196.12.41/websocket/";
+var ws_url = "ws://localhost:8000/websocket/";
+//var ws_url = "ws://82.196.12.41/websocket/";
 
 // Two functions that need ro run
 // in order for the code to work properly
@@ -281,6 +281,43 @@ function sendAjax() {
     if (
             $("#group_id").attr('readonly') != undefined
     ) {
+
+        var sensorNameLookup = {
+            tilt_horizontal : tiltLR,
+            tilt_vertical : tiltFB,
+            orientation : dir,
+            latitude : lat,
+            longitude : lon
+        };
+
+        for (var key in sensorNameLookup) {
+
+            // RESTful POST
+            $.ajax(
+                {
+                    type : 'POST',
+
+                    url : (
+                        '/sensors/' +
+                        $("#group_id").val() + '/' +
+                        $("#node_id").val() + '/' + 
+                        key
+                    ),
+
+                    data : {
+                        sensorData : JSON.stringify(
+                            {
+                                value : sensorNameLookup[key],
+                                type : "integer",
+                                time : new Date().toJSON()
+                            }
+                        )
+                    }
+                }
+            );
+        }
+
+        // Old post
         $.ajax(
             {
                 type : 'POST',
