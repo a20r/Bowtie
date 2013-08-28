@@ -308,11 +308,15 @@ function sendAjax() {
                         sensorData : JSON.stringify(
                             {
                                 value : sensorNameLookup[key],
-                                type : "integer",
+                                type : "number",
                                 time : new Date().toJSON()
                             }
                         )
                     }
+                }
+            ).done(
+                function () {
+                    console.log("posted");
                 }
             );
         }
