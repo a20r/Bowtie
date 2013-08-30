@@ -21,7 +21,7 @@ import (
     "errors"
 
     //ADTs
-    //"container/list"
+    "time"
 
     // rethinkdb
     rethink "github.com/christopherhesse/rethinkgo"
@@ -77,6 +77,10 @@ func loadPage(folder, title string) (*Page, error) {
     return &Page{Title: title, Body: body}, nil
 }
 
+func timePrinter(message string) {
+    fmt.Println(message + "\t: " + time.Now().String())
+}
+
 // Creates a function that will be used as a handler
 // for static and template responses. See Usage!
 func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +88,7 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
         var p *Page
         var err error
 
-        fmt.Println("GET\t" + r.URL.Path)
+        timePrinter("GET\t" + r.URL.Path)
 
         if len(r.URL.Path) == 1 {
             // In case the path is just '/'
@@ -96,7 +100,7 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
         if p != nil {
             w.Write(p.Body)
         } else {
-            fmt.Println("ERROR\t" + err.Error())
+            timePrinter("ERROR\t" + err.Error())
         }
     }
 }
@@ -104,20 +108,20 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
 // Removes the JSON data once the node stops
 // sending sensor data
 func dataRemoveHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("GET\t" + r.URL.Path)
+    timePrinter("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
     group_id, node_id := urlVars[1], urlVars[2]
     err := os.Remove("json_data/" + group_id + "/" + node_id + ".json")
 
     if err != nil {
-        fmt.Println("ERROR\t" + err.Error())
+        timePrinter("ERROR\t" + err.Error())
     }
 }
 
 // Handler called when data is sent
 // to the server from a node
 func dataSentHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("POST\t" + r.URL.Path)
+    timePrinter("POST\t" + r.URL.Path)
 
     // Parse form and extract data details
     r.ParseForm()
@@ -130,7 +134,7 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".json")
     if err != nil {
-        fmt.Println("ERROR\t" + err.Error())
+        timePrinter("ERROR\t" + err.Error())
         return
     }
 
@@ -142,7 +146,7 @@ func dataSentHandler(w http.ResponseWriter, r *http.Request) {
 // Used for the visualization and for APIs
 // for users to query the data.
 func dataGetHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("GET\t" + r.URL.Path)
+    timePrinter("GET\t" + r.URL.Path)
     urlVars := strings.Split(r.URL.Path[1:], "/")
     group_id := urlVars[1]
     files, err := ioutil.ReadDir("json_data/" + group_id)
@@ -150,13 +154,13 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         res := Response{"error": Response{"code": 2, "message": "No data for " + group_id}}
         fmt.Fprint(w, res)
-        fmt.Println("ERROR\t" + err.Error())
+        timePrinter("ERROR\t" + err.Error())
 
     } else {
         res := make(Response)
 
         for _, file := range files {
-            //fmt.Println(file.Name())
+            //timePrinter(file.Name())
             var sData SensorData
             node_id := strings.Split(file.Name(), ".")[0]
             file_bytes, read_err := ioutil.ReadFile(
@@ -167,22 +171,22 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
             json_err := json.Unmarshal(file_bytes, &sData)
 
             if read_err != nil {
-                fmt.Println("ERROR\t" + read_err.Error())
+                timePrinter("ERROR\t" + read_err.Error())
             }
             if json_err != nil {
-                fmt.Println("ERROR\t" + json_err.Error())
+                timePrinter("ERROR\t" + json_err.Error())
             }
             res[node_id] = sData
         }
 
-        //fmt.Println(files)
+        //timePrinter(files)
         if len(files) > 0 {
             res["error"] = Response{"code": 0, "message": "No error"}
         } else {
             res["error"] = Response{"code": 2, "message": "No data for " + group_id}
         }
 
-        fmt.Println("RESPONSE\t" + res.String())
+        timePrinter("RESPONSE\t" + res.String())
         fmt.Fprint(w, res)
     }
 }
@@ -199,7 +203,7 @@ func videoStreamHandler(ms MediaSlice) {
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".jpg")
     if err != nil {
-        fmt.Println("ERROR\t" + err.Error())
+        timePrinter("ERROR\t" + err.Error())
         return
     }
 
@@ -210,14 +214,14 @@ func videoStreamHandler(ms MediaSlice) {
     if (data_header == "data:image/jpeg;base64") {
         img_data, err := base64.StdEncoding.DecodeString(data_raw)
         if err != nil {
-            fmt.Println("error:", err)
+            timePrinter("ERROR\t" + err.Error())
             return
         }
         file.Write([]byte(img_data))
 
     } else {
         err := "video data format [" + data_header + "] not supported!"
-        fmt.Println("error:", err)
+        timePrinter("ERROR\t" + err)
     }
 
     // Write out the image binary
@@ -236,7 +240,7 @@ func audioStreamHandler(ms MediaSlice) {
     os.Mkdir(path, os.ModePerm | os.ModeType)
     file, err := os.Create(path + node_id + ".wav")
     if err != nil {
-        fmt.Println("ERROR\t" + err.Error())
+        timePrinter("ERROR\t" + err.Error())
         return
     }
 
@@ -247,7 +251,7 @@ func audioStreamHandler(ms MediaSlice) {
     if (data_header == "data:audio/wav;base64") {
         audio_data, err := base64.StdEncoding.DecodeString(data_raw)
         if err != nil {
-            fmt.Println("error:", err)
+            timePrinter("ERROR:\t" + err.Error())
             return
         }
 
@@ -255,7 +259,7 @@ func audioStreamHandler(ms MediaSlice) {
         file.Write([]byte(audio_data))
     } else {
         err := "audio data format [" + data_header + "] not supported!"
-        fmt.Println("error:", err)
+        timePrinter("ERROR:\t" +  err)
     }
 
     file.Close()
@@ -268,11 +272,11 @@ func websocketMsgParser(msg string) {
 
     err := json.Unmarshal(b, &ms)
     if err != nil {
-        fmt.Println("ProcessSocket:\tgot error", err)
+        timePrinter("ERROR:\tSocket --> " + err.Error())
         return
     }
 
-    fmt.Println("Parsing Websocket message [" + ms.Media_Type + "]")
+    timePrinter("Parsing Websocket message [" + ms.Media_Type + "]")
     if (ms.Media_Type == "video") {
         videoStreamHandler(ms)
     } else if (ms.Media_Type == "audio") {
@@ -282,22 +286,22 @@ func websocketMsgParser(msg string) {
 
 // Websocket Handler
 func websocketHandler(ws *websocket.Conn) {
-    fmt.Println("Handling websocket request with wsHandler")
+    timePrinter("Handling websocket request with wsHandler")
     var msg string
 
     // Process incomming websocket messages
     for {
         err := websocket.Message.Receive(ws, &msg)
         if err != nil {
-            fmt.Println("ProcessSocket:\tgot error", err)
+            timePrinter("ERROR:\tSocket --> " + err.Error())
             _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
             return
         }
-        // fmt.Println("ProcessSocket: got message", msg)
+        // timePrinter("ProcessSocket: got message", msg)
         websocketMsgParser(msg)
     }
 
-    fmt.Println("Finish handling websocket with wsHandler")
+    timePrinter("Finish handling websocket with wsHandler")
 }
 
 // using a more defined type for the restful API
@@ -363,11 +367,20 @@ func (bq BowtieQueries) InsertGroupWithData(sData NodeSensorData) {
     ).Run(bq.Session).Exec()
 }
 
+func (bq BowtieQueries) CreateGroup() {
+    rethink.Table("sensor_table").Insert(
+        rethink.Map{
+            "groupId" : bq.GroupId,
+            "nodes" : rethink.Map{},
+        },
+    ).Run(bq.Session).Exec()
+}
+
 // creates node if not there, updates if it exists
-func (bq BowtieQueries) UpdateNode(sData NodeSensorData) error {
+func (bq BowtieQueries) UpdateSensor(sData NodeSensorData) error {
 
     if !bq.GroupExists() {
-        return errors.New("Group does not yet exist")
+        bq.CreateGroup()
     }
 
     var nodes map[string]rethink.Map
@@ -389,6 +402,41 @@ func (bq BowtieQueries) UpdateNode(sData NodeSensorData) error {
                 "type" : sData.Type,
                 "time" : sData.Time,
             },
+        }
+    }
+
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Update(
+        rethink.Map{
+            "nodes" : nodes,
+        },
+    ).Run(bq.Session).Exec()
+
+    return nil
+}
+
+func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
+    if !bq.GroupExists() {
+        bq.CreateGroup() // check this
+    }
+
+    var nodes map[string]rethink.Map
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+
+    if len(nodes[bq.NodeId]) == 0 {
+        nodes[bq.NodeId] = make(rethink.Map)
+    }
+
+    for key, sensorNode := range sDataMap {
+        nodes[bq.NodeId][key] = rethink.Map{
+            "value" : sensorNode.Value,
+            "type" : sensorNode.Type,
+            "time" : sensorNode.Time,
         }
     }
 
@@ -450,12 +498,23 @@ func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
     return group, nil
 }
 
+func (bq BowtieQueries) DeleteGroup() error {
+    return nil
+}
+
+func (bq BowtieQueries) DeleteNode() error {
+    return nil
+}
+
+func (bq BowtieQueries) DeleteSensor() error {
+    return nil
+}
+
 func makeBowtieQueriesWithPath(
     URLStr string, 
     rethinkSession *rethink.Session,
 ) *BowtieQueries {
     groupId, nodeId, sensor := parseRestfulURL(URLStr)
-
     bq := BowtieQueries{
         rethinkSession,
         groupId,
@@ -477,10 +536,14 @@ func parseRestfulURL(
 ) {
     var splitURL = strings.Split(URLStr[1:], "/")
 
-    if len(splitURL) >= 4 {
+    if len(splitURL) >= 2 {
         groupId = splitURL[1]
-        nodeId = splitURL[2]
-        sensor = splitURL[3]
+        if len(splitURL) >= 3 {
+            nodeId = splitURL[2]
+            if len(splitURL) >= 4 {
+                sensor = splitURL[3]
+            }
+        }
     }
 
     return
@@ -490,26 +553,81 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
             restfulGet(w, r)
-        case "PUT", "POST":
+        case "POST":
             restfulPost(w, r)
+        // when all sensor data is sent at one time
+        case "PUT":
+            restfulPut(w, r)
+        case "DELETE":
+            restfulDelete(w, r)
         default:
-            fmt.Println("ERROR:\tUnknown request method")
+            timePrinter("ERROR:\tUnknown request method")
     }
 }
 
+func restfulDelete(w http.ResponseWriter, r *http.Request) {
+    //bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+
+}
+
 func restfulGet(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("GET\t" + r.URL.Path)
+    timePrinter("GET\t" + r.URL.Path)
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
-    sensorData, err := bq.GetSensorData()
-    if err != nil {
-        fmt.Fprint(
-            w, 
-            Response{
-                "Error" : err.Error(),
-            },
-        )
+
+    if bq.Sensor != "" && bq.NodeId != "" {
+        var sensorData *NodeSensorData
+        sensorData, err := bq.GetSensorData()
+        if err != nil {
+            fmt.Fprint(
+                w, 
+                Response{
+                    "Error" : err.Error(),
+                },
+            )
+        } else {
+            fmt.Fprint(w, sensorData)
+        }
     } else {
-        fmt.Fprint(w, sensorData)
+
+        var bytes []byte
+        var err error
+        var marshalData interface{}
+        var group rethink.Map
+
+        group, err = bq.GetGroup()
+        if err != nil {
+            fmt.Fprint(
+                w,
+                Response{"error" : 1, "message": err.Error()},
+            )
+            return
+        }
+
+        if bq.Sensor == "" && bq.NodeId == "" {
+            marshalData = group["nodes"]
+        } else if bq.Sensor == ""{
+            marshalData = group["nodes"].(map[string]interface{})[bq.NodeId]
+            if marshalData == nil {
+               fmt.Fprint(
+                    w,
+                    Response{"error" : 1, "message": "Node does not exist"},
+                )
+                return 
+            }
+        } 
+
+        bytes, err = json.Marshal(marshalData)
+
+        if err != nil {
+           fmt.Fprint(
+                w,
+                Response{"error" : 1, "message": err.Error()},
+            )
+            return 
+        }
+
+        w.Write(bytes)
+
     }
 }
 
@@ -529,27 +647,72 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     )
 */
 func restfulPost(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("POST\t" + r.URL.Path)
+    timePrinter("POST\t" + r.URL.Path)
 
     // decodes the JSON data to be sent to the database
     var sData NodeSensorData
     r.ParseForm()
-    json.Unmarshal(
+
+    err := json.Unmarshal(
         []byte (r.Form["sensorData"][0]), 
         &sData,
     )
 
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{"error": 1, "message": err.Error()},
+        );
+        return
+    }
+
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
-    if bq.GroupExists() {
-        bq.UpdateNode(sData)
-    } else {
-        bq.InsertGroupWithData(sData)
+    bq.UpdateSensor(sData)
+
+    fmt.Fprint(w, Response{"error": 0, "message": "All went well"});
+}
+
+func restfulPut(w http.ResponseWriter, r *http.Request) {
+    timePrinter("PUT\t" + r.URL.Path)
+    groupId := strings.Split(r.URL.Path[1:], "/")[1]
+    nodeId := strings.Split(r.URL.Path[1:], "/")[2]
+
+    var sDataMap map[string]NodeSensorData
+    r.ParseForm()
+
+    err := json.Unmarshal(
+        []byte (r.Form["sensorData"][0]),
+        &sDataMap,
+    )
+
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{"error": 1, "message": err.Error()},
+        );
+        return
     }
+
+    bq := BowtieQueries{session, groupId, nodeId, ""}
+    err = bq.UpdateNode(sDataMap)
+
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{"error": 1, "message": err.Error()},
+        );
+        return
+    }
+
+     fmt.Fprint(
+            w, 
+            Response{"error": 0, "message": "Everything is great"},
+        );   
 }
 
 func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("GET\t" + r.URL.Path)
+    timePrinter("GET\t" + r.URL.Path)
     groupId := strings.Split(r.URL.Path[1:], "/")[1]
     var nodes map[string]rethink.Map
     rethink.Table("sensor_table").GetAll(
@@ -589,7 +752,7 @@ func requestHandler() {
 func main() {
 
     if dbErr != nil {
-        fmt.Println(dbErr)
+        timePrinter(dbErr.Error())
         return
     } 
     requestHandler()
@@ -606,7 +769,7 @@ func main() {
 
     flag.Parse()
 
-    //fmt.Println("Running server on " + *addr_flag + ":" + *port_flag)
+    //timePrinter("Running server on " + *addr_flag + ":" + *port_flag)
     http.ListenAndServe(*addr_flag + ":" + *port_flag, nil)
 }
 
