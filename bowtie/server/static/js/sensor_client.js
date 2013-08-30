@@ -341,37 +341,37 @@ function sendAjax() {
             }
         );
 
-        // Old post
-        $.ajax(
-            {
-                type : 'POST',
+        // // Old post
+        // $.ajax(
+        //     {
+        //         type : 'POST',
 
-                url : (
-                    '/checked/' +
-                    $("#group_id").val() + '/' +
-                    $("#node_id").val()
-                ),
+        //         url : (
+        //             '/checked/' +
+        //             $("#group_id").val() + '/' +
+        //             $("#node_id").val()
+        //         ),
 
-                data: {
-                    sensor_data: JSON.stringify(
-                        {
-                            orientation: {
-                                tilt_horizontal: tiltLR,
-                                tilt_vertical: tiltFB,
-                                direction: dir
-                            },
+        //         data: {
+        //             sensor_data: JSON.stringify(
+        //                 {
+        //                     orientation: {
+        //                         tilt_horizontal: tiltLR,
+        //                         tilt_vertical: tiltFB,
+        //                         direction: dir
+        //                     },
 
-                            location: {
-                                latitude: lat,
-                                longitude: lon
-                            },
+        //                     location: {
+        //                         latitude: lat,
+        //                         longitude: lon
+        //                     },
 
-                            error: error_data
-                        }
-                    )
-                }
-            }
-        );
+        //                     error: error_data
+        //                 }
+        //             )
+        //         }
+        //     }
+        // );
     }
 }
 
