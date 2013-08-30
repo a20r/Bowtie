@@ -498,6 +498,18 @@ func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
     return group, nil
 }
 
+func (bq BowtieQueries) DeleteGroup() error {
+    return nil
+}
+
+func (bq BowtieQueries) DeleteNode() error {
+    return nil
+}
+
+func (bq BowtieQueries) DeleteSensor() error {
+    return nil
+}
+
 func makeBowtieQueriesWithPath(
     URLStr string, 
     rethinkSession *rethink.Session,
@@ -554,53 +566,16 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restfulDelete(w http.ResponseWriter, r *http.Request) {
+    //bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
 }
 
 func restfulGet(w http.ResponseWriter, r *http.Request) {
     timePrinter("GET\t" + r.URL.Path)
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
-    if bq.Sensor == "" && bq.NodeId == "" {
-        group, err := bq.GetGroup()
-        if err != nil {
-            fmt.Fprint(
-                w,
-                Response{"error" : 1, "message": err.Error()},
-            )
-            return
-        }
-        var bytes []byte
-        bytes, err = json.Marshal(group["nodes"])
-        if err != nil {
-           fmt.Fprint(
-                w,
-                Response{"error" : 1, "message": err.Error()},
-            )
-            return 
-        }
-        w.Write(bytes)
-    } else if bq.Sensor == ""{
-        group, err := bq.GetGroup()
-        if err != nil {
-            fmt.Fprint(
-                w,
-                Response{"error" : 1, "message": err.Error()},
-            )
-            return
-        }
-        var bytes []byte
-        bytes, err = json.Marshal(
-            group["nodes"].(map[string]interface{})[bq.NodeId],
-        )
-        if err != nil {
-           fmt.Fprint(
-                w,
-                Response{"error" : 1, "message": err.Error()},
-            )
-            return 
-        }
-        w.Write(bytes)
-    } else {
+
+    if bq.Sensor != "" && bq.NodeId != "" {
+        var sensorData *NodeSensorData
         sensorData, err := bq.GetSensorData()
         if err != nil {
             fmt.Fprint(
@@ -612,6 +587,47 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         } else {
             fmt.Fprint(w, sensorData)
         }
+    } else {
+
+        var bytes []byte
+        var err error
+        var marshalData interface{}
+        var group rethink.Map
+
+        group, err = bq.GetGroup()
+        if err != nil {
+            fmt.Fprint(
+                w,
+                Response{"error" : 1, "message": err.Error()},
+            )
+            return
+        }
+
+        if bq.Sensor == "" && bq.NodeId == "" {
+            marshalData = group["nodes"]
+        } else if bq.Sensor == ""{
+            marshalData = group["nodes"].(map[string]interface{})[bq.NodeId]
+            if marshalData == nil {
+               fmt.Fprint(
+                    w,
+                    Response{"error" : 1, "message": "Node does not exist"},
+                )
+                return 
+            }
+        } 
+
+        bytes, err = json.Marshal(marshalData)
+
+        if err != nil {
+           fmt.Fprint(
+                w,
+                Response{"error" : 1, "message": err.Error()},
+            )
+            return 
+        }
+
+        w.Write(bytes)
+
     }
 }
 
