@@ -262,7 +262,12 @@ function devicePositionHandler(position) {
 // Sends the sensory data to the server via
 // Ajax if the group_id and the node_id have
 // been entered
+var readyToSend = true;
 function sendAjax() {
+    if (!readyToSend) {
+        return
+    }
+
     tiltLR = getIfValid("doTiltLR");
     tiltFB = getIfValid("doTiltFB");
     dir = getIfValid("doDirection");
@@ -281,45 +286,60 @@ function sendAjax() {
     if (
             $("#group_id").attr('readonly') != undefined
     ) {
+        readyToSend = false;
+        // RESTful POST
+        $.ajax(
+            {
+                type : 'PUT',
 
-        var sensorNameLookup = {
-            tilt_horizontal : tiltLR,
-            tilt_vertical : tiltFB,
-            orientation : dir,
-            latitude : lat,
-            longitude : lon
-        };
+                url : (
+                    '/sensors/' +
+                    $("#group_id").val() + '/' +
+                    $("#node_id").val()
+                ),
 
-        for (var key in sensorNameLookup) {
-
-            // RESTful POST
-            $.ajax(
-                {
-                    type : 'POST',
-
-                    url : (
-                        '/sensors/' +
-                        $("#group_id").val() + '/' +
-                        $("#node_id").val() + '/' + 
-                        key
-                    ),
-
-                    data : {
-                        sensorData : JSON.stringify(
-                            {
-                                value : sensorNameLookup[key],
-                                type : "number",
+                data : {
+                    sensorData : JSON.stringify(
+                        {
+                            tilt_horizontal : {
+                                value : tiltLR,
+                                type : "integer",
                                 time : new Date().toJSON()
-                            }
-                        )
-                    }
-                }
-            ).done(
-                function () {
+                            },
+
+                            tilt_vertical : {
+                                value : tiltFB,
+                                type : "integer",
+                                time : new Date().toJSON()
+                            },
+
+                            orientation : {
+                                value : dir,
+                                type : "integer",
+                                time : new Date().toJSON()
+                            },
+
+                            latitude : {
+                                value : lat,
+                                type : "float",
+                                time : new Date().toJSON()
+                            },
+
+                            longitude : {
+                                value : lon,
+                                type : "float",
+                                time : new Date().toJSON()
+                            },
+                        }
+                    )
+                },
+
+                success : function () {
                     console.log("posted");
+                    readyToSend = true;
                 }
-            );
-        }
+            }
+        );
 
         // Old post
         $.ajax(

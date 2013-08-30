@@ -44,3 +44,26 @@
 2013-08-26T22:00:08.929517000 8213.431195s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
 2013-08-26T23:18:19.581575000 12904.202379s info: Applying data {"rdb_namespaces":{"54e426f3-be42-4a2b-8259-6f09b01843cb":null}}
 2013-08-26T23:18:27.456400000 12912.077407s info: Applying data {"rdb_namespaces":{"new":{"name":"sensor_table","primary_uuid":"00000000-0000-0000-0000-000000000000","database":"edb4468d-6d13-4091-8a30-0b73eeb163f0","ack_expectations":{"00000000-0000-0000-0000-000000000000":{"expectation":1,"hard_durability":true}}}}}
+2013-08-28T18:26:12.171290000 0.147906s info: Running rethinkdb 1.5.2 (CLANG 4.1 ((tags/Apple/clang-421.11.66)))...
+2013-08-28T18:26:12.216470000 0.193086s info: Running on Darwin 12.2.1 x86_64
+2013-08-28T18:26:12.216565000 0.193180s info: Loading data from directory /Users/wallarelvo-mac/Documents/Projects/Bowtie/bowtie/server/databases/rethinkdb_data
+2013-08-28T18:26:12.264458000 0.241074s info: Listening for intracluster connections on port 29015
+2013-08-28T18:26:12.345660000 0.322276s info: Listening for client driver connections on port 28015
+2013-08-28T18:26:12.345683000 0.322298s info: Listening for administrative HTTP connections on port 8080
+2013-08-28T18:26:12.345685000 0.322300s info: Listening on addresses: 127.0.0.1
+2013-08-28T18:26:12.345686000 0.322302s info: To fully expose RethinkDB on the network, bind to all addresses
+2013-08-28T18:26:12.345687000 0.322303s info: by running rethinkdb with the `--bind all' command line option.
+2013-08-28T18:26:12.345688000 0.322304s info: Server ready
+2013-08-28T18:34:26.057651000 494.046205s info: Someone asked for the nonwhitelisted file /sandbox.html, if this should be accessible add it to the whitelist.
+2013-08-30T13:09:19.339645000 0.357110s info: Running rethinkdb 1.5.2 (CLANG 4.1 ((tags/Apple/clang-421.11.66)))...
+2013-08-30T13:09:19.381910000 0.399374s info: Running on Darwin 12.2.1 x86_64
+2013-08-30T13:09:19.381969000 0.399433s info: Loading data from directory /Users/wallarelvo-mac/Documents/Projects/Bowtie/bowtie/server/databases/rethinkdb_data
+2013-08-30T13:09:19.419822000 0.437286s info: Listening for intracluster connections on port 29015
+2013-08-30T13:09:19.421057000 0.438521s info: Listening for client driver connections on port 28015
+2013-08-30T13:09:19.421070000 0.438533s info: Listening for administrative HTTP connections on port 8080
+2013-08-30T13:09:19.421071000 0.438535s info: Listening on addresses: 127.0.0.1
+2013-08-30T13:09:19.421072000 0.438536s info: To fully expose RethinkDB on the network, bind to all addresses
+2013-08-30T13:09:19.421073000 0.438536s info: by running rethinkdb with the `--bind all' command line option.
+2013-08-30T13:09:19.421073000 0.438537s info: Server ready
+2013-08-30T13:52:09.720553000 2570.256466s info: Applying data {"rdb_namespaces":{"3d82a980-d104-47c7-b988-b2180d083cad":null}}
+2013-08-30T13:52:18.129556000 2578.665661s info: Applying data {"rdb_namespaces":{"new":{"name":"sensor_table","primary_uuid":"00000000-0000-0000-0000-000000000000","database":"edb4468d-6d13-4091-8a30-0b73eeb163f0","ack_expectations":{"00000000-0000-0000-0000-000000000000":{"expectation":1,"hard_durability":true}}}}}
