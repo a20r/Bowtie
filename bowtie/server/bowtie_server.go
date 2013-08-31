@@ -499,14 +499,54 @@ func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
 }
 
 func (bq BowtieQueries) DeleteGroup() error {
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Delete().Run(bq.Session).Exec()
     return nil
 }
 
 func (bq BowtieQueries) DeleteNode() error {
+    group, err := bq.GetGroup()
+
+    if err != nil {
+        timePrinter("ERROR\t" + err.Error())
+        return err
+    }
+
+    group["nodes"].(map[string]interface{})[bq.NodeId] = nil
+
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Update(
+        rethink.Map{
+            "nodes" : group["nodes"],
+        },
+    ).Run(bq.Session).Exec()
+
     return nil
 }
 
 func (bq BowtieQueries) DeleteSensor() error {
+    group, err := bq.GetGroup()
+
+    if err != nil {
+        timePrinter("ERROR\t" + err.Error())
+        return err
+    }
+    
+    group["nodes"].(map[string]interface{})[bq.NodeId].(map[string]interface{})[bq.Sensor] = nil
+
+    rethink.Table("sensor_table").GetAll(
+        "groupId",
+        bq.GroupId,
+    ).Update(
+        rethink.Map{
+            "nodes" : group["nodes"],
+        },
+    ).Run(bq.Session).Exec()
+
     return nil
 }
 
@@ -521,7 +561,6 @@ func makeBowtieQueriesWithPath(
         nodeId,
         sensor,
     }
-
     return &bq
 }
 
@@ -566,8 +605,15 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restfulDelete(w http.ResponseWriter, r *http.Request) {
-    //bq := makeBowtieQueriesWithPath(r.URL.Path, session)
-
+    timePrinter("DELETE\t" + r.URL.Path)
+    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+    if bq.NodeId == "" && bq.Sensor == "" {
+        bq.DeleteGroup()
+    } else if bq.Sensor == "" {
+        bq.DeleteNode()
+    } else {
+        bq.DeleteSensor()
+    }
 }
 
 func restfulGet(w http.ResponseWriter, r *http.Request) {
@@ -598,7 +644,10 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         if err != nil {
             fmt.Fprint(
                 w,
-                Response{"error" : 1, "message": err.Error()},
+                Response{
+                    "error" : 1, 
+                    "message": err.Error(),
+                },
             )
             return
         }
@@ -610,7 +659,10 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
             if marshalData == nil {
                fmt.Fprint(
                     w,
-                    Response{"error" : 1, "message": "Node does not exist"},
+                    Response{
+                        "error" : 1, 
+                        "message": "Node does not exist",
+                    },
                 )
                 return 
             }
