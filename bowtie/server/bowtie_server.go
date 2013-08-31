@@ -514,7 +514,10 @@ func (bq BowtieQueries) DeleteNode() error {
         return err
     }
 
-    group["nodes"].(map[string]interface{})[bq.NodeId] = nil
+    delete(
+        group["nodes"].(map[string]interface{}), 
+        bq.NodeId,
+    )
 
     rethink.Table("sensor_table").GetAll(
         "groupId",
@@ -536,7 +539,10 @@ func (bq BowtieQueries) DeleteSensor() error {
         return err
     }
     
-    group["nodes"].(map[string]interface{})[bq.NodeId].(map[string]interface{})[bq.Sensor] = nil
+    delete(
+        group["nodes"].(map[string]interface{})[bq.NodeId].(map[string]interface{}),
+        bq.Sensor,
+    )
 
     rethink.Table("sensor_table").GetAll(
         "groupId",
