@@ -584,7 +584,6 @@ func parseRestfulURL(
             }
         }
     }
-
     return
 }
 
