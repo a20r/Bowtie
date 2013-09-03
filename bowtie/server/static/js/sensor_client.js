@@ -238,6 +238,11 @@ function devicePositionHandler(position) {
 // Ajax if the group_id and the node_id have
 // been entered
 var readyToSend = true;
+
+function onSuccessAjax() {
+    readyToSend = true;
+}
+
 function sendAjax() {
     if (!readyToSend) {
         return
@@ -309,11 +314,7 @@ function sendAjax() {
                     )
                 },
 
-                success : function () {
-                    console.log("posted");
-                    readyToSend = true;
-                }
-            }
+                success : onSuccessAjax            }
         );
 
         // // Old post
