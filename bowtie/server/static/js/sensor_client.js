@@ -72,21 +72,6 @@ function warning_closed() {
 
 // Function fires once the page is closed
 function on_exit() {
-    if (
-            $("#node_id").val() != "" &&
-            $("#group_id").val() != ""
-    ) {
-        $.ajax(
-            {
-                type: 'POST',
-                url : (
-                    '/unchecked/' +
-                    $("#group_id").val() + '/' +
-                    $("#node_id").val()
-                )
-            }
-        );
-  }
 }
 
 // Toggles whether the data is being shown to the user
@@ -124,16 +109,6 @@ function toggle_readonly() {
                 node_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
-            $.ajax(
-                {
-                    type : 'POST',
-                    url : (
-                        '/unchecked/' +
-                        $("#group_id").val() + '/' +
-                        $("#node_id").val()
-                    )
-                }
-            );
         }
     } else {
         if (
