@@ -329,11 +329,22 @@ type BowtieQueries struct {
 }
 
 func (bq BowtieQueries) GroupExists() bool {
-    var groupData []interface{}
+    var groupData []rethink.Map
     rethink.Table("sensor_table").GetAll(
         "groupId", 
         bq.GroupId,
     ).Run(bq.Session).All(&groupData)
+
+    if len(groupData) > 1 {
+        rethink.Table("sensor_table").GetAll(
+            "groupId", 
+            bq.GroupId,
+        ).Delete().Run(bq.Session).Exec()
+
+        rethink.Table("sensor_table").Insert(
+            groupData[0],
+        ).Delete().Run(bq.Session).Exec()
+    }
 
     return len(groupData) > 0
 }
@@ -457,9 +468,11 @@ func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
     if err != nil {
         return nil, err
     }
+
     if node[bq.Sensor] == nil {
         return nil, errors.New("Sensor does not exist")
     }
+
     sensor := node[bq.Sensor].(map[string]interface{})
     return &NodeSensorData{
         sensor["value"],
