@@ -329,33 +329,19 @@ type BowtieQueries struct {
 }
 
 func (bq BowtieQueries) GroupExists() bool {
-    var groupData []rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId", 
+    var groupData rethink.Map
+    rethink.Table("sensor_table").Get( 
         bq.GroupId,
-    ).Run(bq.Session).All(&groupData)
+    ).Run(bq.Session).One(&groupData)
 
-    if len(groupData) > 1 {
-        fmt.Println("CRAP")
-        rethink.Table("sensor_table").GetAll(
-            "groupId", 
-            bq.GroupId,
-        ).Delete().Run(bq.Session).Exec()
-
-        rethink.Table("sensor_table").Insert(
-            groupData[0],
-        ).Delete().Run(bq.Session).Exec()
-    }
-
-    return len(groupData) > 0
+    return groupData != nil
 }
 
 func (bq BowtieQueries) NodeExists() bool {
     var nodeExists bool
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
-    ).Nth(0).Attr("nodes").Contains(
+    ).Attr("nodes").Contains(
         bq.NodeId,
     ).Run(bq.Session).One(&nodeExists)
 
@@ -396,10 +382,9 @@ func (bq BowtieQueries) UpdateSensor(sData NodeSensorData) error {
     }
 
     var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
-    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+    ).Attr("nodes").Run(bq.Session).One(&nodes)
 
     if len(nodes[bq.NodeId]) > 0 {
         nodes[bq.NodeId][bq.Sensor] = rethink.Map{
@@ -417,8 +402,7 @@ func (bq BowtieQueries) UpdateSensor(sData NodeSensorData) error {
         }
     }
 
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
@@ -435,10 +419,9 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
     }
 
     var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
-    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+    ).Attr("nodes").Run(bq.Session).One(&nodes)
 
     if len(nodes[bq.NodeId]) == 0 {
         nodes[bq.NodeId] = make(rethink.Map)
@@ -452,8 +435,7 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
         }
     }
 
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
@@ -487,10 +469,9 @@ func (bq BowtieQueries) GetNode() (rethink.Map, error) {
         return nil, errors.New("Group does not yet exist")
     }
     var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
-    ).Nth(0).Attr("nodes").Run(bq.Session).One(&nodes)
+    ).Attr("nodes").Run(bq.Session).One(&nodes)
 
     if len(nodes[bq.NodeId]) == 0 {
         return nil, errors.New("Node does not exist")
@@ -504,17 +485,15 @@ func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
         return nil, errors.New("Group does not yet exist")
     }
     var group rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
-    ).Nth(0).Run(bq.Session).One(&group)
+    ).Run(bq.Session).One(&group)
 
     return group, nil
 }
 
 func (bq BowtieQueries) DeleteGroup() error {
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Delete().Run(bq.Session).Exec()
     return nil
@@ -533,8 +512,7 @@ func (bq BowtieQueries) DeleteNode() error {
         bq.NodeId,
     )
 
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
@@ -558,8 +536,7 @@ func (bq BowtieQueries) DeleteSensor() error {
         bq.Sensor,
     )
 
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
@@ -786,10 +763,9 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
     timePrinter("GET\t" + r.URL.Path)
     groupId := strings.Split(r.URL.Path[1:], "/")[1]
     var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").GetAll(
-        "groupId",
+    rethink.Table("sensor_table").Get(
         groupId,
-    ).Nth(0).Attr("nodes").Run(session).One(&nodes)
+    ).Attr("nodes").Run(session).One(&nodes)
 
     nodeIds := make([]string, len(nodes))
     i := 0
