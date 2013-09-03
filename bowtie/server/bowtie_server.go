@@ -755,7 +755,9 @@ func restfulPut(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(
         w, 
         Response{"error": 0, "message": "Everything is great"},
-    );   
+    );
+
+    fmt.Println("got here")
 }
 
 func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
