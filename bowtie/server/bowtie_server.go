@@ -457,9 +457,11 @@ func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
     if err != nil {
         return nil, err
     }
+
     if node[bq.Sensor] == nil {
         return nil, errors.New("Sensor does not exist")
     }
+    
     sensor := node[bq.Sensor].(map[string]interface{})
     return &NodeSensorData{
         sensor["value"],
