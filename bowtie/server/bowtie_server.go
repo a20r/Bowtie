@@ -744,7 +744,7 @@ func restfulPut(w http.ResponseWriter, r *http.Request) {
 
     bq := BowtieQueries{session, groupId, nodeId, ""}
     err = bq.UpdateNode(sDataMap)
-
+    fmt.Println("test")
     if err != nil {
         fmt.Fprint(
             w, 
