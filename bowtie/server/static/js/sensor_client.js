@@ -261,7 +261,7 @@ function sendAjax() {
     if (
             $("#group_id").attr('readonly') != undefined
     ) {
-        readyToSend = false;
+        readyToSend = true;
         // RESTful POST
         $.ajax(
             {
