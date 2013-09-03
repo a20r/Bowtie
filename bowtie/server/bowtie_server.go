@@ -336,6 +336,7 @@ func (bq BowtieQueries) GroupExists() bool {
     ).Run(bq.Session).All(&groupData)
 
     if len(groupData) > 1 {
+        fmt.Println("CRAP")
         rethink.Table("sensor_table").GetAll(
             "groupId", 
             bq.GroupId,
