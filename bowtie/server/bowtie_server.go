@@ -473,7 +473,7 @@ func (bq BowtieQueries) GetNode() (rethink.Map, error) {
         bq.GroupId,
     ).Attr("nodes").Run(bq.Session).One(&nodes)
 
-    if len(nodes[bq.NodeId]) == 0 {
+    if len(nodes[bq.NodeId]) == 0 || nodes[bq.NodeId] == nil {
         return nil, errors.New("Node does not exist")
     }
 
