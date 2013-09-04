@@ -506,7 +506,7 @@ func (bq BowtieQueries) DeleteNode() error {
         timePrinter("ERROR\t" + err.Error())
         return err
     }
-
+    fmt.Println(group)
     nodesMap := group["nodes"].(map[string]interface{})
 
     delete(
@@ -608,7 +608,6 @@ func restfulDelete(w http.ResponseWriter, r *http.Request) {
     if bq.NodeId == "" && bq.Sensor == "" {
         bq.DeleteGroup()
     } else if bq.Sensor == "" {
-        timePrinter("here " + r.URL.Path)
         bq.DeleteNode()
     } else {
         bq.DeleteSensor()
