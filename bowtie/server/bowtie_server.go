@@ -508,12 +508,13 @@ func (bq BowtieQueries) DeleteNode() error {
     }
 
     nodesMap := group["nodes"].(map[string]interface{})
-    fmt.Println(nodesMap)
 
     delete(
         nodesMap, 
         bq.NodeId,
     )
+
+    fmt.Println(nodesMap)
 
     rethink.Table("sensor_table").Get(
         bq.GroupId,
