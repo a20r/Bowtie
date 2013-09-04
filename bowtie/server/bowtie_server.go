@@ -608,6 +608,7 @@ func restfulDelete(w http.ResponseWriter, r *http.Request) {
     if bq.NodeId == "" && bq.Sensor == "" {
         bq.DeleteGroup()
     } else if bq.Sensor == "" {
+        timePrinter("here " + r.URL.Path)
         bq.DeleteNode()
     } else {
         bq.DeleteSensor()
@@ -758,8 +759,6 @@ func restfulPut(w http.ResponseWriter, r *http.Request) {
         w, 
         Response{"error": 0, "message": "Everything is great"},
     );
-
-    fmt.Println("got here")
 }
 
 func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
