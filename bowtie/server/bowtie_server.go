@@ -514,7 +514,9 @@ func (bq BowtieQueries) DeleteNode() error {
         bq.NodeId,
     )
 
-    fmt.Println(nodesMap)
+    if len(nodesMap) == 0 {
+        nodesMap = nil
+    }
 
     rethink.Table("sensor_table").Get(
         bq.GroupId,
@@ -535,16 +537,22 @@ func (bq BowtieQueries) DeleteSensor() error {
         return err
     }
     
+    sensorMap := group["nodes"].(map[string]interface{})[bq.NodeId].(map[string]interface{})
+
     delete(
-        group["nodes"].(map[string]interface{})[bq.NodeId].(map[string]interface{}),
+        sensorMap,
         bq.Sensor,
     )
+
+    if len(sensorMap) == 0 {
+        sensorMap = nil
+    }
 
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
-            "nodes" : group["nodes"],
+            "nodes" : sensorMap,
         },
     ).Run(bq.Session).Exec()
 
