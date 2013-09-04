@@ -548,13 +548,17 @@ func (bq BowtieQueries) DeleteSensor() error {
         sensorMap = nil
     }
 
+    var rethinkResponse rethink.Map
+
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
             "nodes" : sensorMap,
         },
-    ).Run(bq.Session).Exec()
+    ).Run(bq.Session).One(&rethinkResponse)
+
+    timePrinter("DB\t" + rethinkResponse.String())
 
     return nil
 }
