@@ -506,8 +506,9 @@ func (bq BowtieQueries) DeleteNode() error {
         timePrinter("ERROR\t" + err.Error())
         return err
     }
-    fmt.Println(group)
+
     nodesMap := group["nodes"].(map[string]interface{})
+    fmt.Println(nodesMap)
 
     delete(
         nodesMap, 
