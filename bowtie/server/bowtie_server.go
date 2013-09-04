@@ -508,7 +508,7 @@ func (bq BowtieQueries) DeleteNode() error {
     ).Update(
         rethink.Map{
             "nodes" : rethink.Map{
-                bq.NodeId : rethink.Exp{},
+                bq.NodeId : rethink.Map{},
             },
         },
     ).Run(bq.Session).One(&rethinkResponse)
