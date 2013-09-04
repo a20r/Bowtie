@@ -507,8 +507,10 @@ func (bq BowtieQueries) DeleteNode() error {
         return err
     }
 
+    nodesMap := group["nodes"].(map[string]interface{})
+
     delete(
-        group["nodes"].(map[string]interface{}), 
+        nodesMap, 
         bq.NodeId,
     )
 
@@ -516,7 +518,7 @@ func (bq BowtieQueries) DeleteNode() error {
         bq.GroupId,
     ).Update(
         rethink.Map{
-            "nodes" : group["nodes"],
+            "nodes" : nodesMap,
         },
     ).Run(bq.Session).Exec()
 
