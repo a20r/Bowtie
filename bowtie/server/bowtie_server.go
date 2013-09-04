@@ -507,20 +507,19 @@ func (bq BowtieQueries) DeleteNode() error {
         return err
     }
 
-    nodesMap := group["nodes"].(map[string]interface{})
-
     delete(
-        nodesMap, 
+        group["nodes"].(map[string]interface{}), 
         bq.NodeId,
     )
 
     var rethinkResponse map[string]int
     fmt.Println(nodesMap)
+
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
-            "nodes" : nodesMap,
+            "nodes" : group["nodes"],
         },
     ).Run(bq.Session).One(&rethinkResponse)
 
