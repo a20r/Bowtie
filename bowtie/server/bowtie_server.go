@@ -522,7 +522,7 @@ func (bq BowtieQueries) DeleteNode() error {
         rethink.Map{
             "nodes" : nodesMap,
         },
-    ).Run(bq.Session).Exec(&rethinkResponse)
+    ).Run(bq.Session).One(&rethinkResponse)
 
     fmt.Println(rethinkResponse)
 
