@@ -500,27 +500,16 @@ func (bq BowtieQueries) DeleteGroup() error {
 }
 
 func (bq BowtieQueries) DeleteNode() error {
-    group, err := bq.GetGroup()
-
-    if err != nil {
-        timePrinter("ERROR\t" + err.Error())
-        return err
-    }
-
-    delete(
-        group["nodes"].(map[string]interface{}), 
-        bq.NodeId,
-    )
-
-    fmt.Println(group["nodes"])
-
+    
     var rethinkResponse map[string]int
 
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
         rethink.Map{
-            "nodes" : group["nodes"],
+            "nodes" : rethink.Map{
+                bq.NodeId : rethink.Literal(),
+            },
         },
     ).Run(bq.Session).One(&rethinkResponse)
 
