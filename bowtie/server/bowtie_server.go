@@ -500,7 +500,7 @@ func (bq BowtieQueries) DeleteGroup() error {
 }
 
 func (bq BowtieQueries) DeleteNode() error {
-    
+
     var rethinkResponse map[string]int
 
     rethink.Table("sensor_table").Get(
@@ -508,7 +508,7 @@ func (bq BowtieQueries) DeleteNode() error {
     ).Update(
         rethink.Map{
             "nodes" : rethink.Map{
-                bq.NodeId : rethink.Literal(),
+                bq.NodeId : rethink.Exp{},
             },
         },
     ).Run(bq.Session).One(&rethinkResponse)
