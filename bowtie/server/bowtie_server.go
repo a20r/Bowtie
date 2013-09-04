@@ -558,7 +558,7 @@ func (bq BowtieQueries) DeleteSensor() error {
         },
     ).Run(bq.Session).One(&rethinkResponse)
 
-    timePrinter("DB\t" + rethinkResponse.String())
+    fmt.Println(rethinkResponse)
 
     return nil
 }
