@@ -515,7 +515,7 @@ func (bq BowtieQueries) DeleteNode() error {
     )
 
     var rethinkResponse map[string]int
-
+    fmt.Println(nodeMap)
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
