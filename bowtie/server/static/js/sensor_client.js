@@ -109,6 +109,17 @@ function toggle_readonly() {
                 node_id_box.value != "" &&
                 group_id_box.value != ""
         ) {
+            $.ajax(
+                {
+                    type : "DELETE",
+
+                    url : (
+                        '/sensors/' +
+                        $("#group_id").val() + '/' +
+                        $("#node_id").val()
+                    )
+                }
+            );
         }
     } else {
         if (
@@ -314,7 +325,8 @@ function sendAjax() {
                     )
                 },
 
-                success : onSuccessAjax            }
+                success : onSuccessAjax            
+            }
         );
 
         // // Old post
