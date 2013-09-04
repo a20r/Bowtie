@@ -525,7 +525,7 @@ func (bq BowtieQueries) DeleteSensor() error {
         rethink.Map{
             "nodes" : rethink.Map{
                 bq.NodeId : rethink.Map{
-                    bq.Sensor : nil
+                    bq.Sensor : nil,
                 },
             },
         },
