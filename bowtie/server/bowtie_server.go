@@ -419,13 +419,12 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
     }
 
     var nodes map[string]rethink.Map
-    fmt.Println("1")
+
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Attr("nodes").Run(bq.Session).One(&nodes)
-    fmt.Println("2")
 
-    if len(nodes[bq.NodeId]) == 0 {
+    if nodes[bq.NodeId] == nil {
         nodes[bq.NodeId] = make(rethink.Map)
     }
 
@@ -436,7 +435,7 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
             "time" : sensorNode.Time,
         }
     }
-    fmt.Println("3")
+
     rethink.Table("sensor_table").Get(
         bq.GroupId,
     ).Update(
@@ -444,7 +443,6 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
             "nodes" : nodes,
         },
     ).Run(bq.Session).Exec()
-    fmt.Println("4")
 
     return nil
 }
@@ -515,8 +513,6 @@ func (bq BowtieQueries) DeleteNode() error {
             },
         },
     ).Run(bq.Session).One(&rethinkResponse)
-
-    //fmt.Println(rethinkResponse)
 
     return nil
 }
