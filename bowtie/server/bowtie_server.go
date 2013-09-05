@@ -516,7 +516,7 @@ func (bq BowtieQueries) DeleteNode() error {
         },
     ).Run(bq.Session).One(&rethinkResponse)
 
-    fmt.Println(rethinkResponse)
+    //fmt.Println(rethinkResponse)
 
     return nil
 }
