@@ -277,89 +277,89 @@ function sendAjax() {
     if (
             $("#group_id").attr('readonly') != undefined
     ) {
-        readyToSend = false;
-        // RESTful POST
-        $.ajax(
-            {
-                type : 'PUT',
-
-                url : (
-                    '/sensors/' +
-                    $("#group_id").val() + '/' +
-                    $("#node_id").val()
-                ),
-
-                data : {
-                    sensorData : JSON.stringify(
-                        {
-                            tilt_horizontal : {
-                                value : tiltLR,
-                                type : "integer",
-                                time : new Date().toJSON()
-                            },
-
-                            tilt_vertical : {
-                                value : tiltFB,
-                                type : "integer",
-                                time : new Date().toJSON()
-                            },
-
-                            orientation : {
-                                value : dir,
-                                type : "integer",
-                                time : new Date().toJSON()
-                            },
-
-                            latitude : {
-                                value : lat,
-                                type : "float",
-                                time : new Date().toJSON()
-                            },
-
-                            longitude : {
-                                value : lon,
-                                type : "float",
-                                time : new Date().toJSON()
-                            },
-                        }
-                    )
-                },
-
-                success : onSuccessAjax            
-            }
-        );
-
-        // // Old post
+        // readyToSend = false;
+        // // RESTful POST
         // $.ajax(
         //     {
-        //         type : 'POST',
+        //         type : 'PUT',
 
         //         url : (
-        //             '/checked/' +
+        //             '/sensors/' +
         //             $("#group_id").val() + '/' +
         //             $("#node_id").val()
         //         ),
 
-        //         data: {
-        //             sensor_data: JSON.stringify(
+        //         data : {
+        //             sensorData : JSON.stringify(
         //                 {
-        //                     orientation: {
-        //                         tilt_horizontal: tiltLR,
-        //                         tilt_vertical: tiltFB,
-        //                         direction: dir
+        //                     tilt_horizontal : {
+        //                         value : tiltLR,
+        //                         type : "integer",
+        //                         time : new Date().toJSON()
         //                     },
 
-        //                     location: {
-        //                         latitude: lat,
-        //                         longitude: lon
+        //                     tilt_vertical : {
+        //                         value : tiltFB,
+        //                         type : "integer",
+        //                         time : new Date().toJSON()
         //                     },
 
-        //                     error: error_data
+        //                     orientation : {
+        //                         value : dir,
+        //                         type : "integer",
+        //                         time : new Date().toJSON()
+        //                     },
+
+        //                     latitude : {
+        //                         value : lat,
+        //                         type : "float",
+        //                         time : new Date().toJSON()
+        //                     },
+
+        //                     longitude : {
+        //                         value : lon,
+        //                         type : "float",
+        //                         time : new Date().toJSON()
+        //                     },
         //                 }
         //             )
-        //         }
+        //         },
+
+        //         success : onSuccessAjax            
         //     }
         // );
+
+        // Old post
+        $.ajax(
+            {
+                type : 'POST',
+
+                url : (
+                    '/checked/' +
+                    $("#group_id").val() + '/' +
+                    $("#node_id").val()
+                ),
+
+                data: {
+                    sensor_data: JSON.stringify(
+                        {
+                            orientation: {
+                                tilt_horizontal: tiltLR,
+                                tilt_vertical: tiltFB,
+                                direction: dir
+                            },
+
+                            location: {
+                                latitude: lat,
+                                longitude: lon
+                            },
+
+                            error: error_data
+                        }
+                    )
+                }
+            }
+        );
     }
 }
 
