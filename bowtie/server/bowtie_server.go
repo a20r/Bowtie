@@ -329,49 +329,36 @@ type BowtieQueries struct {
 }
 
 func (bq BowtieQueries) GroupExists() bool {
-    var groupData rethink.Map
-    rethink.Table("sensor_table").Get( 
-        bq.GroupId,
-    ).Run(bq.Session).One(&groupData)
+    _, err := ioutil.ReadDir(
+        "json_data/" + bq.GroupId,
+    )
 
-    return groupData != nil
+    return err == nil
 }
 
 func (bq BowtieQueries) NodeExists() bool {
-    var nodeExists bool
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Attr("nodes").Contains(
-        bq.NodeId,
-    ).Run(bq.Session).One(&nodeExists)
+    _, readErr := ioutil.ReadFile(
+        "json_data/" + 
+        bq.GroupId + "/" + 
+        bq.NodeId + ".json",
+    )
 
-    return nodeExists
+    return readErr == nil
 }
 
-func (bq BowtieQueries) InsertGroupWithData(sData NodeSensorData) {
-    rethink.Table("sensor_table").Insert(
-        rethink.Map{
-            "groupId" : bq.GroupId,
-            "nodes" : rethink.Map{
-                bq.NodeId : rethink.Map{
-                    bq.Sensor : rethink.Map{
-                        "value" : sData.Value,
-                        "type" : sData.Type,
-                        "time" : sData.Time,
-                    },
-                },
-            },
-        },
-    ).Run(bq.Session).Exec()
-}
+func (bq BowtieQueries) CreateGroup() error {
+    path := "./json_data/" + bq.GroupId + "/"
 
-func (bq BowtieQueries) CreateGroup() {
-    rethink.Table("sensor_table").Insert(
-        rethink.Map{
-            "groupId" : bq.GroupId,
-            "nodes" : rethink.Map{},
-        },
-    ).Run(bq.Session).Exec()
+    err := os.Mkdir(path, os.ModePerm | os.ModeType)
+
+    if err != nil {
+        return errors.New(
+            "Unable to create group --> " +
+            err.Error(),
+        )
+    } else {
+        return nil
+    }
 }
 
 // creates node if not there, updates if it exists
@@ -381,73 +368,40 @@ func (bq BowtieQueries) UpdateSensor(sData NodeSensorData) error {
         bq.CreateGroup()
     }
 
-    var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Attr("nodes").Run(bq.Session).One(&nodes)
+    sDataMap, err := bq.GetNode()
 
-    if len(nodes[bq.NodeId]) > 0 {
-        nodes[bq.NodeId][bq.Sensor] = rethink.Map{
-            "value" : sData.Value,
-            "type" : sData.Type,
-            "time" : sData.Time,
-        }
-    } else { 
-        nodes[bq.NodeId] = rethink.Map{
-            bq.Sensor : rethink.Map{
-                "value" : sData.Value,
-                "type" : sData.Type,
-                "time" : sData.Time,
-            },
-        }
+    if err != nil {
+        return err
     }
 
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Update(
-        rethink.Map{
-            "nodes" : nodes,
-        },
-    ).Run(bq.Session).Exec()
+    sDataMap[bq.NodeId] = sData
 
     return nil
 }
 
 func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
+
     if !bq.GroupExists() {
         bq.CreateGroup() // check this
     }
 
-    var nodes map[string]rethink.Map
+    path := "./json_data/" + bq.GroupId + "/"
+    file, err := os.Create(path + bq.NodeId + ".json")
 
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Attr("nodes").Run(bq.Session).One(&nodes)
-
-    if nodes[bq.NodeId] == nil {
-        nodes[bq.NodeId] = make(rethink.Map)
+    if err != nil {
+        return errors.New(
+            "Unable to update node --> " +
+            err.Error(),
+        )
     }
 
-    for key, sensorNode := range sDataMap {
-        nodes[bq.NodeId][key] = rethink.Map{
-            "value" : sensorNode.Value,
-            "type" : sensorNode.Type,
-            "time" : sensorNode.Time,
-        }
-    }
-
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Update(
-        rethink.Map{
-            "nodes" : nodes,
-        },
-    ).Run(bq.Session).Exec()
+    file.Write([]byte(sDataMap))
+    file.Close()
 
     return nil
 }
 
-func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
+func (bq BowtieQueries) GetSensorData() (NodeSensorData, error) {
     node, err := bq.GetNode()
     if err != nil {
         return nil, err
@@ -457,78 +411,138 @@ func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
         return nil, errors.New("Sensor does not exist")
     }
 
-    sensor := node[bq.Sensor].(map[string]interface{})
-    return &NodeSensorData{
-        sensor["value"],
-        sensor["type"].(string),
-        sensor["time"].(string),
+    return NodeSensorData{
+        node[bq.Sensor].Value,
+        node[bq.Sensor].Type,
+        node[bq.Sensor].Time,
     }, nil
 }
 
-func (bq BowtieQueries) GetNode() (rethink.Map, error) {
-    if !bq.GroupExists() {
-        return nil, errors.New("Group does not yet exist")
-    }
-    var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Attr("nodes").Run(bq.Session).One(&nodes)
+func (bq BowtieQueries) GetNode() (map[string]NodeSensorData, error) {
 
-    if len(nodes[bq.NodeId]) == 0 || nodes[bq.NodeId] == nil {
-        return nil, errors.New("Node does not exist")
+    var sDataMap map[string]NodeSensorData
+
+    fileBytes, readErr := ioutil.ReadFile(
+        "json_data/" + 
+        bq.GroupId + "/" + 
+        bq.NodeId + ".json",
+    )
+
+    if readErr != nil {
+        return nil, errors.New(
+            "Unable to update sensor --> " + 
+            readErr.Error(),
+        )
     }
 
-    return nodes[bq.NodeId], nil
+    jsonErr := json.Unmarshal(fileBytes, &sDataMap)
+
+    if jsonErr != nil {
+        return nil, errors.New(
+            "Unable to update sensor --> " + 
+            jsonErr.Error(),
+        )
+    }
+
+    return sDataMap, nil
 }
 
-func (bq BowtieQueries) GetGroup() (rethink.Map, error) {
+func (bq BowtieQueries) GetGroup() (map[string]map[string]NodeSensorData, error) {
     if !bq.GroupExists() {
         return nil, errors.New("Group does not yet exist")
     }
-    var group rethink.Map
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Run(bq.Session).One(&group)
+
+    files, err := ioutil.ReadDir("json_data/" + bq.GroupId)
+
+    if err != nil {
+        return nil, errors.New(
+            "Unable to get group --> " +
+            err.Error(),
+        )
+    }
+
+    group := make(map[string]map[string]NodeSensorData)
+
+    for _, file := range files {
+        var sDataMap map[string]NodeSensorData
+
+        fileBytes, readErr := ioutil.ReadFile(
+            "json_data/" + 
+            bq.GroupId + "/" + 
+            bq.NodeId + ".json",
+        )
+
+        if readErr != nil {
+            return nil, errors.New(
+                "Unable to update sensor --> " + 
+                readErr.Error(),
+            )
+        }
+
+        jsonErr := json.Unmarshal(fileBytes, &sDataMap)
+
+        if jsonErr != nil {
+            return nil, errors.New(
+                "Unable to update sensor --> " + 
+                jsonErr.Error(),
+            )
+        }
+
+        group[bq.NodeId] = sDataMap
+    }
 
     return group, nil
 }
 
 func (bq BowtieQueries) DeleteGroup() error {
-    rethink.Table("sensor_table").Get(
+    err := os.Remove(
+        "json_data/" + 
         bq.GroupId,
-    ).Delete().Run(bq.Session).Exec()
+    )
+
+    if err != nil {
+        return errors.New(
+            "Unable to delete group --> " + 
+            err.Error(),
+        )
+    }
+
     return nil
 }
 
 func (bq BowtieQueries) DeleteNode() error {
 
-    var rethinkResponse map[string]int
+    err := os.Remove(
+        "json_data/" + 
+        bq.GroupId + "/" +
+        bq.NodeId + ".json",
+    )
 
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Update(
-        rethink.Map{
-            "nodes" : rethink.Map{
-                bq.NodeId : nil,
-            },
-        },
-    ).Run(bq.Session).One(&rethinkResponse)
+    if err != nil {
+        return errors.New(
+            "Unable to delete node --> " + 
+            err.Error(),
+        )
+    }
 
     return nil
 }
 
 func (bq BowtieQueries) DeleteSensor() error {
-    rethink.Table("sensor_table").Get(
-        bq.GroupId,
-    ).Update(
-        rethink.Map{
-            "nodes" : rethink.Map{
-                bq.NodeId : rethink.Map{
-                    bq.Sensor : nil,
-                },
-            },
-        },
-    ).Run(bq.Session).Exec()
+
+    node, err := bq.GetNode()
+
+    if err != nil {
+        return errors.New(
+            "Unable to delete sensor --> " + 
+            err.Error(),
+        )
+    }
+
+    delete(
+        node,
+        bq.Sensor,
+    )
 
     return nil
 }
@@ -603,7 +617,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
     if bq.Sensor != "" && bq.NodeId != "" {
-        var sensorData *NodeSensorData
+        var sensorData NodeSensorData
         sensorData, err := bq.GetSensorData()
         if err != nil {
             fmt.Fprint(
@@ -620,7 +634,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         var bytes []byte
         var err error
         var marshalData interface{}
-        var group rethink.Map
+        var group map[string]map[string]NodeSensorData
 
         group, err = bq.GetGroup()
         if err != nil {
@@ -637,7 +651,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         if bq.Sensor == "" && bq.NodeId == "" {
             marshalData = group["nodes"]
         } else if bq.Sensor == ""{
-            marshalData = group["nodes"].(map[string]interface{})[bq.NodeId]
+            marshalData = group["nodes"][bq.NodeId]
             if marshalData == nil {
                fmt.Fprint(
                     w,
