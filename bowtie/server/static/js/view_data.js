@@ -66,13 +66,13 @@ function toggle_readonly() {
             intervalVar = setInterval(
                 function() {
                     $.getJSON(
-                        '/get_data/' + $("#group_id").val(), 
+                        '/sensors/' + $("#group_id").val(), 
                         visualize_data
                     );
                 }, 50
             );
         } else {
-            show_warning("Please enter a CPU Id before continuing");
+            show_warning("Please enter a Group Id before continuing");
         }
     }
 }
@@ -99,7 +99,7 @@ function toggleTable(tb_id) {
 
 // Creates the tables dynamically that visualize
 // the data being sent to the server
-function createTables(cpu_data, node_name, s_table) {
+function createTables(groupData, node_name, s_table) {
     if (node_name != "error") {
         s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' onClick='toggleTable(\"" + node_name + "\")' "
                            + "style='display:block -webkit-perspective: 400px;'>"
@@ -108,35 +108,34 @@ function createTables(cpu_data, node_name, s_table) {
                              "id=" + node_name + "_picture class='logo'></span>";
         s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
         var n_table = document.getElementById(node_name);
-        for (var sensor_name in cpu_data[node_name]) {
-            n_table.innerHTML += "<tr>";
-            for (var sensor_component in cpu_data[node_name][sensor_name]) {
-                n_table.innerHTML += "<td><b>" + makeStringPresentable(sensor_component) + "</b>" + 
-                                     "</td><td id = " + node_name + "_" + sensor_component + ">" + 
-                                     cpu_data[node_name][sensor_name][sensor_component] + "</td>";
-            }
-            n_table.innerHTML += "</tr>";
+        for (var sensor_name in groupData[node_name]) {
+            n_table.innerHTML += "<td><b>" + makeStringPresentable(sensor_name) + "</b>" + 
+                                 "</td><td id = " + node_name + "_" + sensor_name + ">" + 
+                                 groupData[node_name][sensor_name]["Value"] + "</td>";
         }
+        n_table.innerHTML += "</tr>";
         s_table.innerHTML += "</table>";
     }
 }
 
 // Updates the existing tables with new sensor data
-function updateTables(cpu_data, node_name, s_table) {
-  if (node_name != "error") {
-    for (var sensor_name in cpu_data[node_name]) {
-      for (var sensor_component in cpu_data[node_name][sensor_name]) {
-        if (cpu_data[node_name][sensor_name][sensor_component] != null) {
-            document.getElementById(node_name + "_" + sensor_component).innerHTML = String(cpu_data[node_name][sensor_name][sensor_component]);
+function updateTables(groupData, node_name, s_table) {
+  if (node_name != "Error") {
+    for (var sensor_name in groupData[node_name]) {
+        if (groupData[node_name][sensor_name]["Value"] !=  null) {
+            $("#" + node_name + "_" + sensor_name).html(
+                String(
+                    groupData[node_name][sensor_name]["Value"]
+                )
+            );
         } else {
-            document.getElementById(node_name + "_" + sensor_component).innerHTML = "Not Retrieved";
+            document.getElementById(node_name + "_" + sensor_name).innerHTML = "Not Retrieved";
         }
-      }
     }
   }
   var tiltLR = document.getElementById(node_name + "_tilt_horizontal").innerHTML;
   var tiltFB = document.getElementById(node_name + "_tilt_vertical").innerHTML;
-  var dir = document.getElementById(node_name + "_direction").innerHTML;
+  var dir = document.getElementById(node_name + "_orientation").innerHTML;
   document.getElementById(node_name + "_picture").style.webkitTransform = "rotateX(" + (tiltFB * -1) + "deg)" + 
                                                                           " rotateY(" + tiltLR + "deg)";
 }
@@ -175,9 +174,13 @@ function killData(data_id) {
 // that data is not being sent
 // for
 var prev_nodes = new Array();
-function filterOldData(cpu_data) {
+function filterOldData(groupData) {
   if (prev_nodes.length > 0) {
-    var rmData = prev_nodes.diff(jsonToArray(cpu_data));
+    var rmData = prev_nodes.diff(
+      jsonToArray(
+        groupData
+      )
+    );
     for (var i in rmData) {
       try {
         killData(rmData[i]);
@@ -190,26 +193,26 @@ function filterOldData(cpu_data) {
 // values in a table. It is dynamic so
 // once a sensor node starts sending or stops
 // sending data it is noticable.
-function visualize_data(cpu_data) {
-  //alert(JSON.stringify(cpu_data["error"]));
-  if (cpu_data['error']['code'] == 2) {
-    show_warning(cpu_data['error']['message']);
+function visualize_data(groupData) {
+  //alert(JSON.stringify(groupData["error"]));
+  if (groupData['Error'] == 1) {
+    show_warning(groupData["Message"]);
     clearInterval(intervalVar);
     ready_to_start();
     return;
   }
-  filterOldData(cpu_data);
-  prev_nodes = jsonToArray(cpu_data)
+  filterOldData(groupData);
+  prev_nodes = jsonToArray(groupData)
   ready_to_stop();
   var s_table = document.getElementById('sensor_table');
-  for (var node_name in cpu_data) {
+  for (var node_name in groupData) {
     if (document.getElementById(node_name)) {
       if (document.getElementById(node_name + "_picdiv").style.display == "none") {
         reviveData(node_name);
       }
-      updateTables(cpu_data, node_name, s_table);
+      updateTables(groupData, node_name, s_table);
     } else {
-      createTables(cpu_data, node_name, s_table);
+      createTables(groupData, node_name, s_table);
     }
   }
 }

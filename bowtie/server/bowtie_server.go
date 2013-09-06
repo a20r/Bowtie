@@ -152,7 +152,7 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
     files, err := ioutil.ReadDir("json_data/" + group_id)
 
     if err != nil {
-        res := Response{"error": Response{"code": 2, "message": "No data for " + group_id}}
+        res := Response{"Error": Response{"code": 2, "Message": "No data for " + group_id}}
         fmt.Fprint(w, res)
         timePrinter("ERROR\t" + err.Error())
 
@@ -160,6 +160,11 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
         res := make(Response)
 
         for _, file := range files {
+
+            if file.Name() == ".DS_Store" {
+                continue
+            }
+
             //timePrinter(file.Name())
             var sData SensorData
             node_id := strings.Split(file.Name(), ".")[0]
@@ -181,9 +186,9 @@ func dataGetHandler(w http.ResponseWriter, r *http.Request) {
 
         //timePrinter(files)
         if len(files) > 0 {
-            res["error"] = Response{"code": 0, "message": "No error"}
+            res["Error"] = Response{"code": 0, "Message": "No error"}
         } else {
-            res["error"] = Response{"code": 2, "message": "No data for " + group_id}
+            res["Error"] = Response{"code": 2, "Message": "No data for " + group_id}
         }
 
         timePrinter("RESPONSE\t" + res.String())
@@ -312,11 +317,16 @@ type NodeSensorData struct {
 }
 
 func (nsd NodeSensorData) String() string {
+    bytes := nsd.ToBytes()
+    return string(bytes)
+}
+
+func (nsd NodeSensorData) ToBytes() []byte {
     bytes, err := json.Marshal(nsd)
     if err != nil {
-        return ""
+        return make([]byte, 0)
     } else {
-        return string(bytes)
+        return bytes
     }
 }
 
@@ -329,11 +339,11 @@ type BowtieQueries struct {
 }
 
 func (bq BowtieQueries) GroupExists() bool {
-    _, err := ioutil.ReadDir(
+    files, err := ioutil.ReadDir(
         "json_data/" + bq.GroupId,
     )
 
-    return err == nil
+    return err == nil && len(files) > 0
 }
 
 func (bq BowtieQueries) NodeExists() bool {
@@ -371,10 +381,33 @@ func (bq BowtieQueries) UpdateSensor(sData NodeSensorData) error {
     sDataMap, err := bq.GetNode()
 
     if err != nil {
-        return err
+        sDataMap = make(map[string]NodeSensorData)
     }
 
-    sDataMap[bq.NodeId] = sData
+    sDataMap[bq.Sensor] = sData
+
+    path := "./json_data/" + bq.GroupId + "/"
+    file, err := os.Create(path + bq.NodeId + ".json")
+
+    if err != nil {
+        return errors.New(
+            "Unable to update sensor --> " +
+            err.Error(),
+        )
+    }
+
+    defer file.Close()
+
+    bytes, jsonErr := json.Marshal(sDataMap)
+
+    if jsonErr != nil {
+        return errors.New(
+            "Unable to update sensor --> " +
+            jsonErr.Error(),
+        )
+    }
+
+    file.Write(bytes)
 
     return nil
 }
@@ -395,23 +428,33 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
         )
     }
 
-    file.Write([]byte(sDataMap))
-    file.Close()
+    defer file.Close()
+
+    bytes, jsonErr := json.Marshal(sDataMap)
+
+    if jsonErr != nil {
+        return errors.New(
+            "Unable to update node --> " +
+            jsonErr.Error(),
+        )
+    }
+
+    file.Write(bytes)
 
     return nil
 }
 
-func (bq BowtieQueries) GetSensorData() (NodeSensorData, error) {
+func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
     node, err := bq.GetNode()
     if err != nil {
         return nil, err
     }
 
-    if node[bq.Sensor] == nil {
+    if _, exists := node[bq.Sensor]; !exists {
         return nil, errors.New("Sensor does not exist")
     }
 
-    return NodeSensorData{
+    return &NodeSensorData{
         node[bq.Sensor].Value,
         node[bq.Sensor].Type,
         node[bq.Sensor].Time,
@@ -430,7 +473,7 @@ func (bq BowtieQueries) GetNode() (map[string]NodeSensorData, error) {
 
     if readErr != nil {
         return nil, errors.New(
-            "Unable to update sensor --> " + 
+            "Unable to get node --> " + 
             readErr.Error(),
         )
     }
@@ -439,7 +482,7 @@ func (bq BowtieQueries) GetNode() (map[string]NodeSensorData, error) {
 
     if jsonErr != nil {
         return nil, errors.New(
-            "Unable to update sensor --> " + 
+            "Unable to get node --> " + 
             jsonErr.Error(),
         )
     }
@@ -464,17 +507,20 @@ func (bq BowtieQueries) GetGroup() (map[string]map[string]NodeSensorData, error)
     group := make(map[string]map[string]NodeSensorData)
 
     for _, file := range files {
+        if file.Name() == ".DS_Store" {
+            continue
+        }
         var sDataMap map[string]NodeSensorData
-
+        nodeId := strings.Split(file.Name(), ".")[0]
         fileBytes, readErr := ioutil.ReadFile(
             "json_data/" + 
             bq.GroupId + "/" + 
-            bq.NodeId + ".json",
+            nodeId + ".json",
         )
 
         if readErr != nil {
             return nil, errors.New(
-                "Unable to update sensor --> " + 
+                "Unable to get group --> " + 
                 readErr.Error(),
             )
         }
@@ -483,14 +529,13 @@ func (bq BowtieQueries) GetGroup() (map[string]map[string]NodeSensorData, error)
 
         if jsonErr != nil {
             return nil, errors.New(
-                "Unable to update sensor --> " + 
+                "Unable to get group --> " + 
                 jsonErr.Error(),
             )
         }
 
-        group[bq.NodeId] = sDataMap
+        group[nodeId] = sDataMap
     }
-
     return group, nil
 }
 
@@ -617,13 +662,14 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
     if bq.Sensor != "" && bq.NodeId != "" {
-        var sensorData NodeSensorData
+        var sensorData *NodeSensorData
         sensorData, err := bq.GetSensorData()
         if err != nil {
             fmt.Fprint(
                 w, 
                 Response{
-                    "Error" : err.Error(),
+                    "Error" : 1,
+                    "Message" : err.Error(),
                 },
             )
         } else {
@@ -641,23 +687,23 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
             fmt.Fprint(
                 w,
                 Response{
-                    "error" : 1, 
-                    "message": err.Error(),
+                    "Error" : 1, 
+                    "Message": err.Error(),
                 },
             )
             return
         }
 
         if bq.Sensor == "" && bq.NodeId == "" {
-            marshalData = group["nodes"]
+            marshalData = group
         } else if bq.Sensor == ""{
-            marshalData = group["nodes"][bq.NodeId]
+            marshalData = group[bq.NodeId]
             if marshalData == nil {
                fmt.Fprint(
                     w,
                     Response{
-                        "error" : 1, 
-                        "message": "Node does not exist",
+                        "Error" : 1, 
+                        "Message": "Node does not exist",
                     },
                 )
                 return 
@@ -669,7 +715,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         if err != nil {
            fmt.Fprint(
                 w,
-                Response{"error" : 1, "message": err.Error()},
+                Response{"Error" : 1, "Message": err.Error()},
             )
             return 
         }
@@ -709,16 +755,24 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         fmt.Fprint(
             w, 
-            Response{"error": 1, "message": err.Error()},
+            Response{"Error": 1, "Message": err.Error()},
         );
         return
     }
 
     bq := makeBowtieQueriesWithPath(r.URL.Path, session)
 
-    bq.UpdateSensor(sData)
+    err = bq.UpdateSensor(sData)
 
-    fmt.Fprint(w, Response{"error": 0, "message": "All went well"});
+    if err != nil {
+        fmt.Fprint(
+            w, 
+            Response{"Error": 1, "Message": err.Error()},
+        );
+        return
+    }
+
+    fmt.Fprint(w, Response{"Error": 0, "Message": "All went well"});
 }
 
 func restfulPut(w http.ResponseWriter, r *http.Request) {
@@ -737,7 +791,7 @@ func restfulPut(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         fmt.Fprint(
             w, 
-            Response{"error": 1, "message": err.Error()},
+            Response{"Error": 1, "Message": err.Error()},
         );
         return
     }
@@ -747,14 +801,14 @@ func restfulPut(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         fmt.Fprint(
             w, 
-            Response{"error": 1, "message": err.Error()},
+            Response{"Error": 1, "Message": err.Error()},
         );
         return
     }
 
     fmt.Fprint(
         w, 
-        Response{"error": 0, "message": "Everything is great"},
+        Response{"Error": 0, "Message": "Everything is great"},
     );
 }
 
@@ -775,7 +829,13 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
 
     bytes, err := json.Marshal(nodeIds)
     if err != nil {
-        fmt.Fprint(w, Response{"Error" : "Not able to marshal JSON data"})
+        fmt.Fprint(
+            w, 
+            Response{
+                "Error" : 1, 
+                "Message" : "Not able to marshal JSON data",
+            },
+        )
     } else {
         w.Write(bytes) 
     }
