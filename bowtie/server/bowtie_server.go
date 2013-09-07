@@ -23,17 +23,8 @@ import (
     //ADTs
     "time"
 
-    // rethinkdb
-    rethink "github.com/christopherhesse/rethinkgo"
-
     // custom pkgs
 )
-
-// JSON response mapping
-type Response map[string]interface{}
-
-// Type definition for disambiguation. Holds the sensor data
-type SensorData map[string]interface{}
 
 // Represents an file loaded
 type Page struct {
@@ -41,16 +32,8 @@ type Page struct {
     Body []byte
 }
 
-// Media slice
-type MediaSlice struct {
-    Media_Type string
-    Group_ID string
-    Node_ID string
-    Data string
-}
-
-// database session
-var session, dbErr = rethink.Connect("localhost:28015", "bowtie_db")
+// JSON response mapping
+type Response map[string]interface{}
 
 // Converts the JSON to strings
 // to be sent as a response
@@ -105,95 +88,12 @@ func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Requ
     }
 }
 
-// Removes the JSON data once the node stops
-// sending sensor data
-func dataRemoveHandler(w http.ResponseWriter, r *http.Request) {
-    timePrinter("GET\t" + r.URL.Path)
-    urlVars := strings.Split(r.URL.Path[1:], "/")
-    group_id, node_id := urlVars[1], urlVars[2]
-    err := os.Remove("json_data/" + group_id + "/" + node_id + ".json")
-
-    if err != nil {
-        timePrinter("ERROR\t" + err.Error())
-    }
-}
-
-// Handler called when data is sent
-// to the server from a node
-func dataSentHandler(w http.ResponseWriter, r *http.Request) {
-    timePrinter("POST\t" + r.URL.Path)
-
-    // Parse form and extract data details
-    r.ParseForm()
-    urlVars := strings.Split(r.URL.Path[1:], "/")
-    group_id := urlVars[1]
-    node_id := urlVars[2]
-    path := "./json_data/" + group_id + "/"
-
-    // Make and log data to a file
-    os.Mkdir(path, os.ModePerm | os.ModeType)
-    file, err := os.Create(path + node_id + ".json")
-    if err != nil {
-        timePrinter("ERROR\t" + err.Error())
-        return
-    }
-
-    file.Write([]byte(r.Form["sensor_data"][0]))
-    file.Close()
-}
-
-// Responds to the GET request from a client.
-// Used for the visualization and for APIs
-// for users to query the data.
-func dataGetHandler(w http.ResponseWriter, r *http.Request) {
-    timePrinter("GET\t" + r.URL.Path)
-    urlVars := strings.Split(r.URL.Path[1:], "/")
-    group_id := urlVars[1]
-    files, err := ioutil.ReadDir("json_data/" + group_id)
-
-    if err != nil {
-        res := Response{"Error": Response{"code": 2, "Message": "No data for " + group_id}}
-        fmt.Fprint(w, res)
-        timePrinter("ERROR\t" + err.Error())
-
-    } else {
-        res := make(Response)
-
-        for _, file := range files {
-
-            if file.Name() == ".DS_Store" {
-                continue
-            }
-
-            //timePrinter(file.Name())
-            var sData SensorData
-            node_id := strings.Split(file.Name(), ".")[0]
-            file_bytes, read_err := ioutil.ReadFile(
-                "json_data/" + 
-                group_id + "/" + 
-                node_id + ".json",
-            )
-            json_err := json.Unmarshal(file_bytes, &sData)
-
-            if read_err != nil {
-                timePrinter("ERROR\t" + read_err.Error())
-            }
-            if json_err != nil {
-                timePrinter("ERROR\t" + json_err.Error())
-            }
-            res[node_id] = sData
-        }
-
-        //timePrinter(files)
-        if len(files) > 0 {
-            res["Error"] = Response{"code": 0, "Message": "No error"}
-        } else {
-            res["Error"] = Response{"code": 2, "Message": "No data for " + group_id}
-        }
-
-        timePrinter("RESPONSE\t" + res.String())
-        fmt.Fprint(w, res)
-    }
+// Media slice
+type MediaSlice struct {
+    Media_Type string
+    Group_ID string
+    Node_ID string
+    Data string
 }
 
 // Video stream handler
@@ -332,7 +232,6 @@ func (nsd NodeSensorData) ToBytes() []byte {
 
 // for easier querying
 type BowtieQueries struct {
-    Session *rethink.Session
     GroupId string
     NodeId string
     Sensor string
@@ -444,7 +343,7 @@ func (bq BowtieQueries) UpdateNode(sDataMap map[string]NodeSensorData) error {
     return nil
 }
 
-func (bq BowtieQueries) GetSensorData() (*NodeSensorData, error) {
+func (bq BowtieQueries) GetSensor() (*NodeSensorData, error) {
     node, err := bq.GetNode()
     if err != nil {
         return nil, err
@@ -539,6 +438,24 @@ func (bq BowtieQueries) GetGroup() (map[string]map[string]NodeSensorData, error)
     return group, nil
 }
 
+func (bq BowtieQueries) GetNodeArray() ([]string, error) {
+
+    group, err := bq.GetGroup()
+
+    if err != nil {
+        return nil, err
+    }
+
+    i := 0
+    retArray := make([]string, len(group))
+    for key, _ := range group {
+        retArray[i] = key
+        i = i + 1
+    }
+
+    return retArray, nil
+}
+
 func (bq BowtieQueries) DeleteGroup() error {
     err := os.Remove(
         "json_data/" + 
@@ -594,11 +511,9 @@ func (bq BowtieQueries) DeleteSensor() error {
 
 func makeBowtieQueriesWithPath(
     URLStr string, 
-    rethinkSession *rethink.Session,
 ) *BowtieQueries {
     groupId, nodeId, sensor := parseRestfulURL(URLStr)
     bq := BowtieQueries{
-        rethinkSession,
         groupId,
         nodeId,
         sensor,
@@ -647,7 +562,7 @@ func restfulHandler(w http.ResponseWriter, r *http.Request) {
 
 func restfulDelete(w http.ResponseWriter, r *http.Request) {
     timePrinter("DELETE\t" + r.URL.Path)
-    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+    bq := makeBowtieQueriesWithPath(r.URL.Path)
     if bq.NodeId == "" && bq.Sensor == "" {
         bq.DeleteGroup()
     } else if bq.Sensor == "" {
@@ -659,11 +574,11 @@ func restfulDelete(w http.ResponseWriter, r *http.Request) {
 
 func restfulGet(w http.ResponseWriter, r *http.Request) {
     timePrinter("GET\t" + r.URL.Path)
-    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
+    bq := makeBowtieQueriesWithPath(r.URL.Path)
 
     if bq.Sensor != "" && bq.NodeId != "" {
         var sensorData *NodeSensorData
-        sensorData, err := bq.GetSensorData()
+        sensorData, err := bq.GetSensor()
         if err != nil {
             fmt.Fprint(
                 w, 
@@ -744,25 +659,49 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     timePrinter("POST\t" + r.URL.Path)
 
     // decodes the JSON data to be sent to the database
-    var sData NodeSensorData
+
     r.ParseForm()
+    bq := makeBowtieQueriesWithPath(r.URL.Path)
 
-    err := json.Unmarshal(
-        []byte (r.Form["sensorData"][0]), 
-        &sData,
-    )
+    var err error
 
-    if err != nil {
-        fmt.Fprint(
-            w, 
-            Response{"Error": 1, "Message": err.Error()},
-        );
-        return
+    if bq.Sensor == "" {
+        var sData map[string]NodeSensorData
+        err = json.Unmarshal(
+            []byte (r.Form["sensorData"][0]), 
+            &sData,
+        )
+
+        if err != nil {
+            fmt.Fprint(
+                w, 
+                Response{
+                    "Error": 1, 
+                    "Message": err.Error(),
+                },
+            );
+            return
+        }
+        err = bq.UpdateNode(sData)
+    } else {
+        var sData NodeSensorData
+        err = json.Unmarshal(
+            []byte (r.Form["sensorData"][0]), 
+            &sData,
+        )
+
+        if err != nil {
+            fmt.Fprint(
+                w, 
+                Response{
+                    "Error": 1, 
+                    "Message": err.Error(),
+                },
+            );
+            return
+        }
+        err = bq.UpdateSensor(sData)
     }
-
-    bq := makeBowtieQueriesWithPath(r.URL.Path, session)
-
-    err = bq.UpdateSensor(sData)
 
     if err != nil {
         fmt.Fprint(
@@ -775,56 +714,21 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, Response{"Error": 0, "Message": "All went well"});
 }
 
-func restfulPut(w http.ResponseWriter, r *http.Request) {
-    timePrinter("PUT\t" + r.URL.Path)
-    groupId := strings.Split(r.URL.Path[1:], "/")[1]
-    nodeId := strings.Split(r.URL.Path[1:], "/")[2]
-
-    var sDataMap map[string]NodeSensorData
-    r.ParseForm()
-
-    err := json.Unmarshal(
-        []byte (r.Form["sensorData"][0]),
-        &sDataMap,
-    )
-
-    if err != nil {
-        fmt.Fprint(
-            w, 
-            Response{"Error": 1, "Message": err.Error()},
-        );
-        return
-    }
-
-    bq := BowtieQueries{session, groupId, nodeId, ""}
-    err = bq.UpdateNode(sDataMap)
-    if err != nil {
-        fmt.Fprint(
-            w, 
-            Response{"Error": 1, "Message": err.Error()},
-        );
-        return
-    }
-
-    fmt.Fprint(
-        w, 
-        Response{"Error": 0, "Message": "Everything is great"},
-    );
-}
-
 func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
     timePrinter("GET\t" + r.URL.Path)
-    groupId := strings.Split(r.URL.Path[1:], "/")[1]
-    var nodes map[string]rethink.Map
-    rethink.Table("sensor_table").Get(
-        groupId,
-    ).Attr("nodes").Run(session).One(&nodes)
 
-    nodeIds := make([]string, len(nodes))
-    i := 0
-    for key := range nodes {
-        nodeIds[i] = key
-        i = i + 1
+    bq := makeBowtieQueriesWithPath(r.URL.Path)
+    nodeIds, bqErr := bq.GetNodeArray()
+
+    if bqErr != nil {
+        fmt.Fprint(
+            w, 
+            Response{
+                "Error" : 1, 
+                "Message" : bqErr.Error(),
+            },
+        )
+        return
     }
 
     bytes, err := json.Marshal(nodeIds)
@@ -833,7 +737,7 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
             w, 
             Response{
                 "Error" : 1, 
-                "Message" : "Not able to marshal JSON data",
+                "Message" : err.Error(),
             },
         )
     } else {
@@ -841,37 +745,41 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-// Handles all incomming http requests
-func requestHandler() {
+// Handles all in coming http requests
+func UIHandler() {
     staticHandler := fileResponseCreator("static")
     http.HandleFunc("/", fileResponseCreator("templates"))
     http.HandleFunc("/css/", staticHandler)
     http.HandleFunc("/js/", staticHandler)
     http.HandleFunc("/img/", staticHandler)
     http.HandleFunc("/favicon.ico", fileResponseCreator("static/img"))
-
-    // Handle webcam stream requests
-    http.Handle("/websocket/", websocket.Handler(websocketHandler))
 }
 
 // MAIN EXECUTION FLOW
 func main() {
 
-    if dbErr != nil {
-        timePrinter(dbErr.Error())
-        return
-    } 
-    requestHandler()
-
-    http.HandleFunc("/checked/", dataSentHandler)
-    http.HandleFunc("/unchecked/", dataRemoveHandler)
-    http.HandleFunc("/get_data/", dataGetHandler)
+    UIHandler()
 
     http.HandleFunc("/sensors/", restfulHandler)
     http.HandleFunc("/nodes/", restfulNodesHandler)
 
-    var addr_flag = flag.String("addr", "localhost", "Address the http server binds to")
-    var port_flag = flag.String("port", "8080", "Port used for http server")
+    // Handle webcam stream requests
+    http.Handle(
+        "/websocket/", 
+        websocket.Handler(websocketHandler),
+    )
+
+    var addr_flag = flag.String(
+        "addr", 
+        "localhost", 
+        "Address the http server binds to",
+    )
+
+    var port_flag = flag.String(
+        "port", 
+        "8080", 
+        "Port used for http server",
+    )
 
     flag.Parse()
 

@@ -103,9 +103,10 @@ function createTables(groupData, node_name, s_table) {
     if (node_name != "error") {
         s_table.innerHTML += "<span id = " + node_name + "_picdiv class='container' onClick='toggleTable(\"" + node_name + "\")' "
                            + "style='display:block -webkit-perspective: 400px;'>"
-                           + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'><a href='#'>" + node_name + "</a></font></b>" + 
-                             "<img src='img/black-bow-tie.png' width = '100' height = '40' " + 
-                             "id=" + node_name + "_picture class='logo'></span>";
+                           + "<b style='margin-top:2;margin-right:10;margin-bottom:4'><font size='5'><a href='#'>" 
+                           + makeStringPresentable(node_name) + "</a></font></b>"
+                           + "<img src='img/black-bow-tie.png' width = '100' height = '40' "
+                           + "id=" + node_name + "_picture class='logo'></span>";
         s_table.innerHTML += "<table id =" + node_name + " class='table table-hover' border='0'>";
         var n_table = document.getElementById(node_name);
         for (var sensor_name in groupData[node_name]) {
@@ -129,20 +130,30 @@ function updateTables(groupData, node_name, s_table) {
                 )
             );
         } else {
-            document.getElementById(node_name + "_" + sensor_name).innerHTML = "Not Retrieved";
+            $(
+                "#" + 
+                node_name + "_" + 
+                sensor_name
+            ).html("Not Retrieved");
         }
     }
   }
-  var tiltLR = document.getElementById(node_name + "_tilt_horizontal").innerHTML;
-  var tiltFB = document.getElementById(node_name + "_tilt_vertical").innerHTML;
-  var dir = document.getElementById(node_name + "_orientation").innerHTML;
-  document.getElementById(node_name + "_picture").style.webkitTransform = "rotateX(" + (tiltFB * -1) + "deg)" + 
-                                                                          " rotateY(" + tiltLR + "deg)";
+  var tiltLR = $("#" + node_name + "_tilt_horizontal").html();
+  var tiltFB = $("#" + node_name + "_tilt_vertical").html();
+  var dir = $("#" + node_name + "_orientation").html();
+  $("#" + node_name + "_picture").css(
+    "webkitTransform",
+    "rotateX(" + (tiltFB * -1) + "deg) rotateY(" + tiltLR + "deg)"
+  )
 }
 
 // Takes the set difference of two arrays
 Array.prototype.diff = function(a) {
-    return this.filter(function(i) {return !(a.indexOf(i) > -1);});
+    return this.filter(
+        function(i) {
+            return !(a.indexOf(i) > -1);
+        }
+    );
 };
 
 function jsonToArray(jsondata) { 
@@ -157,16 +168,38 @@ function jsonToArray(jsondata) {
 // Revives the data if the table
 // was created and made to display none
 function reviveData(data_id) {
-  document.getElementById(data_id).style.display = "block";
-  document.getElementById(data_id + "_picdiv").style.display = "block";
-  document.getElementById(data_id + "_header").style.display = "block";
+    $("#" + data_id).css(
+        "display",
+        "block"
+    );
+
+    $("#" + data_id).css(
+        "display",
+        "block"
+    );
+
+    $("#" + data_id + "_picdiv").css(
+        "display",
+        "block"
+    );
+
+    $("#" + data_id + "_header").css(
+        "display",
+        "block"
+    );
 }
 
 // Sets the display of table to none
 function killData(data_id) {
-  document.getElementById(data_id).style.display = "none";
-  document.getElementById(data_id + "_picdiv").style.display = "none";
-  //document.getElementById(data_id + "_header").style.display = "none";
+    $("#" + data_id).css(
+        "display",
+        "none"
+    );
+    $("#" + data_id + "_picdiv").css(
+        "display",
+        "none"
+    );
+  //$("#" + data_id + "_header").style.display = "none";
 }
 
 // Gets rid of sensor tables
@@ -207,7 +240,7 @@ function visualize_data(groupData) {
   var s_table = document.getElementById('sensor_table');
   for (var node_name in groupData) {
     if (document.getElementById(node_name)) {
-      if (document.getElementById(node_name + "_picdiv").style.display == "none") {
+      if ($("#" + node_name + "_picdiv").css("display") == "none") {
         reviveData(node_name);
       }
       updateTables(groupData, node_name, s_table);
