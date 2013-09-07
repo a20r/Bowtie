@@ -394,9 +394,9 @@ func (bq BowtieQueries) GetNode() (NodeData, error) {
     return sDataMap, nil
 }
 
-func (bq BowtieQueries) GetGroup() (GroupData, error) {
+func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
     if !bq.GroupExists() {
-        return nil, errors.New("Group does not yet exist")
+        return nil, errors.New("Group does not yet exist"), 1
     }
 
     files, err := ioutil.ReadDir("json_data/" + bq.GroupId)
@@ -405,7 +405,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error) {
         return nil, errors.New(
             "Unable to get group --> " +
             err.Error(),
-        )
+        ), 4
     }
 
     group := make(GroupData)
@@ -426,7 +426,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error) {
             return nil, errors.New(
                 "Unable to get group --> " + 
                 readErr.Error(),
-            )
+            ), 3
         }
 
         jsonErr := json.Unmarshal(fileBytes, &sDataMap)
@@ -435,17 +435,17 @@ func (bq BowtieQueries) GetGroup() (GroupData, error) {
             return nil, errors.New(
                 "Unable to get group --> " + 
                 jsonErr.Error(),
-            )
+            ), 2
         }
 
         group[nodeId] = sDataMap
     }
-    return group, nil
+    return group, nil, 0
 }
 
 func (bq BowtieQueries) GetNodeArray() ([]string, error) {
 
-    group, err := bq.GetGroup()
+    group, err, _ := bq.GetGroup()
 
     if err != nil {
         return nil, err
@@ -580,9 +580,10 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     var bytes []byte
     var err error
     var marshalData interface{}
+    errNum := 1
 
     if bq.Sensor == "" && bq.NodeId == "" {
-        marshalData, err = bq.GetGroup()
+        marshalData, err, errNum = bq.GetGroup()
     } else if bq.Sensor == ""{
         marshalData, err = bq.GetNode()
     }  else {
@@ -593,7 +594,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
         fmt.Fprint(
             w,
             Response{
-                "Error" : 1, 
+                "Error" : errNum, 
                 "Message": err.Error(),
             },
         )

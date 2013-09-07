@@ -15,8 +15,8 @@ function warning_closed() {
 function show_warning(msg) {
     $("#alert_msg").html(
         "<button type='button' class='close' " + 
-        "onClick='warning_closed()'" + 
-        "data-dismiss='alert'>&times;</button>" + 
+        "onClick='warning_closed()'>" +
+        "&times;</button>" + 
         "<strong>Error!</strong> " + msg
     );
 
@@ -232,6 +232,8 @@ function visualize_data(groupData) {
     show_warning(groupData["Message"]);
     clearInterval(intervalVar);
     ready_to_start();
+    return;
+  } else if (groupData["Error"] == 2) {
     return;
   }
   filterOldData(groupData);
