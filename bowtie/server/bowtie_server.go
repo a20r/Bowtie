@@ -218,22 +218,6 @@ type SensorData struct {
 
 type NodeData map[string]SensorData
 type GroupData map[string]NodeData
- 
-/*
-func (nsd SensorData) String() string {
-    bytes := nsd.ToBytes()
-    return string(bytes)
-}
-
-func (nsd SensorData) ToBytes() []byte {
-    bytes, err := json.Marshal(nsd)
-    if err != nil {
-        return make([]byte, 0)
-    } else {
-        return bytes
-    }
-}
-*/
 
 // for easier querying
 type BowtieQueries struct {
@@ -282,7 +266,7 @@ func (bq BowtieQueries) UpdateSensor(sData SensorData) error {
         bq.CreateGroup()
     }
 
-    sDataMap, err := bq.GetNode()
+    sDataMap, err, _ := bq.GetNode()
 
     if err != nil {
         sDataMap = make(NodeData)
@@ -348,24 +332,32 @@ func (bq BowtieQueries) UpdateNode(sDataMap NodeData) error {
     return nil
 }
 
-func (bq BowtieQueries) GetSensor() (*SensorData, error) {
-    node, err := bq.GetNode()
+const (
+    NO_ERROR = 0
+    EXISTS_ERROR = 1
+    JSON_ERROR = 2
+    READ_ERROR = 3
+    DIR_ERROR = 4
+)
+
+func (bq BowtieQueries) GetSensor() (*SensorData, error, int) {
+    node, err, errNum := bq.GetNode()
     if err != nil {
-        return nil, err
+        return nil, err, errNum
     }
 
     if _, exists := node[bq.Sensor]; !exists {
-        return nil, errors.New("Sensor does not exist")
+        return nil, errors.New("Sensor does not exist"), EXISTS_ERROR
     }
 
     return &SensorData{
         node[bq.Sensor].Value,
         node[bq.Sensor].Type,
         node[bq.Sensor].Time,
-    }, nil
+    }, nil, NO_ERROR
 }
 
-func (bq BowtieQueries) GetNode() (NodeData, error) {
+func (bq BowtieQueries) GetNode() (NodeData, error, int) {
 
     var sDataMap NodeData
 
@@ -379,7 +371,7 @@ func (bq BowtieQueries) GetNode() (NodeData, error) {
         return nil, errors.New(
             "Unable to get node --> " + 
             readErr.Error(),
-        )
+        ), READ_ERROR
     }
 
     jsonErr := json.Unmarshal(fileBytes, &sDataMap)
@@ -388,15 +380,15 @@ func (bq BowtieQueries) GetNode() (NodeData, error) {
         return nil, errors.New(
             "Unable to get node --> " + 
             jsonErr.Error(),
-        )
+        ), JSON_ERROR
     }
 
-    return sDataMap, nil
+    return sDataMap, nil, NO_ERROR
 }
 
 func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
     if !bq.GroupExists() {
-        return nil, errors.New("Group does not yet exist"), 1
+        return nil, errors.New("Group does not yet exist"), EXISTS_ERROR
     }
 
     files, err := ioutil.ReadDir("json_data/" + bq.GroupId)
@@ -405,7 +397,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
         return nil, errors.New(
             "Unable to get group --> " +
             err.Error(),
-        ), 4
+        ), DIR_ERROR
     }
 
     group := make(GroupData)
@@ -426,7 +418,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
             return nil, errors.New(
                 "Unable to get group --> " + 
                 readErr.Error(),
-            ), 3
+            ), READ_ERROR
         }
 
         jsonErr := json.Unmarshal(fileBytes, &sDataMap)
@@ -435,12 +427,12 @@ func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
             return nil, errors.New(
                 "Unable to get group --> " + 
                 jsonErr.Error(),
-            ), 2
+            ), JSON_ERROR
         }
 
         group[nodeId] = sDataMap
     }
-    return group, nil, 0
+    return group, nil, NO_ERROR
 }
 
 func (bq BowtieQueries) GetNodeArray() ([]string, error) {
@@ -497,7 +489,7 @@ func (bq BowtieQueries) DeleteNode() error {
 
 func (bq BowtieQueries) DeleteSensor() error {
 
-    node, err := bq.GetNode()
+    node, err, _ := bq.GetNode()
 
     if err != nil {
         return errors.New(
@@ -549,7 +541,7 @@ func parseRestfulURL(
     return
 }
 
-func restfulHandler(w http.ResponseWriter, r *http.Request) {
+func restfulSensorsHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
             restfulGet(w, r)
@@ -585,9 +577,9 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     if bq.Sensor == "" && bq.NodeId == "" {
         marshalData, err, errNum = bq.GetGroup()
     } else if bq.Sensor == ""{
-        marshalData, err = bq.GetNode()
+        marshalData, err, errNum = bq.GetNode()
     }  else {
-        marshalData, err = bq.GetSensor()
+        marshalData, err, errNum = bq.GetSensor()
     }
 
     if err != nil {
@@ -715,6 +707,10 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func restfulMediaHandler(w http.ResponseWriter, r *http.Request) {
+    // implement this shit bro
+}
+
 // Handles all in coming http requests
 func UIHandler() {
     staticHandler := fileResponseCreator("static")
@@ -730,8 +726,9 @@ func main() {
 
     UIHandler()
 
-    http.HandleFunc("/sensors/", restfulHandler)
+    http.HandleFunc("/sensors/", restfulSensorsHandler)
     http.HandleFunc("/nodes/", restfulNodesHandler)
+    http.HandleFunc("/media/", restfulMediaHandler)
 
     // Handle webcam stream requests
     http.Handle(
