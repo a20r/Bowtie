@@ -42,7 +42,7 @@ type Page struct {
 
 // Media slice
 type MediaSlice struct {
-    Media_Format string
+    Media_Type string
     Group_ID string
     Node_ID string
     Data string
@@ -755,10 +755,10 @@ func websocketMsgParser(msg string) {
         return
     }
 
-    timePrinter("Parsing Websocket message [" + ms.Media_Format + "]")
-    if (ms.Media_Format == "video") {
+    timePrinter("Parsing Websocket message [" + ms.Media_Type + "]")
+    if (ms.Media_Type == "video") {
         videoStreamHandler(ms)
-    } else if (ms.Media_Format == "audio") {
+    } else if (ms.Media_Type == "audio") {
         audioStreamHandler(ms)
     }
 }
