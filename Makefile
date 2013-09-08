@@ -8,3 +8,6 @@ setup:
 	mkdir bowtie/server/audio_data
 	mkdir bowtie/server/video_data
 	mkdir bowtie/server/json_data
+
+setup_gopath:
+	export GOPATH=$(pwd)/bowtie/client/go
