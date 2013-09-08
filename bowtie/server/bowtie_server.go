@@ -26,10 +26,31 @@ import (
     // custom pkgs
 )
 
+const (
+    NO_ERROR = 0
+    EXISTS_ERROR = 1
+    JSON_ERROR = 2
+    READ_ERROR = 3
+    DIR_ERROR = 4
+)
+
+const (
+    AUDIO = 0
+    VIDEO = 1
+)
+
 // Represents an file loaded
 type Page struct {
     Title string
     Body []byte
+}
+
+// Media slice
+type MediaSlice struct {
+    Media_Format string
+    Group_ID string
+    Node_ID string
+    Data string
 }
 
 // JSON response mapping
@@ -47,168 +68,6 @@ func (r Response) String() (s string) {
     return
 }
 
-// Opens a file and returns it represented
-// as a Page.
-func loadPage(folder, title string) (*Page, error) {
-    filename := folder + "/" + title
-    body, err := ioutil.ReadFile(filename)
-
-    if err != nil {
-        return nil, err
-    }
-
-    return &Page{Title: title, Body: body}, nil
-}
-
-func timePrinter(message string) {
-    fmt.Println(message + "\t: " + time.Now().String())
-}
-
-// Creates a function that will be used as a handler
-// for static and template responses. See Usage!
-func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-        var p *Page
-        var err error
-
-        timePrinter("GET\t" + r.URL.Path)
-
-        if len(r.URL.Path) == 1 {
-            // In case the path is just '/'
-            p, err = loadPage("templates", "index.html")
-        } else {
-            p, err = loadPage(folder, r.URL.Path[1:])
-        }
-
-        if p != nil {
-            w.Write(p.Body)
-        } else {
-            timePrinter("ERROR\t" + err.Error())
-        }
-    }
-}
-
-// Media slice
-type MediaSlice struct {
-    Media_Type string
-    Group_ID string
-    Node_ID string
-    Data string
-}
-
-// Video stream handler
-// Obtains data as a string encoded in Base64 and outputs the video
-// stream a single image
-func videoStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
-    path := "./video_data/" + group_id + "/"
-
-    // Make and log data to a file
-    os.Mkdir(path, os.ModePerm | os.ModeType)
-    file, err := os.Create(path + node_id + ".jpg")
-    if err != nil {
-        timePrinter("ERROR\t" + err.Error())
-        return
-    }
-
-    // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:image/jpeg;base64") {
-        img_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            timePrinter("ERROR\t" + err.Error())
-            return
-        }
-        file.Write([]byte(img_data))
-
-    } else {
-        err := "video data format [" + data_header + "] not supported!"
-        timePrinter("ERROR\t" + err)
-    }
-
-    // Write out the image binary
-    file.Close()
-}
-
-// Audio stream handler
-// Obtains data as a string encoded in Base64 and outputs the audio
-// stream as a single wav file
-func audioStreamHandler(ms MediaSlice) {
-    group_id := ms.Group_ID
-    node_id := ms.Node_ID
-    path := "./audio_data/" + group_id + "/"
-
-    // Make and log data to a file
-    os.Mkdir(path, os.ModePerm | os.ModeType)
-    file, err := os.Create(path + node_id + ".wav")
-    if err != nil {
-        timePrinter("ERROR\t" + err.Error())
-        return
-    }
-
-    // Decode Base64 string to binary
-    data_header := strings.Split(ms.Data, ",")[0]
-    data_raw := strings.Split(ms.Data, ",")[1]
-
-    if (data_header == "data:audio/wav;base64") {
-        audio_data, err := base64.StdEncoding.DecodeString(data_raw)
-        if err != nil {
-            timePrinter("ERROR:\t" + err.Error())
-            return
-        }
-
-        // Write out the image binary
-        file.Write([]byte(audio_data))
-    } else {
-        err := "audio data format [" + data_header + "] not supported!"
-        timePrinter("ERROR:\t" +  err)
-    }
-
-    file.Close()
-}
-
-// Websocket Parser
-func websocketMsgParser(msg string) {
-    b := []byte(msg)
-    var ms MediaSlice
-
-    err := json.Unmarshal(b, &ms)
-    if err != nil {
-        timePrinter("ERROR:\tSocket --> " + err.Error())
-        return
-    }
-
-    timePrinter("Parsing Websocket message [" + ms.Media_Type + "]")
-    if (ms.Media_Type == "video") {
-        videoStreamHandler(ms)
-    } else if (ms.Media_Type == "audio") {
-        audioStreamHandler(ms)
-    }
-}
-
-// Websocket Handler
-func websocketHandler(ws *websocket.Conn) {
-    timePrinter("Handling websocket request with wsHandler")
-    var msg string
-
-    // Process incomming websocket messages
-    for {
-        err := websocket.Message.Receive(ws, &msg)
-        if err != nil {
-            timePrinter("ERROR:\tSocket --> " + err.Error())
-            _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
-            return
-        }
-        // timePrinter("ProcessSocket: got message", msg)
-        websocketMsgParser(msg)
-    }
-
-    timePrinter("Finish handling websocket with wsHandler")
-}
-
 // using a more defined type for the restful API
 type SensorData struct {
     Value interface{} `value` 
@@ -217,7 +76,10 @@ type SensorData struct {
 }
 
 type NodeData map[string]SensorData
+
 type GroupData map[string]NodeData
+
+type MediaType int
 
 // for easier querying
 type BowtieQueries struct {
@@ -332,14 +194,6 @@ func (bq BowtieQueries) UpdateNode(sDataMap NodeData) error {
     return nil
 }
 
-const (
-    NO_ERROR = 0
-    EXISTS_ERROR = 1
-    JSON_ERROR = 2
-    READ_ERROR = 3
-    DIR_ERROR = 4
-)
-
 func (bq BowtieQueries) GetSensor() (*SensorData, error, int) {
     node, err, errNum := bq.GetNode()
     if err != nil {
@@ -451,6 +305,10 @@ func (bq BowtieQueries) GetNodeArray() ([]string, error) {
     }
 
     return retArray, nil
+}
+
+func (bq BowtieQueries) GetMedia(mType MediaType) ([]byte, error) {
+    
 }
 
 func (bq BowtieQueries) DeleteGroup() error {
@@ -598,7 +456,7 @@ func restfulGet(w http.ResponseWriter, r *http.Request) {
     if err != nil {
        fmt.Fprint(
             w,
-            Response{"Error" : 1, "Message": err.Error()},
+            Response{"Error" : JSON_ERROR, "Message": err.Error()},
         )
         return 
     }
@@ -638,7 +496,7 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
             fmt.Fprint(
                 w, 
                 Response{
-                    "Error": 1, 
+                    "Error": JSON_ERROR, 
                     "Message": err.Error(),
                 },
             );
@@ -656,7 +514,7 @@ func restfulPost(w http.ResponseWriter, r *http.Request) {
             fmt.Fprint(
                 w, 
                 Response{
-                    "Error": 1, 
+                    "Error": JSON_ERROR, 
                     "Message": err.Error(),
                 },
             );
@@ -708,7 +566,164 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restfulMediaHandler(w http.ResponseWriter, r *http.Request) {
-    // implement this shit bro
+    timePrinter("GET\t" + r.URL.Path)
+
+    bq := makeBowtieQueriesWithPath(r.URL.Path)
+
+}
+
+// Video stream handler
+// Obtains data as a string encoded in Base64 and outputs the video
+// stream a single image
+func videoStreamHandler(ms MediaSlice) {
+    group_id := ms.Group_ID
+    node_id := ms.Node_ID
+    path := "./video_data/" + group_id + "/"
+
+    // Make and log data to a file
+    os.Mkdir(path, os.ModePerm | os.ModeType)
+    file, err := os.Create(path + node_id + ".jpg")
+    if err != nil {
+        timePrinter("ERROR\t" + err.Error())
+        return
+    }
+
+    // Decode Base64 string to binary
+    data_header := strings.Split(ms.Data, ",")[0]
+    data_raw := strings.Split(ms.Data, ",")[1]
+
+    if (data_header == "data:image/jpeg;base64") {
+        img_data, err := base64.StdEncoding.DecodeString(data_raw)
+        if err != nil {
+            timePrinter("ERROR\t" + err.Error())
+            return
+        }
+        file.Write([]byte(img_data))
+
+    } else {
+        err := "video data format [" + data_header + "] not supported!"
+        timePrinter("ERROR\t" + err)
+    }
+
+    // Write out the image binary
+    file.Close()
+}
+
+// Audio stream handler
+// Obtains data as a string encoded in Base64 and outputs the audio
+// stream as a single wav file
+func audioStreamHandler(ms MediaSlice) {
+    group_id := ms.Group_ID
+    node_id := ms.Node_ID
+    path := "./audio_data/" + group_id + "/"
+
+    // Make and log data to a file
+    os.Mkdir(path, os.ModePerm | os.ModeType)
+    file, err := os.Create(path + node_id + ".wav")
+    if err != nil {
+        timePrinter("ERROR\t" + err.Error())
+        return
+    }
+
+    // Decode Base64 string to binary
+    data_header := strings.Split(ms.Data, ",")[0]
+    data_raw := strings.Split(ms.Data, ",")[1]
+
+    if (data_header == "data:audio/wav;base64") {
+        audio_data, err := base64.StdEncoding.DecodeString(data_raw)
+        if err != nil {
+            timePrinter("ERROR:\t" + err.Error())
+            return
+        }
+
+        // Write out the image binary
+        file.Write([]byte(audio_data))
+    } else {
+        err := "audio data format [" + data_header + "] not supported!"
+        timePrinter("ERROR:\t" +  err)
+    }
+
+    file.Close()
+}
+
+// Websocket Parser
+func websocketMsgParser(msg string) {
+    b := []byte(msg)
+    var ms MediaSlice
+
+    err := json.Unmarshal(b, &ms)
+    if err != nil {
+        timePrinter("ERROR:\tSocket --> " + err.Error())
+        return
+    }
+
+    timePrinter("Parsing Websocket message [" + ms.Media_Format + "]")
+    if (ms.Media_Format == "video") {
+        videoStreamHandler(ms)
+    } else if (ms.Media_Format == "audio") {
+        audioStreamHandler(ms)
+    }
+}
+
+// Websocket Handler
+func websocketHandler(ws *websocket.Conn) {
+    timePrinter("Handling websocket request with wsHandler")
+    var msg string
+
+    // Process incomming websocket messages
+    for {
+        err := websocket.Message.Receive(ws, &msg)
+        if err != nil {
+            timePrinter("ERROR:\tSocket --> " + err.Error())
+            _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
+            return
+        }
+        // timePrinter("ProcessSocket: got message", msg)
+        websocketMsgParser(msg)
+    }
+
+    timePrinter("Finish handling websocket with wsHandler")
+}
+
+// Opens a file and returns it represented
+// as a Page.
+func loadPage(folder, title string) (*Page, error) {
+    filename := folder + "/" + title
+    body, err := ioutil.ReadFile(filename)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return &Page{Title: title, Body: body}, nil
+}
+
+func timePrinter(message string) {
+    fmt.Println(message + "\t: " + time.Now().String())
+}
+
+// Creates a function that will be used as a handler
+// for static and template responses. See Usage!
+func fileResponseCreator(folder string) func(w http.ResponseWriter, r *http.Request) {
+    return func(w http.ResponseWriter, r *http.Request) {
+        var p *Page
+        var err error
+
+        timePrinter("GET\t" + r.URL.Path)
+
+        if len(r.URL.Path) == 1 {
+            // In case the path is just '/'
+            p, err = loadPage("templates", "index.html")
+        } else {
+            p, err = loadPage(folder, r.URL.Path[1:])
+        }
+
+        if p != nil {
+            w.Write(p.Body)
+        } else {
+            timePrinter("ERROR\t" + err.Error())
+        }
+    }
 }
 
 // Handles all in coming http requests
@@ -750,7 +765,7 @@ func main() {
 
     flag.Parse()
 
-    //timePrinter("Running server on " + *addr_flag + ":" + *port_flag)
+    timePrinter("Running server on " + *addr_flag + ":" + *port_flag)
     http.ListenAndServe(*addr_flag + ":" + *port_flag, nil)
 }
 
