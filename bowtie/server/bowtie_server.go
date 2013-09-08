@@ -34,11 +34,6 @@ const (
     DIR_ERROR = 4
 )
 
-const (
-    AUDIO = 0
-    VIDEO = 1
-)
-
 // Represents an file loaded
 type Page struct {
     Title string
@@ -79,8 +74,6 @@ type NodeData map[string]SensorData
 
 type GroupData map[string]NodeData
 
-type MediaType int
-
 // for easier querying
 type BowtieQueries struct {
     GroupId string
@@ -89,6 +82,11 @@ type BowtieQueries struct {
 }
 
 func (bq BowtieQueries) GroupExists() bool {
+
+    if bq.GroupId == "" {
+        return false
+    }
+
     files, err := ioutil.ReadDir(
         "./json_data/" + bq.GroupId,
     )
@@ -97,6 +95,11 @@ func (bq BowtieQueries) GroupExists() bool {
 }
 
 func (bq BowtieQueries) NodeExists() bool {
+
+    if bq.NodeId == "" {
+        return false
+    }
+
     _, readErr := ioutil.ReadFile(
         "json_data/" + 
         bq.GroupId + "/" + 
@@ -307,8 +310,68 @@ func (bq BowtieQueries) GetNodeArray() ([]string, error) {
     return retArray, nil
 }
 
-func (bq BowtieQueries) GetMedia(mType MediaType) ([]byte, error) {
-    
+func (bq BowtieQueries) GetMedia() ([]byte, *time.Time, error) {
+    var path string
+    var extension string
+
+    if !bq.GroupExists() {
+        return nil, nil, errors.New(
+            "Group does not exist",
+        )
+    }
+
+    if !bq.NodeExists() {
+        return nil, nil, errors.New(
+            "Node does not exist",
+        )
+    }
+
+    switch bq.Sensor {
+        case "audio":
+            path = "./audio_data/"
+            extension = ".wav"
+        case "video":
+            path = "./video_data/"
+            extension = ".jpg"
+        default:
+            return nil, nil, errors.New(
+                "Unsupported media type --> " + bq.Sensor,
+            )
+    }
+
+    media, readErr := ioutil.ReadFile(
+        path + 
+        bq.GroupId + "/" + 
+        bq.NodeId + extension,
+    )
+
+    file, openErr := os.Open(
+        path + 
+        bq.GroupId + "/" + 
+        bq.NodeId + extension,
+    )
+
+    if readErr != nil {
+        return nil, nil, readErr
+    }
+
+    if openErr != nil {
+        return nil, nil, openErr
+    }
+
+    stat, statErr := file.Stat()
+
+    if statErr != nil {
+        return nil, nil, statErr
+    }
+
+    mediaEncoded := base64.StdEncoding.EncodeToString(
+        media,
+    )
+
+    mTime := stat.ModTime()
+
+    return []byte(mediaEncoded), &mTime, nil
 }
 
 func (bq BowtieQueries) DeleteGroup() error {
@@ -556,7 +619,7 @@ func restfulNodesHandler(w http.ResponseWriter, r *http.Request) {
         fmt.Fprint(
             w, 
             Response{
-                "Error" : 1, 
+                "Error" : JSON_ERROR, 
                 "Message" : err.Error(),
             },
         )
@@ -569,7 +632,42 @@ func restfulMediaHandler(w http.ResponseWriter, r *http.Request) {
     timePrinter("GET\t" + r.URL.Path)
 
     bq := makeBowtieQueriesWithPath(r.URL.Path)
+    media, timeStamp, err := bq.GetMedia()
 
+    if err != nil {
+        fmt.Fprint(
+            w,
+            Response{"Error" : 1, "Message" : err.Error()},
+        )
+        return
+    }
+
+    var mediaType string
+
+    switch bq.Sensor {
+        case "audio":
+            mediaType = "audio/base64"
+        case "video":
+            mediaType = "video/base64"
+        default:
+            fmt.Fprint(
+                w,
+                Response{
+                    "Error" : 1, 
+                    "Message" : "I have no idea what happened here",
+                },
+            )
+            return    
+    }
+
+    fmt.Fprint(
+        w,
+        Response{
+            "Value" : media,
+            "Type" : mediaType,
+            "Time" : *timeStamp,
+        },
+    )
 }
 
 // Video stream handler
@@ -675,7 +773,7 @@ func websocketHandler(ws *websocket.Conn) {
         err := websocket.Message.Receive(ws, &msg)
         if err != nil {
             timePrinter("ERROR:\tSocket --> " + err.Error())
-            _ = websocket.Message.Send(ws, "FAIL:" + err.Error())
+            websocket.Message.Send(ws, "FAIL:" + err.Error())
             return
         }
         // timePrinter("ProcessSocket: got message", msg)
