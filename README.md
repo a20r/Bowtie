@@ -49,8 +49,8 @@ Bowtie is currently serving.
 
 ## Usage
 
-    make run_server  # Run Bowtie
-    make run_client  # Run client
+    cd bowtie/server/
+    go run bowtie_server.go -addr=<HOST ADDRESS> -port=<PORT USED>
 
 
 ## TODO
