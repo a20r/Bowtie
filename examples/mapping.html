@@ -28,6 +28,8 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTML74DBnSbEOJSnThtpcF-F188TTd3DA&sensor=true">
     </script>
 
+    <script type="text/javascript" src="/client/js/bowtie.js"></script>
+
     <script type="text/javascript">
         var map;
         var mapOptions;
@@ -36,6 +38,9 @@
         var path_coordinates = [];
         var path;
         var running = 0;
+        var newPoint = undefined;
+
+        var bs = new bowtie.BowtieServer()
 
         function initialize() {
             var location_coordinates = new google.maps.LatLng(0, -180);
@@ -51,21 +56,11 @@
             );
 
             path_coordinates = [
-                new google.maps.LatLng(37.772323, -122.214897),
-                new google.maps.LatLng(21.291982, -157.821856),
-                new google.maps.LatLng(-18.142599, 178.431),
-                new google.maps.LatLng(-27.46758, 153.027892)
+                // new google.maps.LatLng(37.772323, -122.214897),
+                // new google.maps.LatLng(21.291982, -157.821856),
+                // new google.maps.LatLng(-18.142599, 178.431),
+                // new google.maps.LatLng(-27.46758, 153.027892)
             ];
-
-            newPoint = new google.maps.LatLng(
-                    -27.46758,
-                    153.027892
-            );
-
-            marker = new google.maps.Marker({
-                    position: newPoint,
-                    map: map
-            });
 
             path = new google.maps.Polyline({
                 path: path_coordinates,
@@ -74,18 +69,29 @@
                 strokeWeight: 2
             });
             path.setMap(map);
+
+            setInterval(
+                bs.getNode(
+                    "Example",
+                    "Nexus4"
+                ).setCallback(
+                    autoUpdate
+                ), 500
+            )
         }
 
-        function autoUpdate() {
-            var latitude = -27.46758 - (1 * running);
-            var longitude = 153.027892 - (1 * running);
+        function autoUpdate(nodeData) {
+
+            var latitude = nodeData.latitude;
+            var longitude = nodeData.longitude;
+
+            newPoint = new google.maps.LatLng(
+                latitude,
+                longitude
+            );
 
             // update
             if (marker) { // marker already exists
-                newPoint = new google.maps.LatLng(
-                    latitude,
-                    longitude
-                );
 
                 // update path
                 path_coordinates.push(newPoint);
@@ -101,20 +107,17 @@
                 marker.setPosition(newPoint);
                 map.setCenter(newPoint);
             } else { // marker does not exist, make new one
+
                 marker = new google.maps.Marker({
                     position: newPoint,
                     map: map
-                });
+                });            
             }
 
             console.log("Running!" + running);
             console.log("Lat:" + latitude);
             console.log("Long:" + longitude);
             console.log("");
-
-            // auto update timer
-            setTimeout(autoUpdate, 2000);
-            running += 1;
         }
 
         google.maps.event.addDomListener(window, 'load', initialize);
