@@ -73,8 +73,8 @@
 
             setInterval(
                 bs.getNode(
-                    "Example",
-                    "Nexus4"
+                    "a",
+                    "a"
                 ).setCallback(
                     autoUpdate
                 ), 500
@@ -83,8 +83,8 @@
 
         function autoUpdate(nodeData) {
 
-            var latitude = nodeData.latitude;
-            var longitude = nodeData.longitude;
+            var latitude = nodeData.latitude.Value;
+            var longitude = nodeData.longitude.Value;
 
             console.log(nodeData);
 
