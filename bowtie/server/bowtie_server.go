@@ -32,6 +32,12 @@ const (
     DIR_ERROR = 4
 )
 
+const (
+    JSON_DIR = "./json_data/"
+    AUDIO_DIR = "./audio_data/"
+    VIDEO_DIR = "./video_data/"
+)
+
 // Represents an file loaded
 type Page struct {
     Title string
@@ -99,7 +105,7 @@ func (bq BowtieQueries) NodeExists() bool {
     }
 
     _, readErr := ioutil.ReadFile(
-        "json_data/" + 
+        JSON_DIR + 
         bq.GroupId + "/" + 
         bq.NodeId + ".json",
     )
@@ -137,7 +143,7 @@ func (bq BowtieQueries) UpdateSensor(sData SensorData) error {
 
     sDataMap[bq.Sensor] = sData
 
-    path := "./json_data/" + bq.GroupId + "/"
+    path := JSON_DIR + bq.GroupId + "/"
     file, err := os.Create(path + bq.NodeId + ".json")
 
     if err != nil {
@@ -169,7 +175,7 @@ func (bq BowtieQueries) UpdateNode(sDataMap NodeData) error {
         bq.CreateGroup() // check this
     }
 
-    path := "./json_data/" + bq.GroupId + "/"
+    path := JSON_DIR + bq.GroupId + "/"
     file, err := os.Create(path + bq.NodeId + ".json")
 
     if err != nil {
@@ -217,7 +223,7 @@ func (bq BowtieQueries) GetNode() (NodeData, error, int) {
     var sDataMap NodeData
 
     fileBytes, readErr := ioutil.ReadFile(
-        "json_data/" + 
+        JSON_DIR + 
         bq.GroupId + "/" + 
         bq.NodeId + ".json",
     )
@@ -246,7 +252,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
         return nil, errors.New("Group does not yet exist"), EXISTS_ERROR
     }
 
-    files, err := ioutil.ReadDir("json_data/" + bq.GroupId)
+    files, err := ioutil.ReadDir(JSON_DIR + bq.GroupId)
 
     if err != nil {
         return nil, errors.New(
@@ -264,7 +270,7 @@ func (bq BowtieQueries) GetGroup() (GroupData, error, int) {
         var sDataMap NodeData
         nodeId := strings.Split(file.Name(), ".")[0]
         fileBytes, readErr := ioutil.ReadFile(
-            "json_data/" + 
+            JSON_DIR + 
             bq.GroupId + "/" + 
             nodeId + ".json",
         )
@@ -326,10 +332,10 @@ func (bq BowtieQueries) GetMedia() ([]byte, *time.Time, error) {
 
     switch bq.Sensor {
         case "audio":
-            path = "./audio_data/"
+            path = AUDIO_DIR
             extension = ".wav"
         case "video":
-            path = "./video_data/"
+            path = VIDEO_DIR
             extension = ".jpg"
         default:
             return nil, nil, errors.New(
@@ -374,7 +380,7 @@ func (bq BowtieQueries) GetMedia() ([]byte, *time.Time, error) {
 
 func (bq BowtieQueries) DeleteGroup() error {
     err := os.Remove(
-        "json_data/" + 
+        JSON_DIR + 
         bq.GroupId,
     )
 
@@ -391,7 +397,7 @@ func (bq BowtieQueries) DeleteGroup() error {
 func (bq BowtieQueries) DeleteNode() error {
 
     err := os.Remove(
-        "json_data/" + 
+        JSON_DIR + 
         bq.GroupId + "/" +
         bq.NodeId + ".json",
     )
@@ -674,7 +680,7 @@ func restfulMediaHandler(w http.ResponseWriter, r *http.Request) {
 func videoStreamHandler(ms MediaSlice) {
     group_id := ms.Group_ID
     node_id := ms.Node_ID
-    path := "./video_data/" + group_id + "/"
+    path := VIDEO_DIR + group_id + "/"
 
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
@@ -711,7 +717,7 @@ func videoStreamHandler(ms MediaSlice) {
 func audioStreamHandler(ms MediaSlice) {
     group_id := ms.Group_ID
     node_id := ms.Node_ID
-    path := "./audio_data/" + group_id + "/"
+    path := AUDIO_DIR + group_id + "/"
 
     // Make and log data to a file
     os.Mkdir(path, os.ModePerm | os.ModeType)
