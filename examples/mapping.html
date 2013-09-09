@@ -72,12 +72,13 @@
             path.setMap(map);
 
             setInterval(
-                bs.getNode(
-                    "a",
-                    "a"
-                ).setCallback(
-                    autoUpdate
-                ), 500
+                function () {
+                    bs.getNode(
+                        "a", "a"
+                    ).setCallback(
+                        autoUpdate
+                    )
+                }, 500
             )
         }
 
