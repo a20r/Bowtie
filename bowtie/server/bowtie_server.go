@@ -835,6 +835,8 @@ func UIHandler() {
     http.HandleFunc("/css/", staticHandler)
     http.HandleFunc("/js/", staticHandler)
     http.HandleFunc("/img/", staticHandler)
+    http.HandleFunc("/client/", fileResponseCreator("../"))
+    http.HandleFunc("/examples/", fileResponseCreator("../../"))
     http.HandleFunc("/favicon.ico", fileResponseCreator("static/img"))
 }
 
