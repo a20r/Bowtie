@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bowtie Mapping Example</title>
+
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <!-- CSS -->
+    <style type="text/css">
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map-canvas {
+            height: 100%;
+        }
+    </style>
+
+    <!-- JS -->
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTML74DBnSbEOJSnThtpcF-F188TTd3DA&sensor=true">
+    </script>
+
+    <script type="text/javascript">
+        var map;
+        var mapOptions;
+        var newPoint;
+        var marker;
+        var path_coordinates = [];
+        var path;
+        var running = 0;
+
+        function initialize() {
+            var location_coordinates = new google.maps.LatLng(0, -180);
+            var mapOptions = {
+                zoom: 3,
+                center: location_coordinates,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+
+            map = new google.maps.Map(
+                document.getElementById('map-canvas'),
+                mapOptions
+            );
+
+            path_coordinates = [
+                new google.maps.LatLng(37.772323, -122.214897),
+                new google.maps.LatLng(21.291982, -157.821856),
+                new google.maps.LatLng(-18.142599, 178.431),
+                new google.maps.LatLng(-27.46758, 153.027892)
+            ];
+
+            newPoint = new google.maps.LatLng(
+                    -27.46758,
+                    153.027892
+            );
+
+            marker = new google.maps.Marker({
+                    position: newPoint,
+                    map: map
+            });
+
+            path = new google.maps.Polyline({
+                path: path_coordinates,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            path.setMap(map);
+        }
+
+        function autoUpdate() {
+            var latitude = -27.46758 - (1 * running);
+            var longitude = 153.027892 - (1 * running);
+
+            // update
+            if (marker) { // marker already exists
+                newPoint = new google.maps.LatLng(
+                    latitude,
+                    longitude
+                );
+
+                // update path
+                path_coordinates.push(newPoint);
+                path = new google.maps.Polyline({
+                    path: path_coordinates,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                path.setMap(map);
+
+                // update marker
+                marker.setPosition(newPoint);
+                map.setCenter(newPoint);
+            } else { // marker does not exist, make new one
+                marker = new google.maps.Marker({
+                    position: newPoint,
+                    map: map
+                });
+            }
+
+            console.log("Running!" + running);
+            console.log("Lat:" + latitude);
+            console.log("Long:" + longitude);
+            console.log("");
+
+            // auto update timer
+            setTimeout(autoUpdate, 2000);
+            running += 1;
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+        autoUpdate();
+    </script>
+</head>
+<body>
+    <div id="map-canvas"></div>
+</body>
+</html>
