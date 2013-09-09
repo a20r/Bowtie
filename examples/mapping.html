@@ -83,7 +83,7 @@
 
         function autoUpdate(nodeData) {
 
-            if (nodeData.Error == undefined) {
+            if (nodeData == undefined || nodeData.Error == undefined) {
                 return;
             }
 
