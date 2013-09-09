@@ -49,28 +49,5 @@ Bowtie is currently serving.
 
 ## Usage
 
-    make run_server  # Run Bowtie
-    make run_client  # Run client
-
-
-## TODO
-## Using a database
-* Use a database instead of storing everything in files so further analysis of the data will be available
-	* Using sqlite3 in Go is easy
-
-## Administrator website
-* Make admin website that can see all of the different phone nodes and their respective CPU Ids
-	* Make bootsrap password and username field
-	* Have drop down views using bootsrap
-
-## User Login
-* Allowing users to login for a certain CPU Id to see graphical data from the sensors and geolocation on maps
-	* Look at Google API for maps
-	* Find a way to make graphs in HTML5 so that they can be updated dynamically
-
-### Phone Identifiers --> done
-* Need to have a way to distinguish phone nodes for different robots
-	* Setup a folder for each CPU identifier
-	* Have a text field to enter the phone id
-	* Once the CPU checkbox is unclicked, delete the JSON in the CPU id folder for the respective phone id
-	* Nothing should be sending until both the phone id and the CPU id have been entered
+    cd bowtie/server/
+    go run bowtie_server.go -addr=<HOST ADDRESS> -port=<PORT USED>

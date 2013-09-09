@@ -1,3 +1,4 @@
+
 var transmission_details = {
     group_id: null,
     node_id: null
@@ -91,7 +92,7 @@ function initMediaStream() {
             audio : true,
             video : true
         },
-        streamAudio,
+        streamMedia,
         function(e) {
             console.log('Error! Failed to initialize audio stream:', e);
             alert('Error! Failed to initialize audio stream!');
@@ -130,8 +131,12 @@ function blobToBase64(blob) {
     }
 }
 
-function streamAudio(stream) {
+function streamMedia(stream) {
+    streamAudio(stream);
     streamVideo(stream);
+}
+
+function streamAudio(stream) {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audio_context = new AudioContext();
     var input_point = audio_context.createGain();

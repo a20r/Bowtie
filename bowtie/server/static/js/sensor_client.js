@@ -19,10 +19,10 @@ var videoInterval = undefined;
 var sendingInterval = undefined;
 var waitTime = 100; // ms
 
-//var ws_url = "ws://localhost:8000/websocket/";
-var ws_url = "ws://82.196.12.41/websocket/";
+var ws_url = "ws://localhost:8000/websocket/";
+//var ws_url = "ws://82.196.12.41/websocket/";
 
-// Two functions that need ro run
+// Two functions that need to run
 // in order for the code to work properly
 window.onload = function() {
   getLocation();
@@ -35,8 +35,12 @@ window.onbeforeunload = on_exit;
 
 function hasGetUserMedia() {
     // Note: Opera is unprefixed.
-    return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    return !!(
+        navigator.getUserMedia || 
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || 
+        navigator.msGetUserMedia
+    );
 }
 
 function getUserMediaData() {
@@ -45,6 +49,7 @@ function getUserMediaData() {
 
     // change the IP for different testing scenarios!!
 
+    initMediaStream();
     var time_interval = 1000;
 
     // Setup
@@ -72,6 +77,22 @@ function warning_closed() {
 
 // Function fires once the page is closed
 function on_exit() {
+    if (
+            $("#group_id").val() != "" &&
+            $("#node_id").val() != ""
+    ) {
+        $.ajax(
+            {
+                type : "DELETE",
+
+                url : (
+                    '/sensors/' +
+                    $("#group_id").val() + '/' +
+                    $("#node_id").val()
+                )
+            }
+        )
+    }
 }
 
 // Toggles whether the data is being shown to the user
@@ -133,8 +154,6 @@ function toggle_readonly() {
                 var ws = ws_client.init(ws_url);
                 video_capturer.ws = ws;
                 audio_capturer.ws = ws;
-
-                initMediaStream();
             }
 
             // Transmitting video and audio
@@ -281,7 +300,7 @@ function sendAjax() {
         // RESTful POST
         $.ajax(
             {
-                type : 'PUT',
+                type : 'POST',
 
                 url : (
                     '/sensors/' +
@@ -328,38 +347,6 @@ function sendAjax() {
                 success : onSuccessAjax            
             }
         );
-
-        // // Old post
-        // $.ajax(
-        //     {
-        //         type : 'POST',
-
-        //         url : (
-        //             '/checked/' +
-        //             $("#group_id").val() + '/' +
-        //             $("#node_id").val()
-        //         ),
-
-        //         data: {
-        //             sensor_data: JSON.stringify(
-        //                 {
-        //                     orientation: {
-        //                         tilt_horizontal: tiltLR,
-        //                         tilt_vertical: tiltFB,
-        //                         direction: dir
-        //                     },
-
-        //                     location: {
-        //                         latitude: lat,
-        //                         longitude: lon
-        //                     },
-
-        //                     error: error_data
-        //                 }
-        //             )
-        //         }
-        //     }
-        // );
     }
 }
 

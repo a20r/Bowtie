@@ -1,69 +1,124 @@
-# Bowtie RESTFUL API
+# Bowtie RESTful API
 ## Sensors
 Below are methods to obtain sensory data from nodes:
 ### Get Sensory Data
 
-    `GET sensors/temperature/:node_id`
-    `GET sensors/geo_location/:node_id`
-    `GET sensors/gyroscope/:node_id`
-    `GET sensors/accelerometer/:node_id`
-    `GET sensors/device_orientation/:node_id`
-    `GET sensors/camera/:node_id`
-    `GET sensors/microphone/:node_id`
+    `GET sensors/:group_id/:node_id/latitude/`
+    `GET sensors/:group_id/:node_id/longitude/`
+    `GET sensors/:group_id/:node_id/orientation/`
+    `GET sensors/:group_id/:node_id/tilt_vertical/`
+    `GET sensors/:group_id/:node_id/tilt_horizontal/`
+    `GET sensors/:group_id/:node_id/:custom_sensor`
 
-#### Parameters
-- **node_id** (Required): Node id of the node you wish to obtain data from.
+#### Return Structure
+
+    {
+        Value : `JSON Object`,
+        Type : `String`,
+        Time : `String`
+    }
+
+### Get Node Data
+
+    `GET sensors/:group_id/:node_id/`
+
+#### Return Structure
+
+    {
+        `Sensor Name` : {
+            Value : `JSON Object`,
+            Type : `String`,
+            Time : `String`
+        }
+    } 
+
+### Get Group Data
+
+    `GET sensors/:group_id/`
+
+### Return Structure
+
+    {
+        `Node Id` : {
+            `Sensor Name` : {
+                Value : `JSON Object`,
+                Type : `String`,
+                Time : `String`
+            }
+        }
+    }
+
+### Get Media Data
+
+    `GET media/:group_id/:node_id/:media_type`
+
+#### Return Structure
+
+    {
+        Value : `Base 64 String`,
+        Type : `:media_type/base64`,
+        Time : `String`
+    }
 
 ### Post Sensory Data
 
-    `POST sensors/temperature/`
-    `POST sensors/geo_location/`
-    `POST sensors/gyroscope/`
-    `POST sensors/accelerometer/`
-    `POST sensors/device_orientation/`
-    `POST sensors/camera/`
-    `POST sensors/microphone/`
+    `POST sensors/:group_id/:node_id/latitude/`
+    `POST sensors/:group_id/:node_id/longitude/`
+    `POST sensors/:group_id/:node_id/orientation/`
+    `POST sensors/:group_id/:node_id/tilt_vertical/`
+    `POST sensors/:group_id/:node_id/tilt_horizontal/`
+    `POST sensors/:group_id/:node_id/:custom_sensor`
+
+#### Post Structure
+
+    {
+        Value : `JSON Object`,
+        Type : `String`,
+        Time : `String`
+    }
+
+
+### Post Node Data
+
+    `POST sensors/:group_id/:node_id/`
+
+#### Post Structure
+
+    {
+        `Sensor Name` : {
+            Value : `JSON Object`,
+            Type : `String`,
+            Time : `String`
+        }
+    } 
+
+### Delete Sensory Data
+
+    `DELETE sensors/:group_id/:node_id/latitude/`
+    `DELETE sensors/:group_id/:node_id/longitude/`
+    `DELETE sensors/:group_id/:node_id/orientation/`
+    `DELETE sensors/:group_id/:node_id/tilt_vertical/`
+    `DELETE sensors/:group_id/:node_id/tilt_horizontal/`
+    `DELETE sensors/:group_id/:node_id/:custom_sensor`
+
+### Delete Node Data
+
+    `DELETE sensors/:group_id/:node_id/`
+
+### Delete Group Data
+
+    `DELETE sensors/:group_id/`
+
+### Get the List of Nodes for a Group
+
+    `GET nodes/:group_id`
+
+#### Return Structure
+
+    [ String ]
 
 #### Parameters
-No parameters are needed since the server will be using the IP for identifying
-the device.
-
-
-## OAuth
-OAuth is an open standard for authorization. OAuth provides a method for
-clients to access server resources on behalf of a resource owner (such as a
-different client or an end-user). It also provides a process for end-users to
-authorize third-party access to their server resources without sharing their
-credentials (typically, a username and password pair), using user-agent
-redirections. Below are methods that provide those features:
-
-### Authorize 
-
-    `GET oauth/authorize`
-
-Allows a node to use an OAuth Request Token to request user authorization.
-
-### Access Token
-
-    `POST oauth/access_token`
-
-Allows a node to exchange the OAuth Request Token for an OAuth Access Token.
-
-### Request Token
-
-    `POST oauth/request_token`
-
-Allows a node to obtain an OAuth Request Token to request user authorization.
-
-### Invalidate Token
-
-    `POST oauth/invalidate_token`
-
-Allows a registered application to revoke an issued OAuth token by presenting
-its client credentials. Once a token has been invalidated, new creation
-attempts will yield a different Bearer Token and usage of the invalidated token
-will no longer be allowed.
-
-#### Parameters
-No parameters are needed since the server will be using the IP for identifying
-the unique device.
+- **group_id**: Group id of the group you wish to act upon.
+- **node_id**: Node id of the node you wish to act upon
+- **media_type**: Either `audio` or `video`. Represents the type of media you would like to obtain from the server.
+- **custom_sensor**: This is a custom sensor name. The other sensors are provided by our web application. You can create a custom sensor by posting to a custom sensor's name. You can operate on this type of sensors as you would any of the sensors provided by the web app.
