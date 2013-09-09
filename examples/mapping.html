@@ -33,40 +33,71 @@
         var mapOptions;
         var newPoint;
         var marker;
+        var path_coordinates = [];
+        var path;
         var running = 0;
 
         function initialize() {
-            mapOptions = {
-                center: new google.maps.LatLng(-34.397, 150.644),
-                zoom: 8,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
+            var location_coordinates = new google.maps.LatLng(0, -180);
+            var mapOptions = {
+                zoom: 3,
+                center: location_coordinates,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
             };
+
             map = new google.maps.Map(
-                    document.getElementById("map-canvas"),
-                    mapOptions
+                document.getElementById('map-canvas'),
+                mapOptions
             );
 
+            path_coordinates = [
+                new google.maps.LatLng(37.772323, -122.214897),
+                new google.maps.LatLng(21.291982, -157.821856),
+                new google.maps.LatLng(-18.142599, 178.431),
+                new google.maps.LatLng(-27.46758, 153.027892)
+            ];
+
             newPoint = new google.maps.LatLng(
-                -34.397,
-                150.644
+                37.772323,
+                -122.214897
             );
 
             marker = new google.maps.Marker({
                     position: newPoint,
                     map: map
             });
+
+            path = new google.maps.Polyline({
+                path: path_coordinates,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            path.setMap(map);
         }
 
         function autoUpdate() {
-            var latitude = -34.397 - (5 * running);
-            var longitude = 150.644 - (5 * running);
+            var latitude = -37.772323 - (1 * running);
+            var longitude = -122.214897 - (1 * running);
 
-            // update marker
+            // update
             if (marker) { // marker already exists
                 newPoint = new google.maps.LatLng(
                     latitude,
                     longitude
                 );
+
+                // update path
+                path_coordinates.push(newPoint);
+                path = new google.maps.Polyline({
+                    path: path_coordinates,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                path.setMap(map);
+
+                // update marker
                 marker.setPosition(newPoint);
                 map.setCenter(newPoint);
             } else { // marker does not exist, make new one
