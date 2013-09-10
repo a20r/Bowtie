@@ -70,21 +70,21 @@ bowtie.util.Callback.prototype = {
 
 /////////////////////////////////////////////////////////
 //
-// BowtieServer 
+// BowtieClient 
 //
 // Class used for making requests to the bowtie server 
 // of your choosing
 //
 /////////////////////////////////////////////////////////
 
-bowtie.BowtieServer = function (url) {
+bowtie.BowtieClient = function (url) {
 	this.url = url ? url : bowtie.constants.BOWTIE_URL;
 	if (this.url.slice(0, 4) != "http") {
 		this.url = "http://" + this.url;
 	}
 }
 
-bowtie.BowtieServer.prototype = {
+bowtie.BowtieClient.prototype = {
 	getSensor : function (groupId, nodeId, sensor) {
 		return new bowtie.util.Callback(
 			this.url,

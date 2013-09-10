@@ -32,107 +32,103 @@
     <script type="text/javascript" src="/client/js/bowtie.js"></script>
 
     <script type="text/javascript">
-        var map;
-        var mapOptions;
-        var newPoint;
-        var marker;
-        var path_coordinates = [];
-        var path;
-        var running = 0;
-        var newPoint = undefined;
+        bowtie.Mapping = function (groupId, mapCanvasId) {
 
-        var bs = new bowtie.BowtieServer()
+            this.bs = new bowtie.BowtieClient();
 
-        function initialize() {
-            var location_coordinates = new google.maps.LatLng(0, -180);
-            var mapOptions = {
-                zoom: 3,
-                center: location_coordinates,
-                mapTypeId: google.maps.MapTypeId.TERRAIN
-            };
-
-            map = new google.maps.Map(
-                document.getElementById('map-canvas'),
-                mapOptions
+            this.map = new google.maps.Map(
+                document.getElementById(mapCanvasId),
+                {
+                    zoom: 3,
+                    center: location_coordinates,
+                    mapTypeId: google.maps.MapTypeId.TERRAIN
+                }
             );
 
-            path_coordinates = [
-                // new google.maps.LatLng(37.772323, -122.214897),
-                // new google.maps.LatLng(21.291982, -157.821856),
-                // new google.maps.LatLng(-18.142599, 178.431),
-                // new google.maps.LatLng(-27.46758, 153.027892)
-            ];
+            this.pathData = {};
+            this.markerData = {};
 
-            path = new google.maps.Polyline({
-                path: path_coordinates,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            path.setMap(map);
-
-            setInterval(
-                function () {
-                    bs.getNode(
-                        "a", "a"
-                    ).setCallback(
-                        autoUpdate
-                    )
-                }, 500
-            )
+            this.groupId = groupId;
         }
 
-        function autoUpdate(nodeData) {
+        bowtie.Mapping.prototype = {
+            start : function (interval) {
+                var self = this;
+                return setInterval(
+                    function () {
+                        self.bs.getGroup(
+                            self.groupData
+                        ).setCallback(
+                            self.createUpdateFunc()
+                        );
+                    }, interval
+                );
+            },
 
-            if (
-                    nodeData == undefined ||
-                    nodeData.Error != undefined
-            ) {
-                return;
+            createUpdateFunc : function () {
+                var self = this;
+                return function (groupData) {
+                    if (groupData.Error != undefined) {
+                        return;
+                    }
+
+                    for (var nodeId in groupData) {
+                        var nodeData = groupData[nodeId];
+                        if (nodeData.Error != undefined) {
+                            return;
+                        }
+
+                        var latitude = nodeData.latitude.Value;
+                        var longitude = nodeData.longitude.Value;
+
+                        if (!(nodeId in self.pathData)) {
+                            self.pathData[nodeId] = new Array();
+                        }
+
+                        if (!(nodeId in self.markerData)) {
+                            self.markerData[nodeId] = new google.maps.Marker(
+                                {
+                                    position: newPoint,
+                                    map: map
+                                }
+                            );  
+                        }                        
+
+                        self.pathData[nodeId].push(
+                            new google.maps.LatLng(
+                                latitude,
+                                longitude
+                            )
+                        );
+
+                        // update paths
+                        path = new google.maps.Polyline({
+                            path: self.pathData[nodeId],
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2
+                        });
+                        path.setMap(self.map);
+
+                        // update marker
+                        self.markerData[nodeId].setPosition(newPoint);
+
+                        console.log("Running!" + running);
+                        console.log("Lat:" + latitude);
+                        console.log("Long:" + longitude);
+                        console.log("");
+                    }
+                }
             }
-
-            var latitude = nodeData.latitude.Value;
-            var longitude = nodeData.longitude.Value;
-
-            console.log(nodeData);
-
-            newPoint = new google.maps.LatLng(
-                latitude,
-                longitude
-            );
-
-            // update
-            if (marker) { // marker already exists
-
-                // update path
-                path_coordinates.push(newPoint);
-                path = new google.maps.Polyline({
-                    path: path_coordinates,
-                    strokeColor: '#FF0000',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 2
-                });
-                path.setMap(map);
-
-                // update marker
-                marker.setPosition(newPoint);
-                map.setCenter(newPoint);
-            } else { // marker does not exist, make new one
-
-                marker = new google.maps.Marker({
-                    position: newPoint,
-                    map: map
-                });            
-            }
-
-            console.log("Running!" + running);
-            console.log("Lat:" + latitude);
-            console.log("Long:" + longitude);
-            console.log("");
         }
 
-        google.maps.event.addDomListener(window, 'load', initialize);
-        autoUpdate();
+        function run() {
+            var bm = new bowtie.Mapping("a", "map-canvas");
+            bm.start(500);
+        }
+
+        google.maps.event.addDomListener(window, 'load', run);
+
     </script>
 </head>
 <body>
