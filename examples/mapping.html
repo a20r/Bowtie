@@ -163,12 +163,10 @@
             bm.start(500);
         }
 
-        // window.onLoad = function () {
-        //     $("#startModal").modal('show');
-        // }
+        google.maps.event.addDomListener(window, 'load', function () {
+            $("#startModal").modal('show');
+        });
 
-        google.maps.event.addDomListener(window, 'load', run);
-        
     </script>
 </head>
 <body>
