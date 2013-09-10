@@ -81,6 +81,11 @@
                         var latitude = nodeData.latitude.Value;
                         var longitude = nodeData.longitude.Value;
 
+                        var newPoint = new google.maps.LatLng(
+                            latitude,
+                            longitude
+                        )
+
                         if (!(nodeId in self.pathData)) {
                             self.pathData[nodeId] = new Array();
                         }
@@ -95,10 +100,7 @@
                         }                        
 
                         self.pathData[nodeId].push(
-                            new google.maps.LatLng(
-                                latitude,
-                                longitude
-                            )
+                            newPoint
                         );
 
                         // update paths
