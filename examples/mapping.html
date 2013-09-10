@@ -47,6 +47,7 @@
 
             this.pathData = {};
             this.markerData = {};
+            this.colorData = {};
 
             this.groupId = groupId;
         }
@@ -65,6 +66,15 @@
                 );
             },
 
+            getRandomColor : function () {
+                var letters = '0123456789ABCDEF'.split('');
+                var color = '#';
+                for (var i = 0; i < 6; i++ ) {
+                    color += letters[Math.round(Math.random() * 15)];
+                }
+                return color;
+            },
+
             createUpdateFunc : function () {
                 var self = this;
                 return function (groupData) {
@@ -75,6 +85,16 @@
                     for (var nodeId in groupData) {
                         var nodeData = groupData[nodeId];
                         if (nodeData.Error != undefined) {
+                            if (self.pathData[nodeId]) {
+                                path = new google.maps.Polyline({
+                                    path: self.pathData[nodeId],
+                                    strokeColor: self.colorData[nodeId],
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 2
+                                });
+
+                                path.setMap(null);
+                            }
                             return;
                         }
 
@@ -97,6 +117,10 @@
                                     map: self.map
                                 }
                             );  
+                        }
+
+                        if (!(nodeId in self.colorData)) {
+                            self.colorData[nodeId] = self.getRandomColor();
                         }                        
 
                         self.pathData[nodeId].push(
@@ -106,7 +130,7 @@
                         // update paths
                         path = new google.maps.Polyline({
                             path: self.pathData[nodeId],
-                            strokeColor: '#FF0000',
+                            strokeColor: self.colorData[nodeId],
                             strokeOpacity: 1.0,
                             strokeWeight: 2
                         });
@@ -115,7 +139,7 @@
                         // update marker
                         self.markerData[nodeId].setPosition(newPoint);
 
-                        console.log("Running!" + running);
+                        console.log("Running!");
                         console.log("Lat:" + latitude);
                         console.log("Long:" + longitude);
                         console.log("");
