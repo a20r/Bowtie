@@ -85,6 +85,7 @@
                     for (var nodeId in groupData) {
                         var nodeData = groupData[nodeId];
                         if (nodeData.Error != undefined) {
+                            console.log("here");
                             if (self.pathData[nodeId]) {
                                 self.pathData[nodeId].setMap(null);
                                 self.markerData[nodeId].setMap(null);
