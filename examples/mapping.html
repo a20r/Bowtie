@@ -130,13 +130,13 @@
                         if (self.pathData[nodeId]) {
                             self.pathData[nodeId].setPath(self.pathCoords[nodeId]);
                         } else {
-                            new google.maps.Polyline({
+                            self.pathData[nodeId] = new google.maps.Polyline({
                                 path: self.pathCoords[nodeId],
                                 strokeColor: self.colorData[nodeId],
                                 strokeOpacity: 1.0,
                                 strokeWeight: 2
                             });
-                            path.setMap(self.map);
+                            self.pathData[nodeId].setMap(self.map);
                         }
 
                         // update marker
