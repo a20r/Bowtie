@@ -51,6 +51,7 @@
             this.colorData = {};
 
             this.groupId = groupId;
+            this.lastNodeIds = new Array();
         }
 
         bowtie.Mapping.prototype = {
@@ -83,11 +84,20 @@
                         return;
                     }
 
+                    for (var nodeId in self.lastNodeIds) {
+                        if (!(nodeId in Object.keys(groupData))) {
+                            self.pathData[nodeId].setMap(null);
+                            self.markerData[nodeId].setMap(null);
+                            self.pathData[nodeId] = undefined;
+                            self.markerData[nodeId] = undefined;
+                            self.pathCoords[nodeId] = undefined;
+                        }
+                    }
+
                     // your problem lays here
                     for (var nodeId in groupData) {
                         var nodeData = groupData[nodeId];
                         if (nodeData["Error"] != undefined) {
-                            console.log("here");
                             if (self.pathData[nodeId]) {
                                 self.pathData[nodeId].setMap(null);
                                 self.markerData[nodeId].setMap(null);
@@ -143,6 +153,8 @@
 
                         // update marker
                         self.markerData[nodeId].setPosition(newPoint);
+
+                        self.lastNodeIds = Object.keys(groupData);
 
                         console.log("Running!");
                         console.log("Lat:" + latitude);
