@@ -154,36 +154,45 @@
         }
 
         function run() {
-            var bm = new bowtie.Mapping("b", "map-canvas");
+            $("#startModal").modal('hide');
+            var bm = new bowtie.Mapping(
+                $("#groupId").val(), 
+                "map-canvas"
+            );
+
             bm.start(500);
         }
 
-        google.maps.event.addDomListener(window, 'load', run);
+        window.onLoad = function () {
+            $("#startModal").modal('show');
+        }
 
     </script>
 </head>
 <body>
-<!-- Button trigger modal -->
-  <a data-toggle="modal" href="#myModal" class="btn btn-primary btn-large">Launch demo modal</a>
-
-  <!-- Modal -->
-  <div class="modal" id="myModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Modal title</h4>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn">Close</a>
-          <a href="#" class="btn btn-primary">Save changes</a>
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
+    <!-- Modal -->
+    <div class="modal" id="startModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Track Nodes</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover" border="0">
+                        <tr>
+                            <td class="lead">Group Id</td>
+                            <td>
+                                <input type="text" id="groupId">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button onClick="run()" class="btn btn-primary">Start</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <div id="map-canvas"></div>
 </body>
 </html>
