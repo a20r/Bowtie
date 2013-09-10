@@ -45,6 +45,7 @@
                 }
             );
 
+            this.pathCoords = {};
             this.pathData = {};
             this.markerData = {};
             this.colorData = {};
@@ -86,14 +87,11 @@
                         var nodeData = groupData[nodeId];
                         if (nodeData.Error != undefined) {
                             if (self.pathData[nodeId]) {
-                                path = new google.maps.Polyline({
-                                    path: self.pathData[nodeId],
-                                    strokeColor: self.colorData[nodeId],
-                                    strokeOpacity: 1.0,
-                                    strokeWeight: 2
-                                });
-
-                                path.setMap(null);
+                                self.pathData[nodeId].setMap(null);
+                                self.markerData[nodeId].setMap(null);
+                                self.pathData[nodeId] = undefined;
+                                self.markerData[nodeId] = undefined;
+                                self.pathCoords[nodeId] = undefined;
                             }
                             return;
                         }
@@ -106,8 +104,8 @@
                             longitude
                         )
 
-                        if (!(nodeId in self.pathData)) {
-                            self.pathData[nodeId] = new Array();
+                        if (!(nodeId in self.pathCoords)) {
+                            self.pathCoords[nodeId] = new Array();
                         }
 
                         if (!(nodeId in self.markerData)) {
@@ -123,18 +121,23 @@
                             self.colorData[nodeId] = self.getRandomColor();
                         }                        
 
-                        self.pathData[nodeId].push(
+                        self.pathCoords[nodeId].push(
                             newPoint
                         );
 
                         // update paths
-                        path = new google.maps.Polyline({
-                            path: self.pathData[nodeId],
-                            strokeColor: self.colorData[nodeId],
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2
-                        });
-                        path.setMap(self.map);
+
+                        if (self.pathData[nodeId]) {
+                            self.pathData[nodeId].setPath(self.pathCoords[nodeId]);
+                        } else {
+                            new google.maps.Polyline({
+                                path: self.pathCoords[nodeId],
+                                strokeColor: self.colorData[nodeId],
+                                strokeOpacity: 1.0,
+                                strokeWeight: 2
+                            });
+                            path.setMap(self.map);
+                        }
 
                         // update marker
                         self.markerData[nodeId].setPosition(newPoint);
