@@ -100,6 +100,9 @@
 
                         var latitude = nodeData.latitude.Value;
                         var longitude = nodeData.longitude.Value;
+                        if (latitude == null || longitude == null) {
+                            continue;
+                        }
 
                         var newPoint = new google.maps.LatLng(
                             latitude,
