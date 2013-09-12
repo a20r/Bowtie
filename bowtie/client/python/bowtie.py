@@ -1,10 +1,11 @@
 
 import json
 import urllib2
+import time
 
 class BowtieClient:
 
-	def __init__(self, url="http://www.bowtie.mobi"):
+	def __init__(self, url="http://www.bowtie.mobi/"):
 
 		self.url = url
 
@@ -18,5 +19,15 @@ class BowtieClient:
 		jsonStr = urllib2.urlopen(
 			self.url + "sensors/" + groupId
 		).read()
-
 		return json.loads(jsonStr)
+
+def testLatency(iterations, groupId):
+	bc = BowtieClient()
+	avg = 0
+	for i in range(iterations):
+		timeSent = time.time()
+		a = bc.getGroup(groupId)
+		timeRec = time.time()
+		avg += (timeRec - timeSent)
+		print str(i) + "\t: " + str(timeRec - timeSent)
+	return avg / iterations
