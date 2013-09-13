@@ -34,7 +34,7 @@ Bowtie uses a RESTful API to distribute and receive information from nodes. A RE
 
 #### Data Storage
 
-As said before, the sensor data is stored in a unique file location. The structure of the data storage used in Bowtie is as follows.
+As said before, the sensor data is stored in a unique file location. In early stages of the project, a RethinkDB database was used for storage. In this approach, the authors noticed that it was significantly slower than using file IO and therefore dropped the usage. The structure of the data storage used in Bowtie is as follows.
 
     json_data/
         <Group Id>/
@@ -45,12 +45,54 @@ The structure of the `<Node Id>.json` is:
     {
         <Sensor Name> : {
             Value : <JSON Object>,
-            Type : <A string identifier of the type of JSON object>,
+            Type : <A string identifier of the type of JSON object used in `Value`>,
             Time : <A string timestamp from the node>
         }
     }
 
-##### `GET sensors/:group_id/:node_id/:sensor_name` 
+#### RESTful API
+
+##### Retrieving Individual Sensor Data
+
+    GET sensors/<Group Id>/<Node Id>/<Sensor Name>
+
+This request causes the server to open the `json_data/<Group Id>/<Node Id>.json` file and parse it from JSON format into a Go dictionary. Then the value for the `Sensor Name` key in the dictionary is extracted, converted to JSON, and sent back to the client. The format of the response is:
+
+    {
+        Value : <JSON Object>,
+        Type : <A string identifier of the type of JSON object used in `Value`>,
+        Time : <A string timestamp from the node>
+    }
+
+#### Retrieving Node Data
+
+    GET sensors/<Group Id>/<Node Id>
+
+Retrieving node data causes the server to open `json_data/<Group Id>/<Node Id>.json` and sends the whole as bytes straight to the client. The response structure is as such:
+
+    {
+        <Sensor Name> : {
+            Value : <JSON Object>,
+            Type : <A string identifier of the type of JSON object used in `Value`>,
+            Time : <A string timestamp from the node>
+        }
+    }
+
+#### Retrieving Group Data
+
+    GET sensors/<Group Id>
+
+This request makes the server open all the files in `json_data/<Group Id>/` and parses it all into a Go dictionary. This dictonary is then parsed into JSON format and sent back to the client. The structure of reponse is:
+
+    {    
+        <Node Id> : {
+            <Sensor Name> : {
+                Value : <JSON Object>,
+                Type : <A string identifier of the type of JSON object used in `Value`>,
+                Time : <A string timestamp from the node>
+            }
+        }
+    }
 
 ### Client-side
 
