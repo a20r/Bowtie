@@ -210,7 +210,7 @@ At its current stage of development, Bowtie is intended for the amateur robotici
 
 Below is the graph depicting the time delay for a GET request to the server and the number of nodes POSTing to that group.
 
-![Time vs Nodes Graph](TimeVsNodes.jpg)
+![Time vs Nodes Graph](../images/TimeVsNodes.jpg)
 
 ## Related work
 - dʼAngelo, P. & Corke, P., 2002. Using a WAP phone as robot interface. Proceedings 2002 IEEE International Conference on Robotics and Automation Cat No02CH37292, 2(November), p.14-15.
