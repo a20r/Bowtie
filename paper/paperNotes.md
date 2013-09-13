@@ -57,7 +57,7 @@ The structure of the `<Node Id>.json` is:
             Time : <A string timestamp from the node>
         }
     }
-    
+
 #### Video and Audio Data Capture
 In HTML5, the specification provides HTML tags to access the client's video and audio stream by just using the `<video>` and `<audio>` tags respectively. The method of obtaining data from both sources, however, is different compared to the other sensory data, such as location, device orientation and accelerometer, to gain access to video and audio, `getUserMedia()` from the JavaScript has to be executed in-order to ask permission to access both sources. In addition while access to both video and audio sources is possible, there is a limitation that the full raw stream of both sources cannot be directly transmitted to Bowtie as Raw data. Both the video and audio has to be sampled in short intervals to achieve real time "recording". Below we will briefly discuss how each data types are captured in Bowtie.
 
