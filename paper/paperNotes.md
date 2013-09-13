@@ -34,11 +34,19 @@ Bowtie uses a RESTful API to distribute and receive information from nodes. A RE
 
 #### Data Storage
 
-As said before, the sensor data is stored in a unique file location. In early stages of the project, a RethinkDB database was used for storage. In this approach, the authors noticed that it was significantly slower than using file IO and therefore dropped the usage. The structure of the data storage used in Bowtie is as follows.
+As said before, the sensor data is stored in a unique file location. The structure of the data storage used in Bowtie is as follows.
 
     json_data/
         <Group Id>/
             <Node Id>.json
+    
+    video_data/
+        <Group Id>/
+            <Node Id>.jpg
+    
+    audio_data/
+        <Group Id>/
+            <Node Id>.wav
 
 The structure of the `<Node Id>.json` is:
 
@@ -92,6 +100,38 @@ This request makes the server open all the files in `json_data/<Group Id>/` and 
                 Time : <A string timestamp from the node>
             }
         }
+    }
+
+#### Sending Sensory Data
+
+    POST sensors/<Group Id>/<Node Id>/<Sensor Name>
+
+Posting data to the server for a sensors causes the `json_data/<Group Id>/<Node Id>.json` file to be created if it is not already. This file is then opened and parsed from JSON into a Go dictionary. Bowtie then redirects the sensory information into the correct key-value pair in this dictionary. Finally, the Go dictionary is converted to JSON and written to the `<Node Id>.json` file.
+
+#### Sending Node Data
+
+    POST sensors/<Group Id>/<Node Id>
+
+Posting node data to the server opens `json_data/<Group Id>/<Node Id>.json` and parses it into a Go dictionary. The sensors that were posted with the node are updated in this Go dictionary. Then this dictionary is converted to JSON and written into the file.
+
+#### Retrieving Node List
+
+    GET nodes/<Group Id>
+
+It is also important for some projects to simply get the list of nodes that are posting to a certain `Group Id`. This request causes the server to iterate through the files in the `json_data/<Group Id>` directory. Since each file name corresponds to a `Node Id`, a list of `Node Ids` can be generated. This is then sent back to the client. The structure of the response is:
+
+    [ <Node Ids (Strings)> ]
+
+#### Retrieving Media Data
+
+    GET media/<Group Id>/<Node Id>/<Media Type>
+
+Another feature of Bowtie is the ability for nodes (using HTML5) to send video and audio to the server. The media types (audio and video) are sent to the server using Websockets but are retrieved using a simple GET request. A new URL was added to the server to deal with these requests. Once the URL is requested, the `<Media Type>_data/<Group Id>/<Node Id>.<Media Extension>` file is opened where `Media Type` is either `video` or `audio` and the `Media Extension` corresponds to either `jpg` or `wav` respectively. The data is then sent back to the client in a format similar to the sensor response but more specific. The response format is depicted below:
+
+    {
+        Value : <Base 64 String>,
+        Type : <Media Type>/base64,
+        Time : <Timestamp for when the media was last edited>
     }
 
 ### Node application
