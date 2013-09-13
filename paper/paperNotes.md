@@ -28,9 +28,13 @@ Bowtie uses a RESTful API to distribute and receive information from nodes. A RE
 
 #####`GET sensors/:group_id/:node_id/:sensor_name`
 
-### Client-side
+### Node application
 
-Envision.js Javascript library was used to visualise the triple-axis accelerometer data in real-time. The diagram is displayed once the sensing has started and provides visual feedback to the user. The update-rate of the diagram is set-to relatively high value (every 0.)
+Bowtie uses HTML5 APIs to acquire sensory data. The `navigator` object is used to recieve the geolocation data -- lattitude, longitude, direction. The `enableHighAccuracy` option was enabled, which forces to device to use the sensor compbination that ensures the best accuracy (defined by the specific OS). The `window` object allows to handle device orientation changes, making it possible to track device tilting (the majority of modern mobile devices have a built-in triple-axis accelerometer).
+
+Since the node application attempts not to use any device- and platform-specific APIs (the audio and video features are currently Android-only, due to the lack of WebRTC support on other platforms), it is hightly cross-compatable beteween different different devices and platforms. Preliminary tests were held on iOS 6, Android 4.2-4.3, BlackBerry OS 6.
+  
+Envision.js Javascript library was used to visualise the triple-axis accelerometer data. The diagram is displayed once the sensing has started and provides visual feedback to the user. The update-rate of the diagram is set-to a high value (every 100 ms), which allows to update the chart in real-time.
 
 ![Real-time accelerometer visualisation](../images/accelerometer.png)
 
