@@ -24,7 +24,7 @@ Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and a
 
 Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served. 
 
-###`GET sensors/:group_id/:node_id/:sensor_name` 
+####`GET sensors/:group_id/:node_id/:sensor_name` 
 
 
 ## Testing
