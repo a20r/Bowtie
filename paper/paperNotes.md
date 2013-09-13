@@ -1,10 +1,15 @@
 Bowtie: mobile device aided sensor acquisition
 ===========
-** Abstract**
 
-## Introduction
+#### Authors:
 
-Bowtie is a large-scale sensor acquisition server which uses HTML5 and Go to send and retrieve sensor data to and from nodes. 
+- School of Computer Science, Jack Cole Building, North Haugh, St Andrews, Fife KY16 9SX, Scotland, UK
+    - Alex Wallar: aw204@st-andrews.ac.uk
+    - Aleksejs Sazonovs: as245@st-andrews.ac.uk
+    - Christopher Choi: cc218@st-andrews.ac.uk
+
+- Catholic University of America ....
+    - Erion Plaku: plaku@cua.edu
 
 ## Motivation
 Mobile devices have advanced sensors built-in -- accelerometers, gyroscopes, GPS.
@@ -169,7 +174,6 @@ Envision.js Javascript library was used to visualise the triple-axis acceleromet
 
 ![Real-time accelerometer visualisation](../images/accelerometer.png)
 
-
 ## Application examples
 
 One of the aims of Bowtie -- to provide simplistic APIs to access the sensory data, since it is aimed at potentially novice developers. To illustrate the usability of APIs, some example applications were written. The apps demonstrate some potential use cases of Bowtie. 
@@ -182,15 +186,21 @@ User A walked around the management building (dark green line) and User B tried 
 
 ![Search and Rescue](../images/SearchAndRescue.jpg)
 
-### Realtime sensor acquisition
+### Real-time sensor acquisition
 
-Data and visualization is pulled in real time.
-As the node (in this case a phone) moves, the Bowtie is tilted and morphed. 
-The data shown is being pulled from a node
+In order to show that Bowtie can work for with an array of sensors, we created a webpage that uses the RESTful API to get sensor data for a group and visualize it in real-time. Picture below shows a bow tie being morphed to show the current tilt of the device. Also, other sensors such as orientation and GPS that are not being visualized have their raw values displayed on the page. All of this data is being sent and retrieved to and from the server in real-time. Also, please note that Bowtie supports multiple nodes in a group but there was not enough room to take a picture of this.
 
 ![Sensor Visualization](../images/VisualizationTab.jpg)
 
-## Scalability & Latency
+## Possible Uses
+
+Since Bowtie is a message passing infrastructure, many possible uses in distributed robotics come to mind. For instance, a project coordinating a large group of bluetooth robots from a central computer would be able to gather sensor data including video and GPS from each of the bots using Bowtie by simply placing a browser-enabled device on each robot. This abstracts from having the implementer have to create their own infrastructure for message passing. Likewise, Bowtie relinquishes the burden on the user of having to know something about electrical engineering.
+
+Bowtie may also be used in search and rescue scenarios. If a human (or robot) gets trapped in an irreversible configuration, they could start broadcasting to the server their position and a message detailing their condition. The robot could then use navigation techniques to find its way to the distressed individual and save them. What is novel about using Bowtie with this type of project is that Bowtie does not rely on the device in order to send information to the server. All Bowtie needs to work on the node side is a web browser.
+
+Bowtie can also be used more broadly to include plain text messages. Instead of sending sensor data using the web application that was proposed in this paper, one could use the RESTful API and create their own sensor that POSTs data to the server. This data would get treated as any of the other sensor data would and therefore clients would be able to retrieve this data using the RESTful API. For instance, a WiFi-enabled controller on a robot would be able to make POST requests to the Bowtie server. The server would organize the data the same way and would therefore make it easy on the client side to do analysis or real-time manipulation of the robot.
+
+## Scalability Test
 Cannot offer objective measures on scalability only subjective
 Software Architecture of Bowtie is not limited to anything
 Most likely bottleneck is database/file storage
@@ -198,7 +208,7 @@ Most likely bottleneck is database/file storage
 ## Related work
 - dʼAngelo, P. & Corke, P., 2002. Using a WAP phone as robot interface. Proceedings 2002 IEEE International Conference on Robotics and Automation Cat No02CH37292, 2(November), p.14-15.
 
-    @INPROCEEDINGS{1014702, 
+    `@INPROCEEDINGS{1014702, 
       author={d'Angelo, P. and Corke, P.}, 
       booktitle={Robotics and Automation, 2002. Proceedings. ICRA '02. IEEE International Conference on}, 
       title={Using a WAP phone as robot interface}, 
@@ -207,11 +217,11 @@ Most likely bottleneck is database/file storage
       pages={1173-1178}, 
       keywords={cellular radio;computerised monitoring;manipulators;remote procedure calls;telerobotics;transport protocols;4 joint hydraulic manipulator;WAP phone;micro-browsers;mobile phones;monitoring;online control;robot interface;Automatic control;Delay;HTML;Internet;Manufacturing automation;Mobile handsets;Mobile robots;Robot control;Robotics and automation;Wireless application protocol}, 
       doi={10.1109/ROBOT.2002.1014702},
-    }
+    }`
 
 - Santos, A.C., Tarrataca, L. & Cardoso, J.M.P., 2009. An Analysis of Navigation Algorithms for Smartphones Using J2ME. In Bonnin Jm And Giannelli C And Magedanz T, eds. MOBILE WIRELESS MIDDLEWARE OPERATING SYSTEMS AND APPLICATIONS. SPRINGER, pp. 266-279.
 
-    @incollection{
+    `@incollection{
       year={2009},
       isbn={978-3-642-01801-5},
       booktitle={MobileWireless Middleware, Operating Systems, and Applications},
@@ -225,11 +235,11 @@ Most likely bottleneck is database/file storage
       keywords={Embedded computing; navigation algorithms; visual landmark recognition; particle filter; potential fields;      mobile robotics; smartphones; J2ME},
       author={Santos, AndréC. and Tarrataca, Luís and Cardoso, JoãoM.P.},
       pages={266-279}
-    }
+    }`
 
 - Das, T. et al., 2010. PRISM : Platform for Remote Sensing using Smartphones. In PRism. ACM, pp. 63-76. Available at:http://research.microsoft.com/pubs/131575/mobi096-das.pdf.
 
-    @inproceedings{
+    `@inproceedings{
       Das:2010:PPR:1814433.1814442,
       author = {Das, Tathagata and Mohan, Prashanth and Padmanabhan, Venkata N. and Ramjee, Ramachandran and Sharma, Asankhaya},
       title = {PRISM: platform for remote sensing using smartphones},
@@ -246,7 +256,7 @@ Most likely bottleneck is database/file storage
       publisher = {ACM},
       address = {New York, NY, USA},
       keywords = {mobile platform, mobile sandbox, opportunistic sensing, participatory sensing, smart phones},
-    }
+    }`
 
 
 
