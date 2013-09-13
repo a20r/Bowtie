@@ -26,10 +26,16 @@ Bowtie uses a RESTful API to distribute and receive information from nodes. A RE
 
 ![Bowtie Infrastructure](../images/BowtieModel.png)
 
-#####`GET sensors/:group_id/:node_id/:sensor_name` 
+#####`GET sensors/:group_id/:node_id/:sensor_name`
+
+### Client-side
+
+Envision.js Javascript library was used to visualise the triple-axis accelerometer data in real-time. The diagram is displayed once the sensing has started and provides visual feedback to the user. The update-rate of the diagram is set-to relatively high value (every 0.)
+
+![Real-time accelerometer visualisation](../images/accelerometer.png)
 
 
-## Testing
+## Application examples
 
 ### Search and Rescue (Realtime GPS Visualization)
 
@@ -44,12 +50,6 @@ As the node (in this case a phone) moves, the Bowtie is tilted and morphed.
 The data shown is being pulled from a node
 
 ![Sensor Visualization](../images/VisualizationTab.jpg)
-
-
-## Device compatibility
-Nexus 4 (Tried and Tested)
-Phones with latests Google Chrome Beta*
-For Bowtie mapping to work accurately*, phone requires GPS capability, else it uses wifi access points for location
 
 ## Scalability & Latency
 Cannot offer objective measures on scalability only subjective
