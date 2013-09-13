@@ -22,11 +22,35 @@ Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and a
 
 ## Implementation
 
-Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served.
-
 ![Bowtie Infrastructure](../images/BowtieModel.png)
 
-#####`GET sensors/:group_id/:node_id/:sensor_name`
+### Infrastructure
+
+The picture above depicts the backend infrastructure of Bowtie. Data is collected from nodes using an HTML5 webpage and is sent to the server using a POST request. This data is then saved on the server in a unique file location. This file location is determined by the unique `Group Id` and `Node Id`. The `Group Id` is the identifier of the group of clients that are able to pull the sent data. Note that this does not mean a certain class of clients but a client name or identification. This acts a password as in clients that have this `Group Id` are able to pull this set of data. The `Node Id` identifies which node the data is being sent from. The `Group Id` and `Node Id` are sent with the POST request to the server and are explicit in the URL. 
+
+Due to asynchronous file IO, clients are able to simultaneously retrieve the sensor data using a GET request as long as the client is in possesion of the `Group Id` for a group of nodes. Note that there is no direct connection between a node and a client. The server is used as a middle-man between the nodes and the clients. This increases the scalability of the proposed approach because the clients are not burdened by how many nodes are in the group. Likewise, a malfunctioning node will not corrupt the connection between the client and the server and thus there is a lower likelihood of system failure.
+
+Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served. 
+
+#### Data Storage
+
+As said before, the sensor data is stored in a unique file location. The structure of the data storage used in Bowtie is as follows.
+
+    json_data/
+        <Group Id>/
+            <Node Id>.json
+
+The structure of the `<Node Id>.json` is:
+
+    {
+        <Sensor Name> : {
+            Value : <JSON Object>,
+            Type : <A string identifier of the type of JSON object>,
+            Time : <A string timestamp from the node>
+        }
+    }
+
+##### `GET sensors/:group_id/:node_id/:sensor_name` 
 
 ### Node application
 
@@ -93,7 +117,7 @@ Most likely bottleneck is database/file storage
     }
 
 - Das, T. et al., 2010. PRISM : Platform for Remote Sensing using Smartphones. In PRism. ACM, pp. 63-76. Available at:http://research.microsoft.com/pubs/131575/mobi096-das.pdf.
-   
+
     @inproceedings{
       Das:2010:PPR:1814433.1814442,
       author = {Das, Tathagata and Mohan, Prashanth and Padmanabhan, Venkata N. and Ramjee, Ramachandran and Sharma, Asankhaya},
