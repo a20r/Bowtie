@@ -49,6 +49,31 @@ The structure of the `<Node Id>.json` is:
             Time : <A string timestamp from the node>
         }
     }
+    
+#### Video and Audio Data Capture
+In HTML5, the specification provides HTML tags to access the client's video and audio stream by just using the `<video>` and `<audio>` tags respectively. The method of obtaining data from both sources, however, is different compared to the other sensory data, such as location, device orientation and accelerometer, to gain access to video and audio, `getUserMedia()` from the JavaScript has to be executed in-order to ask permission to access both sources. In addition while access to both video and audio sources is possible, there is a limitation that the full raw stream of both sources cannot be directly transmitted to Bowtie as Raw data. Both the video and audio has to be sampled in short intervals to achieve real time "recording". Below we will briefly discuss how each data types are captured in Bowtie.
+
+##### Capturing Video Data
+HTML5 has a `video` tag, but to obtain the raw data one has to first write the video frame onto a `canvas`, from there using Javascript can obtain the `DataURI` a Uniform Resource Identifier (URI) scheme containing the raw data of a video frame. Traditionally it provides a way to include data in-line in web pages as if they were external resources, however we did the opposite, we extract the data as if they were included from external resource. Every frame of the video is drawn onto the `canvas` as a jpg, then each frame of jpg was encoded into Base64 encoding inorder for it to be included in a JSON to be transmitted to Bowtie.
+
+In Summary:
+
+1. `getUserMedia()` from Javascript to instanciate access to client's video stream (i.e. access to webcam)
+2. Draw each video frame as jpg onto a `<canvas>` tag
+3. Encode each jpg frame as Base64 encoding
+4. Transmit data as part of a JSON message
+
+##### Capturing Audio Data
+The audio works similarly, however it uses a JavaScript library called [`Recorder.js`](https://github.com/mattdiamond/Recorderjs) by Matt Diamond to capture and record the audio in `wav` format. The audio is sampled every short interval, and is then encoded in Base64 before transmitting to Bowtie as part of a JSON message.
+
+In Summary:
+
+1. `getUserMedia()` from Javascript to instanciate access to client's audio stream (i.e. access to webcam)
+2. Use Record.js to record a small duration of audio in `wav` format
+3. Encode each `wav` slice as Base64 encoding
+4. Transmit data as part of a JSON message
+
+
 
 #### RESTful API
 
