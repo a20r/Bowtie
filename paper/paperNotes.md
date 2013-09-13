@@ -33,7 +33,7 @@ Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and a
 
 The picture above depicts the backend infrastructure of Bowtie. Data is collected from nodes using an HTML5 webpage and is sent to the server using a POST request. This data is then saved on the server in a unique file location. This file location is determined by the unique `Group Id` and `Node Id`. The `Group Id` is the identifier of the group of clients that are able to pull the sent data. Note that this does not mean a certain class of clients but a client name or identification. This acts a password as in clients that have this `Group Id` are able to pull this set of data. The `Node Id` identifies which node the data is being sent from. The `Group Id` and `Node Id` are sent with the POST request to the server and are explicit in the URL. 
 
-Due to asynchronous file IO, clients are able to simultaneously retrieve the sensor data using a GET request as long as the client is in possesion of the `Group Id` for a group of nodes. Note that there is no direct connection between a node and a client. The server is used as a middle-man between the nodes and the clients. This increases the scalability of the proposed approach because the clients are not burdened by how many nodes are in the group. Likewise, a malfunctioning node will not corrupt the connection between the client and the server and thus there is a lower likelihood of system failure.
+Due to asynchronous file IO, clients are able to simultaneously retrieve the sensor data using a GET request as long as the client is in possession of the `Group Id` for a group of nodes. Note that there is no direct connection between a node and a client. The server is used as a middle-man between the nodes and the clients. This increases the scalability of the proposed approach because the clients are not burdened by how many nodes are in the group. Likewise, a malfunctioning node will not corrupt the connection between the client and the server and thus there is a lower likelihood of system failure.
 
 Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served. 
 
@@ -166,9 +166,9 @@ Another feature of Bowtie is the ability for nodes (using HTML5) to send video a
 
 ### Node application
 
-Bowtie uses HTML5 APIs to acquire sensory data. The `navigator` object is used to recieve the geolocation data -- lattitude, longitude, direction. The `enableHighAccuracy` option was enabled, which forces to device to use the sensor compbination that ensures the best accuracy (defined by the specific OS). The `window` object allows to handle device orientation changes, making it possible to track device tilting (many of modern mobile devices have a built-in triple-axis accelerometer (http://www.hotmobile.org/2012/papers/HotMobile12-final42.pdf)).
+Bowtie uses HTML5 APIs to acquire sensory data. The `navigator` object is used to receive the geolocation data -- latitude, longitude, direction. The `enableHighAccuracy` option was enabled, which forces to device to use the sensor combination that ensures the best accuracy (defined by the specific OS). The `window` object allows to handle device orientation changes, making it possible to track device tilting (many of modern mobile devices have a built-in triple-axis accelerometer (http://www.hotmobile.org/2012/papers/HotMobile12-final42.pdf)).
 
-Since the node application attempts not to use any device- and platform-specific APIs (the audio and video features are currently Android-only, due to the lack of WebRTC support on other platforms), it is hightly cross-compatable beteween different different devices and platforms. Preliminary tests were held on iOS 6, Android 4.2-4.3, BlackBerry OS 6.
+Since the node application attempts not to use any device- and platform-specific APIs (the audio and video features are currently Android-only, due to the lack of WebRTC support on other platforms), it is highly cross-compatible between different different devices and platforms. Preliminary tests were held on iOS 6, Android 4.2-4.3, BlackBerry OS 6.
   
 Envision.js Javascript library was used to visualise the triple-axis accelerometer data. The diagram is displayed once the sensing has started and provides visual feedback to the user. The update-rate of the diagram is set-to a high value (every 100 ms), which allows to update the chart in real-time.
 
@@ -178,9 +178,9 @@ Envision.js Javascript library was used to visualise the triple-axis acceleromet
 
 One of the aims of Bowtie -- to provide simplistic APIs to access the sensory data, since it is aimed at potentially novice developers. To illustrate the usability of APIs, some example applications were written. The apps demonstrate some potential use cases of Bowtie. 
 
-### Search and Rescue (Realtime GPS Visualization)
+### Search and Rescue (Realtime GPS Visualisation)
 
-To demonstrate the geolocation-related functionality of Bowtie, a web-app was created. Using Google Maps API a map is drawn. The app utilises the RESTful API and shows the node current location (given that they share the longitude and lattitude). When the nodes move, their path is dynamically ploted on the map in real-time. The app was used to demonstrate the Search and Rescue usecase.
+To demonstrate the geolocation-related functionality of Bowtie, a web-app was created. Using Google Maps API a map is drawn. The app utilises the RESTful API and shows the node current location (given that they share the longitude and latitude). When the nodes move, their path is dynamically plotted on the map in real-time. The app was used to demonstrate the Search and Rescue use-case.
  
 User A walked around the management building (dark green line) and User B tried to find him (light green line). The lines were plotted in real time by an external computer, non related to Bowtie.
 
@@ -201,9 +201,16 @@ Bowtie may also be used in search and rescue scenarios. If a human (or robot) ge
 Bowtie can also be used more broadly to include plain text messages. Instead of sending sensor data using the web application that was proposed in this paper, one could use the RESTful API and create their own sensor that POSTs data to the server. This data would get treated as any of the other sensor data would and therefore clients would be able to retrieve this data using the RESTful API. For instance, a WiFi-enabled controller on a robot would be able to make POST requests to the Bowtie server. The server would organize the data the same way and would therefore make it easy on the client side to do analysis or real-time manipulation of the robot.
 
 ## Scalability Test
-Cannot offer objective measures on scalability only subjective
-Software Architecture of Bowtie is not limited to anything
-Most likely bottleneck is database/file storage
+
+We have tested the performance on a small-scale and widely available virtual server (as of September 2013, it cost roughly 5 US dollars per month to rent it). The server was equipped with a single core processor, 512 MB of RAM, and a 20 GB SSD disk. 
+
+The test was intended to check if the responsiveness of Bowtie decreasing beyond the reasonable threshold, once a certain number of nodes are sending data. We selected 30 as a maximum number of nodes for one group during the test due to limited resources.
+
+At its current stage of development, Bowtie is intended for the amateur roboticist to run their own server. This being said, we also have a live server intended for testing and proof of concept. In the future, a more powerful server will be used and larger scaled tests will be completed. At that point, Bowtie can be offerred as a service.
+
+Below is the graph depicting the time delay for a GET request to the server and the number of nodes POSTing to that group.
+
+![Time vs Nodes Graph](TimeVsNodes.jpg)
 
 ## Related work
 - dʼAngelo, P. & Corke, P., 2002. Using a WAP phone as robot interface. Proceedings 2002 IEEE International Conference on Robotics and Automation Cat No02CH37292, 2(November), p.14-15.
