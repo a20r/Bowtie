@@ -172,7 +172,7 @@ Since the node application attempts not to use any device- and platform-specific
   
 Envision.js Javascript library was used to visualise the triple-axis accelerometer data. The diagram is displayed once the sensing has started and provides visual feedback to the user. The update-rate of the diagram is set-to a high value (every 100 ms), which allows to update the chart in real-time.
 
-![Real-time accelerometer visualisation](../images/accelerometer.png)
+![Real-time accelerometer visualisation](../images/BowtieNodeApp.jpg)
 
 ## Application examples
 
