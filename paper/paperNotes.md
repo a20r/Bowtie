@@ -22,20 +22,28 @@ Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and a
 
 ## Implementation
 
-Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served. 
+Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served.
 
-####`GET sensors/:group_id/:node_id/:sensor_name` 
+![Bowtie Infrastructure](../images/BowtieModel.png)
+
+#####`GET sensors/:group_id/:node_id/:sensor_name` 
 
 
 ## Testing
-GPS Mapping
-Search and rescue picture
-(Figure 1) Alexey walked around the management building (dark green line) and Alex tried to find him (light green line). The lines were plotted in real time by an external computer, non related to Bowtie.
 
-Orientation & tilt visualization
+### Search and Rescue (Realtime GPS Visualization)
+
+Alexey walked around the management building (dark green line) and Alex tried to find him (light green line). The lines were plotted in real time by an external computer, non related to Bowtie.
+
+![Search and Rescue](../images/SearchAndRescue.jpg)
+
+### Realtime sensor acquisition
+
 Data and visualization is pulled in real time.
 As the node (in this case a phone) moves, the Bowtie is tilted and morphed. 
 The data shown is being pulled from a node
+
+![Sensor Visualization](../images/VisualizationTab.jpg)
 
 
 ## Device compatibility
