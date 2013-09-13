@@ -18,12 +18,12 @@ The majority of the modern mobile platforms allow usage of additional external a
 
 One of the approaches for creating mobile apps is to use HTML5 and Javascript for the client side development. This approach allows the app to run in the phone’s browser or in a browser-based execution environment (e.g. Firefox OS). 
 This approach has advantages – typically, a well written app will run on multiple platforms (e.g. iOS, Android, Windows Phone), since modern mobile platform typically have good support of HTML5 standards. Additionally, it is often convenient not having to install an app. In-browser apps are considered to be relatively secure (need sources to justify “relatively secure”), since Javascript execution is  usually sandboxed.
-The disadvantages -- relatively (need sources to clarify “relatively”) bad performance (since sandboxing, single-threaded execution, lack of custom memory allocation). HTML apps can not utilise device-specific hardware (e.g. some phone come with thermometers attached to batteries), since the API’s for accessing them are not supported by the browser. 
+The disadvantages -- relatively bad performance (since sandboxing, single-threaded execution, lack of custom memory allocation). HTML apps can not utilise device-specific hardware (e.g. some phone come with thermometers attached to batteries), since the API’s for accessing them are not supported by the browser. 
 
 Similar sensor combinations, like the those found on mobile devices, can be applied in other fields. 
-For example, participants of amateur robotics competition use accelerometers to… `{Alex Wallar}`. Platforms like Arduino aim to simplify the acquisition of sensor data, however they are typically computationally limited and require beyond-basic understanding of software development.  
+For example, participants of amateur robotics competition use accelerometers to plan the robots movements and make decisions. Platforms like Arduino aim to simplify the acquisition of sensor data, however they are typically computationally limited and require beyond-basic understanding of software development.  
 
-Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and allows remote access to them through a simple API.
+Bowtie is a HTML5 app that collects the sensor data from mobile devices and allows remote access to them through a simple API.
 
 ## Implementation
 
