@@ -32,7 +32,7 @@ Due to asynchronous file IO, clients are able to simultaneously retrieve the sen
 
 Bowtie uses a RESTful API to distribute and receive information from nodes. A RESTful API is a simple interface to interact with a server by specifying viable requests to prescribed URLs. Three different URLs were used and three different types of requests are served. 
 
-#####`GET sensors/:group_id/:node_id/:sensor_name` 
+##### `GET sensors/:group_id/:node_id/:sensor_name` 
 
 
 ## Testing
@@ -95,7 +95,7 @@ Most likely bottleneck is database/file storage
     }
 
 - Das, T. et al., 2010. PRISM : Platform for Remote Sensing using Smartphones. In PRism. ACM, pp. 63-76. Available at:http://research.microsoft.com/pubs/131575/mobi096-das.pdf.
-   
+
     @inproceedings{
       Das:2010:PPR:1814433.1814442,
       author = {Das, Tathagata and Mohan, Prashanth and Padmanabhan, Venkata N. and Ramjee, Ramachandran and Sharma, Asankhaya},
