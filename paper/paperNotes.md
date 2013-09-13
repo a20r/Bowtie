@@ -11,13 +11,13 @@ Mobile devices have advanced sensors built-in -- accelerometers, gyroscopes, GPS
 They are used for core functionality of the devices -- screen rotation, mapping.
 The majority of the modern mobile platforms allow usage of additional external apps. External apps are able to use sensors through specialised APIs.
 
-One of the approaches for creating mobile apps is to use HTML5 and Javascript for client side development. This approach allows the app to run in the phone’s browser or in a browser-based execution environment (e.g. Firefox OS). 
+One of the approaches for creating mobile apps is to use HTML5 and Javascript for the client side development. This approach allows the app to run in the phone’s browser or in a browser-based execution environment (e.g. Firefox OS). 
 This approach has advantages – typically, a well written app will run on multiple platforms (e.g. iOS, Android, Windows Phone), since modern mobile platform typically have good support of HTML5 standards. Additionally, it is often convenient not having to install an app. In-browser apps are considered to be relatively secure (need sources to justify “relatively secure”), since Javascript execution is  usually sandboxed.
 The disadvantages -- relatively (need sources to clarify “relatively”) bad performance (since sandboxing, single-threaded execution, lack of custom memory allocation). HTML apps can not utilise device-specific hardware (e.g. some phone come with thermometers attached to batteries), since the API’s for accessing them are not supported by the browser. 
 
 Similar sensor combinations, like the those found on mobile devices, can be applied in other fields. 
-For example, participants of amateur robotics competition use accelerometers to… {Alex Wallar}. Platforms like Arduino aim to simplify the acquisition of sensor data, however they are typically computationally limited and require beyond-basic understanding of software development.  
-Crowdsourcing
+For example, participants of amateur robotics competition use accelerometers to… `{Alex Wallar}`. Platforms like Arduino aim to simplify the acquisition of sensor data, however they are typically computationally limited and require beyond-basic understanding of software development.  
+
 Bowtie is a HTML5 app that collects the sensor data from mobile device(-s) and allows remote access to them through a simple API.
 
 ## Implementation
@@ -161,7 +161,7 @@ Another feature of Bowtie is the ability for nodes (using HTML5) to send video a
 
 ### Node application
 
-Bowtie uses HTML5 APIs to acquire sensory data. The `navigator` object is used to recieve the geolocation data -- lattitude, longitude, direction. The `enableHighAccuracy` option was enabled, which forces to device to use the sensor compbination that ensures the best accuracy (defined by the specific OS). The `window` object allows to handle device orientation changes, making it possible to track device tilting (the majority of modern mobile devices have a built-in triple-axis accelerometer).
+Bowtie uses HTML5 APIs to acquire sensory data. The `navigator` object is used to recieve the geolocation data -- lattitude, longitude, direction. The `enableHighAccuracy` option was enabled, which forces to device to use the sensor compbination that ensures the best accuracy (defined by the specific OS). The `window` object allows to handle device orientation changes, making it possible to track device tilting (many of modern mobile devices have a built-in triple-axis accelerometer (http://www.hotmobile.org/2012/papers/HotMobile12-final42.pdf)).
 
 Since the node application attempts not to use any device- and platform-specific APIs (the audio and video features are currently Android-only, due to the lack of WebRTC support on other platforms), it is hightly cross-compatable beteween different different devices and platforms. Preliminary tests were held on iOS 6, Android 4.2-4.3, BlackBerry OS 6.
   
@@ -172,9 +172,13 @@ Envision.js Javascript library was used to visualise the triple-axis acceleromet
 
 ## Application examples
 
+One of the aims of Bowtie -- to provide simplistic APIs to access the sensory data, since it is aimed at potentially novice developers. To illustrate the usability of APIs, some example applications were written. The apps demonstrate some potential use cases of Bowtie. 
+
 ### Search and Rescue (Realtime GPS Visualization)
 
-Alexey walked around the management building (dark green line) and Alex tried to find him (light green line). The lines were plotted in real time by an external computer, non related to Bowtie.
+To demonstrate the geolocation-related functionality of Bowtie, a web-app was created. Using Google Maps API a map is drawn. The app utilises the RESTful API and shows the node current location (given that they share the longitude and lattitude). When the nodes move, their path is dynamically ploted on the map in real-time. The app was used to demonstrate the Search and Rescue usecase.
+ 
+User A walked around the management building (dark green line) and User B tried to find him (light green line). The lines were plotted in real time by an external computer, non related to Bowtie.
 
 ![Search and Rescue](../images/SearchAndRescue.jpg)
 
