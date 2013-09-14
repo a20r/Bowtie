@@ -208,7 +208,7 @@ The test was intended to check if the responsiveness of Bowtie decreasing beyond
 
 At its current stage of development, Bowtie is intended for the amateur roboticist to run their own server. This being said, we also have a live server intended for testing and proof of concept. In the future, a more powerful server will be used and larger scaled tests will be completed. At that point, Bowtie can be offerred as a service.
 
-Below is the graph depicting the time delay for a GET request to the server and the number of nodes POSTing to that group.
+Below is the graph depicting the time delay for a GET request to the server and the number of nodes POSTing to that group. This data was acquired by establishing the said number of nodes POSTing to the same `Group Id` and having a client pull the data 100 times and taking the average amount of time for the request to go through.
 
 ![Time vs Nodes Graph](../images/TimeVsNodes.jpg)
 
