@@ -4,4 +4,7 @@ bowtie/server/json_data/
 bowtie/server/video_data/
 bowtie/server/audio_data/
 bowtie/server/databases
-bowtie/server/rethinkdb_queries.go
+
+bowtie/server/bin/
+bowtie/server/pkg/
+bowtie/server/src/code.google.com/

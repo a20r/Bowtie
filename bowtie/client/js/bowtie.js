@@ -79,6 +79,7 @@ bowtie.util.Callback.prototype = {
 
 bowtie.BowtieClient = function (url) {
 	this.url = url ? url : bowtie.constants.BOWTIE_URL;
+
 	if (this.url.slice(0, 4) != "http") {
 		this.url = "http://" + this.url;
 	}
@@ -117,6 +118,51 @@ bowtie.BowtieClient.prototype = {
 			this.url,
 			bowtie.prefixes.NODES,
 			groupId
+		);
+	},
+
+	deleteSensor : function (groupId, nodeId, sensor) {
+		return $.ajax(
+			{
+				type : "DELETE",
+
+				url : (
+					this.url + "/" + 
+					bowtie.prefixes.SENSORS + "/" + 
+					groupId + "/" + 
+					nodeId + "/" + 
+					sensor
+				)
+			}
+		);
+	}, 
+
+	deleteNode : function (groupId, nodeId) {
+		return $.ajax(
+			{
+				type : "DELETE",
+
+				url : (
+					this.url + "/" +
+					bowtie.prefixes.SENSORS + "/" + 
+					groupId + "/" + 
+					nodeId
+				)
+			}
+		);
+	},
+
+	deleteGroup : function (groupId, nodeId) {
+		return $.ajax(
+			{
+				type : "DELETE",
+
+				url : (
+					this.url + "/" +
+					bowtie.prefixes.SENSORS + "/" + 
+					groupId
+				)
+			}
 		);
 	}
 }

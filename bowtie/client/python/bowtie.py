@@ -17,17 +17,24 @@ class BowtieClient:
 
 	def getGroup(self, groupId):
 		jsonStr = urllib2.urlopen(
-			self.url + "sensors/" + groupId
+			self.url + "sensors/" + 
+			groupId
 		).read()
 		return json.loads(jsonStr)
 
-def testLatency(iterations, groupId):
-	bc = BowtieClient()
-	avg = 0
-	for i in range(iterations):
-		timeSent = time.time()
-		a = bc.getGroup(groupId)
-		timeRec = time.time()
-		avg += (timeRec - timeSent)
-		print str(i) + "\t: " + str(timeRec - timeSent)
-	return avg / iterations
+	def getNode(self, groupId, nodeId):
+		jsonStr = urllib2.urlopen(
+			self.url + "sensors/" + 
+			groupId + "/" + 
+			nodeId
+		).read()
+		return json.loads(jsonStr)
+
+	def getSensor(self, groupId, nodeId, sensor):
+		jsonStr = urllib2.urlopen(
+			self.url + "sensors/" + 
+			groupId + "/" + 
+			nodeId + "/" + 
+			sensor
+		).read()
+		return json.loads(jsonStr)

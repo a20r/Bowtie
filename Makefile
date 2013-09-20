@@ -9,5 +9,9 @@ setup:
 	mkdir bowtie/server/video_data
 	mkdir bowtie/server/json_data
 
-setup_gopath:
+setup_client_gopath:
 	export GOPATH=$(pwd)/bowtie/client/go
+
+setup_gopath: 
+	export GOPATH=$(pwd)/bowtie/server/
+
