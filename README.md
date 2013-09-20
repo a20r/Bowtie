@@ -39,15 +39,24 @@ Bowtie implements a client-server model. To make deployment simple, the client
 the smartphone to use a HTML5 compliant web browser to visit the web page
 Bowtie is currently serving.
 
-![Client Server](images/Simple Case.png)
+![Client Server](images/BowtieModel.png)
 
 
 ## Requirements and Dependencies
 
 - **[GO](http://golang.org/)** language
-
+- Go's websocket library
 
 ## Usage
 
+### Setup
+
+	export GOPATH=$(pwd)/bowtie/server/
+    export PATH=$PATH:$GOPATH/bin
+    go get code.google.com/p/go.net/websocket
+    go install bowtie
+
+### Run 
+
     cd bowtie/server/
-    go run bowtie_server.go -addr=<HOST ADDRESS> -port=<PORT USED>
+    bowtie -addr=<Address to run on> -port=<Port to run on>
