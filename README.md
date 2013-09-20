@@ -44,7 +44,7 @@ Bowtie is currently serving.
 
 ## Requirements and Dependencies
 
-- **[GO](http://golang.org/)** language
+- **[Go](http://golang.org/)** language
 - Go's websocket library
 
 ## Usage
