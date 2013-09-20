@@ -344,7 +344,7 @@ function sendAjax() {
                     )
                 },
 
-                success : onSuccessAjax            
+                success : onSuccessAjax
             }
         );
     }

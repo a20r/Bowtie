@@ -17,24 +17,24 @@ class BowtieClient:
 
 	def getGroup(self, groupId):
 		jsonStr = urllib2.urlopen(
-			self.url + "sensors/" + 
+			self.url + "sensors/" +
 			groupId
 		).read()
 		return json.loads(jsonStr)
 
 	def getNode(self, groupId, nodeId):
 		jsonStr = urllib2.urlopen(
-			self.url + "sensors/" + 
-			groupId + "/" + 
+			self.url + "sensors/" +
+			groupId + "/" +
 			nodeId
 		).read()
 		return json.loads(jsonStr)
 
 	def getSensor(self, groupId, nodeId, sensor):
 		jsonStr = urllib2.urlopen(
-			self.url + "sensors/" + 
-			groupId + "/" + 
-			nodeId + "/" + 
+			self.url + "sensors/" +
+			groupId + "/" +
+			nodeId + "/" +
 			sensor
 		).read()
 		return json.loads(jsonStr)

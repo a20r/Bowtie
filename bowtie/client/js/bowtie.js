@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////////////
 //
 // Bowtie bindings for JavaScript
-// 
+//
 // Github  : http://github.com/wallarelvo/Bowtie
 // Contact : aw204@st-andrews.ac.uk
 // Website : www.bowtie.mobi
@@ -45,7 +45,7 @@ bowtie.constants.BOWTIE_URL = "www.bowtie.mobi";
 //
 // util.Callback
 //
-// Class used to organize callback functions 
+// Class used to organize callback functions
 //
 /////////////////////////////////////////////////////////
 
@@ -70,9 +70,9 @@ bowtie.util.Callback.prototype = {
 
 /////////////////////////////////////////////////////////
 //
-// BowtieClient 
+// BowtieClient
 //
-// Class used for making requests to the bowtie server 
+// Class used for making requests to the bowtie server
 // of your choosing
 //
 /////////////////////////////////////////////////////////
@@ -94,13 +94,13 @@ bowtie.BowtieClient.prototype = {
 			nodeId,
 			sensor
 		);
-	}, 
+	},
 
 	getNode : function (groupId, nodeId) {
 		return new bowtie.util.Callback(
 			this.url,
 			bowtie.prefixes.SENSORS,
-			groupId, 
+			groupId,
 			nodeId
 		);
 	},
@@ -127,15 +127,15 @@ bowtie.BowtieClient.prototype = {
 				type : "DELETE",
 
 				url : (
-					this.url + "/" + 
-					bowtie.prefixes.SENSORS + "/" + 
-					groupId + "/" + 
-					nodeId + "/" + 
+					this.url + "/" +
+					bowtie.prefixes.SENSORS + "/" +
+					groupId + "/" +
+					nodeId + "/" +
 					sensor
 				)
 			}
 		);
-	}, 
+	},
 
 	deleteNode : function (groupId, nodeId) {
 		return $.ajax(
@@ -144,27 +144,66 @@ bowtie.BowtieClient.prototype = {
 
 				url : (
 					this.url + "/" +
-					bowtie.prefixes.SENSORS + "/" + 
-					groupId + "/" + 
+					bowtie.prefixes.SENSORS + "/" +
+					groupId + "/" +
 					nodeId
 				)
 			}
 		);
 	},
 
-	deleteGroup : function (groupId, nodeId) {
+	deleteGroup : function (groupId) {
 		return $.ajax(
 			{
 				type : "DELETE",
 
 				url : (
 					this.url + "/" +
-					bowtie.prefixes.SENSORS + "/" + 
+					bowtie.prefixes.SENSORS + "/" +
 					groupId
 				)
 			}
 		);
 	}
+
+    postSensor : function (data, groupId, nodeId, sensor) {
+        return $.ajax(
+            {
+                type : "POST",
+
+                url : (
+                    this.url + "/" +
+                    bowtie.prefixes.SENSORS + "/" +
+                    groupId + "/" +
+                    nodeId + "/" +
+                    sensor
+                ),
+
+                data : {
+                    sensorData : JSON.stringify(data)
+                }
+            }
+        );
+    },
+
+    postNode : function (data, groupId, nodeId) {
+        return $.ajax(
+            {
+                type : "POST",
+
+                url : (
+                    this.url + "/" +
+                    bowtie.prefixes.SENSORS + "/" +
+                    groupId + "/" +
+                    nodeId
+                ),
+
+                data : {
+                    sensorData : JSON.stringify(data)
+                }
+            }
+        );
+    },
 }
 
 
