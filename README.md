@@ -6,7 +6,6 @@ Bowtie is capable of capturing:
 - Accelerometer
 - Gyroscope
 - GPS
-- Temperature
 - Camera
 - Microphone
 - And more...
