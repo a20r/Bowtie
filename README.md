@@ -59,3 +59,7 @@ Bowtie is currently serving.
 
     cd bowtie/server/
     bowtie -addr=<Address to run on> -port=<Port to run on>
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/wallarelvo/bowtie/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
